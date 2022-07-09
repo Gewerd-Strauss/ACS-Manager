@@ -1587,12 +1587,7 @@ StringDifference(string1, string2, maxOffset=1) {    ;returns a float: between "
 
 
 
-#Include D:\Dokumente neu\AutoHotkey\Lib\RichCode.ahk
+#Include <RichCode>
 ; #Include D:\Dokumente neu\AutoHotkey\Lib\ObjTree\Attach.ahk
 ; #Include D:\Dokumente neu\AutoHotkey\Lib\ObjTree\LV.ahk
 ; #Include D:\Dokumente neu\AutoHotkey\Lib\ObjTree\ObjTree.ahk
-
-; #Include <RichCode>
-; #Include <ObjTree\Attach>
-; #Include <LV.ahk>
-; #Include <ObjTree\ObjTree>	
