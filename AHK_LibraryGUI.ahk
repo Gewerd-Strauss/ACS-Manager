@@ -498,7 +498,7 @@ lGUICreate_1:
         gui, font, s7 cRed, Segoe UI
         gui, add, Text, x0 y0 w0 h0, AnchorTopLeft1awdawdwad
         ; MAIN GUI GROUPBOX
-        ; gui, add, groupbox, x15 y20 w%VGuiTabWidth% h%vGUITabHeight%
+        gui, add, groupbox, x15 y20 w%VGuiTabWidth% h%vGUITabHeight%
 
         ; GUI Search Box GroupBox
         gui, add, groupbox, x%vxPosGroupBoxSearchBox% y30 w%vWidthGroupBoxSearchBox% h90
@@ -520,8 +520,8 @@ lGUICreate_1:
         gui, add, text, y%yAnkerLV2% x0                  vAnkerLV2,  
         yTopListView:=0+20+10+30+vGuiHeightAnchorHeightOfSearchBoxWidth
         ; yPosDescriptionField:=135+500+10
-        yPosDescriptionField:=yAnkerLV2+20 ;vGUITabHeight
-        hDescriptionField:=vGUITabHeight-yPosDescriptionField+5
+        yPosDescriptionField:=yAnkerLV2+15 ;vGUITabHeight
+        hDescriptionField:=vGUITabHeight-yPosDescriptionField
         gui, font, s12, Segoe UI
         ;RC:=new RichCode(Settings,"ARG",1,200,"Highlighter" :Func("HighlightAHK"))
         gui, add, edit, y%yPosDescriptionField% x%vLV_LeftEdge% w300 h%hDescriptionField% vvEdit1 disabled, Edit1
@@ -529,19 +529,19 @@ lGUICreate_1:
         xCodeField:=vLV_LeftEdge+300+15
         WidthCopyField:=vLV_RightEdge-xCodeField
         xPositionCopyField:=vLV_LeftEdge+100+300
-        yAnchorREField:=yPosDescriptionField-15
+        yAnchorREField:=yPosDescriptionField-20
         gui, add, text, y%yAnchorREField% xp+315 w0 h0, 
         ; gui, add, edit, yp x%xCodeField% w%WidthCopyField% h%hDescriptionField% vhiddenfield
         ; guicontrol, hide, %vhiddenfield%
 		xGuiTab:=vLV_RightEdge-(vLV_LeftEdge)
 		gui, font,
-        gui, add, tab,yp+15 xp w%WidthCopyField%  h%hDescriptionField%, CODE||Examples|Description
+        gui, add, tab,yp xp w%WidthCopyField%  h%hDescriptionField%, CODE||Examples|Description
 		; guicontrol, hide, vEdit1
 		gui, tab, CODE
-		WidthCopyField:=WidthCopyField-2*15
-		hDescriptionField:=hDescriptionField -40
+		WidthCopyField:=WidthCopyField-1*15
+		hDescriptionField:=hDescriptionField-2*15
 
-		global RC:=new RichCode(RESettings2, yp " w" WidthCopyField  " " xp-50 " h" hDescriptionField,"MainGui", HighlightBound=Func("HighlightAHK"))
+		global RC:=new RichCode(RESettings2, yp " w" WidthCopyField " " xp-50 " h" hDescriptionField,"MainGui", HighlightBound=Func("HighlightAHK"))
         RC.HighlightBound:=Func("HighlightAHK")
         GuiControl, -Redraw, LVvalue
         fPopulateLV(Snippets,IniObj)
