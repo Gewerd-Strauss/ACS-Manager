@@ -25,13 +25,13 @@ TODO=
 (LTrim
 	1. Figure out how the fuck the tab3 is supposed to work - because clearly enough it does not work at all.
 				done2. fix the richcode highlighter not working (aka, read through the damn documentation first :P)
-				done2. Fix RegexNeedle in fParseArr() to accomodate for snippets which don't have a function-format
-	2. Add Tab3 with additional RichEditFields (at least for examples)
-	3. Edit Logic acc to the format seen here: 
-	AHK-Code-Snippets\AHK_LibraryGUI - how to format description and example block.PNG
+				done3. Fix RegexNeedle in fParseArr() to accomodate for snippets which don't have a function-format
+				done4. Add additional RichEditFields (at least for examples)
+		done_in_principle?5. Edit Logic acc to the format seen here: 
+		AHK-Code-Snippets\AHK_LibraryGUI - how to format description and example block.PNG
 
-	then edit the FillFields-function to cut out these blocks from the Code-Section, and add them to the respective other edits
-    4. Conceptualise the Importer-GUI to go along with this - needs to give function, 
+				done6. then edit the FillFields-function to cut out these blocks from the Code-Section, and add them to the respective other edits
+    7. Conceptualise the Importer-GUI to go along with this - needs to give function, 
 
 	This GUI should operate on Arr.1, because they contain all info necessary. 
 	In the end, you can just 
@@ -53,19 +53,19 @@ TODO=
 
 	
 	
-	5. create a bootup message (vergleichbar mit dem durchrennen der zu ladenen snippets bei AHKRARE)
-	6.5 Implement search-by-section
-    7. implement regex-search
+	8. create a bootup message (vergleichbar mit dem durchrennen der zu ladenen snippets bei AHKRARE)
+	9.5 Implement search-by-section
+    10. implement regex-search
     
-    6. Implement more section names, sensible ones
-    9. commandline hotstring syntax to paste immediately 
-    9.1 alternatively, give a ten-second gui preview to display the code
-    10. figure out why the description text of snippet 2 is cut off although there is still space left.
-	11. figure out how to implement a  proper fuzzy search algorithm
-    8. give this damn thing a name (ahk common?)
-    2. Create a logo for this whole charade
+    11. Implement more section names, sensible ones
+    12. global commandline hotstring syntax to paste immediately 
+    	13.1 alternatively, give a ten-second gui preview to display the code
+    14. figure out why the description text of snippet 2 is cut off although there is still space left.
+	15. figure out how to implement a  proper fuzzy search algorithm
+    16. give this damn thing a name (ahk common?)
+    17. Create a logo for this whole charade
 )
-MsgBox, % TODO
+;MsgBox, % TODO
 RESettings :=
 		( LTrim Join Comments
 		{
@@ -536,7 +536,7 @@ lGUICreate_1:
         hDescriptionField:=vGUITabHeight-yPosDescriptionField
         gui, font, s12, Segoe UI
         ;RC:=new RichCode(Settings,"ARG",1,200,"Highlighter" :Func("HighlightAHK"))
-        gui, add, edit, y%yPosDescriptionField% x%vLV_LeftEdge% w300 h%hDescriptionField% disabled, Edit1
+        gui, add, edit, y%yPosDescriptionField% x%vLV_LeftEdge% w300 h%hDescriptionField% vvEdit1 disabled, Edit1
         yPosCodeField:=yPosDescriptionField
         xCodeField:=vLV_LeftEdge+300+15
         WidthCopyField:=vLV_RightEdge-xCodeField
@@ -544,20 +544,34 @@ lGUICreate_1:
         yAnchorREField:=yPosDescriptionField-20
         gui, add, text, y%yAnchorREField% xp+315 w0 h0, 
         ; gui, add, edit, yp x%xCodeField% w%WidthCopyField% h%hDescriptionField% vhiddenfield
-        guicontrol, hide, %vhiddenfield%
-        ; gui, add, tab, yp w%WidthCopyField% x%xCodeField% h%hDescriptionField%, CODE|Examples
+        ; guicontrol, hide, %vhiddenfield%
+        gui, add, tab,yp w%WidthCopyField% x%xCodeField% h%hDescriptionField%, CODE||Examples|Description
+		gui, tab, CODE
+		WidthCopyField:=WidthCopyField-1*15
+		hDescriptionField:=hDescriptionField-2*15
         ; gui, add, text, yp x%xCodeField% w%WidthCopyField% h%hDescriptionField%, Text1
         ; GuiControl, Focus, % RC.hWnd
         ; gui, add, edit, yp w%WidthCopyField% x%xCodeField% h%hDescriptionField% v%vCopyField%,
         												; RC:=new RichCode(Settings,"ARG",1,200,"Highlighter" :Func("HighlightAHK"))
-		global RC:=new RichCode(RESettings2, yp " w" WidthCopyField " " xp " h" hDescriptionField,"MainGui", HighlightBound=Func("HighlightAHK"))
+		; gui, add, text, dadwawdw
+		; guicontrol, hide, vEdit1
+		; guicontrol, hide, LVvalue
+		global RC:=new RichCode(RESettings2, yp " w" WidthCopyField " " xp-50 " h" hDescriptionField,"MainGui", HighlightBound=Func("HighlightAHK"))
         RC.HighlightBound:=Func("HighlightAHK")
         ; gui, add, statusbar, -Theme vStatusBarMainWindow BackGround373b41 glCallBack_StatusBarMainWindow
         GuiControl, -Redraw, LVvalue
-
         fPopulateLV(Snippets,IniObj)
-
         GuiControl, +Redraw, LVvalue
+		
+		gui, tab, Examples
+		global RC2:=new RichCode(RESettings2, yp " w" WidthCopyField " " xp " h" hDescriptionField,"MainGui", HighlightBound=Func("HighlightAHK"))
+        RC2.HighlightBound:=Func("HighlightAHK")
+        
+		gui, tab, Description
+		global RC3:=new RichCode(RESettings2, yp " w" WidthCopyField " " xp " h" hDescriptionField,"MainGui", HighlightBound=Func("HighlightAHK"))
+        RC3.HighlightBound:=Func("HighlightAHK")
+		; gui, add, statusbar, -Theme vStatusBarMainWindow BackGround373b41 glCallBack_StatusBarMainWindow
+        
         SearchIsFocused:=Func("ControlIsFocused").Bind("Edit1")
         ListViewIsFocused:=Func("ControlIsFocused").Bind("SysListView321")
         EditFieldIsClicked:=Func("ControlIsFocused").Bind("Edit3")
@@ -577,7 +591,6 @@ lGUICreate_1:
         Hotkey, ~Enter, lSearchSnippetsEnter
         Hotkey, Del, lClearSearchbar
 
-
         Hotkey, if, % ListViewIsFocused
         Hotkey, ~Up, ListViewUp
         Hotkey, ~Down, ListViewDown
@@ -588,6 +601,7 @@ lGUICreate_1:
         hotkey, if, % EditFieldIsClicked
         Hotkey, ~RButton, lCopyScript
         Hotkey, ~LButton, lCopyScript
+		Gui, Color, 4f1f21, 432a2e
 return
 lGuiShow_1:
 gui, 1: show, w%vGuiWidth% h%vGuiHeight%, % GuiNameMain
@@ -828,19 +842,13 @@ f_FillFields(Data)
 {
 	RC.Settings.Highlighter := "HighlightAHK"
 	RC.Value := []
-	d:=
 	code:=RegExReplace(Data.code,"`r`n\\\\\\---NewSnippet---\\\\\\`r`n")
-	code:=RegexReplace(code,"(\/\*\s*)(?<LongExamples>(example|EXAMPLE|Example)(\s)*(.|\n)*\n\s*\*\/)")
-	code:=RegexReplace(code,"(\/\*\s*)(?<Description>(description|DESCRIPTION|Description)(.|\n)*\-\n\s*\*\/)")
-	RC.Value:=code
-
-    ; a:=RegExReplace(Data.code,"`r`n\\\\\\---NewSnippet---\\\\\\`r`n")
-	; a:=Data.Code
-	; RC.value:=data.code
+	code:=RegexReplace(code,"ims)^\s*\/\*\s*description.*?\*\/")
+	RC.Value:=RegexReplace(code,"ims)^\s*\/\*\s*example(\(s\))*.*?\*\/")
+	RC2.Value:=(Data.HasKey("DescriptionLong")?Data.DescriptionLong:"")
+	RC3.Value:=(Data.HasKey("Example")?Data.Example:"")
     Name:=RegExReplace(Data.Name,"(\(.*\)\{*\s*)*\;*")
     SectionName:=FindSectionName(Data.Section)
-    ; guicontrol,1:, Edit3, %a%
-    ; guicontrol, 1:, RICHEDIT50W1,%a%
     MainSecDescription:=Data.Description
     e=
     (LTrim
@@ -978,27 +986,15 @@ fParseArr(Arr,SettingsIdentifier,ArrSnippetStrings)
     
     
 	for k,v in Snippets
-	{ ; grab description and example sections and store in respective obj.
-
-	/*
-		So, here is the problem: 
-		snippets.code/v.code contains the entire function (from function def line down to the "\\\---NewSnippet---\\\"-delimiter 
-		between snippets (cf. AHK_LibraryGUI.xt in Sources/))
-
-		Now check the very first snippet, which is "function1", starting on line2, ending on line 53. Snippet Delimiter on line 54.
-		I am _trying_ to extract the "Description"-and "Examples"-comment-blocks, if present (like in this one).
-		THe needle used for Description (z1/z2=...) works properly on regex101. Here, it does not. 
-		Link to regex101 for the Description-needle: https://regex101.com/r/Z9dnDU/1
-
-		*/
-
-	Desc:=""
-		Clipboard:=v.Code
-		z1:=Regexmatch(v.Code,	"(\/\*\s*)(?<Desc>(description|DESCRIPTION|Description)(.|\n)*\s*\-+\s*\*\/)")
-		z2:=RegExMatch(v.Code,		"(\/\*\s*)(?<Desc>(description|DESCRIPTION|Description)(.|\n)*\-+\s*\*\/)",e)
-		Snippet.DescriptionLong:=Desc
+	{ 	; grab description and example sections and store in respective obj.
+		; thank you to u/anonymous1184 on reddit for helping me with the needles for this section
+		if Regexmatch(v.Code,"ims)^\s*\/\*\s*description.*?\*\/",e) 
+			Snippets[k,"DescriptionLong"]:=e
+		if RegExMatch(v.Code,"ims)^\s*\/\*\s*example(\(s\))*.*?\*\/",f)
+ 			Snippets[k,"Example"]:=f
+		; Snippet.DescriptionLong:=Desc
 		; and then the same for examples below.
-		Snippet.ExamplesLong:=RegExMatch(v.Code,"(\/\*\s*)(?<LongExamples>(example|EXAMPLE|Example)(\s)*(.|\n)*\n\s*\*\/)",q)
+		; Snippet.ExamplesLong:=RegExMatch(v.Code,"ims)^\s*\/\*\s*example.*?\*\/",q)
 	}
     return [Snippets,aKeys2]
 }
