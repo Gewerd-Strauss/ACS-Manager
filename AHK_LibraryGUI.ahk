@@ -535,7 +535,7 @@ lGUICreate_1:
         ; guicontrol, hide, %vhiddenfield%
 		xGuiTab:=vLV_RightEdge-(vLV_LeftEdge)
 		gui, font,
-        gui, add, tab3,yp+30 xp w%WidthCopyField%  h%hDescriptionField%, CODE||Examples|Description
+        gui, add, tab,yp xp w%WidthCopyField%  h%hDescriptionField%, CODE||Examples|Description
 		; guicontrol, hide, vEdit1
 		gui, tab, CODE
 		WidthCopyField:=WidthCopyField-1*15
