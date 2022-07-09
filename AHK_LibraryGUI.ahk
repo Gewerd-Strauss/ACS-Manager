@@ -992,9 +992,9 @@ fParseArr(Arr,SettingsIdentifier,ArrSnippetStrings)
 
 		*/
 
-
+	Desc:=""
 		Clipboard:=v.Code
-		z1:=Regexmatch(Clipboard,	"(\/\*\s*)(?<Desc>(description|DESCRIPTION|Description)(.|\n)*\-+\s*\*\/)")
+		z1:=Regexmatch(v.Code,	"(\/\*\s*)(?<Desc>(description|DESCRIPTION|Description)(.|\n)*\s*\-+\s*\*\/)")
 		z2:=RegExMatch(v.Code,		"(\/\*\s*)(?<Desc>(description|DESCRIPTION|Description)(.|\n)*\-+\s*\*\/)",e)
 		Snippet.DescriptionLong:=Desc
 		; and then the same for examples below.
