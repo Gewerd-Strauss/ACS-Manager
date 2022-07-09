@@ -949,17 +949,14 @@ fParseArr(Arr,SettingsIdentifier,ArrSnippetStrings)
             ; (snippets[snippets.MaxIndex]!="") && (snippets[snippets.MaxIndex].name)
 
                 {
-                    ; CurrSnippetCode:=snippet.Code
-                    if (snippet.Name!=sCurrentFunc) || (snippet.Name && sCurrentFunc="")
-                    {
-                        ; sCurrentFunc:=snippet.Func
-                    }
-					
-                    ; Snippets[sCurrentFunction].Code.=CurrentLine "`n"
-                    ; Snippets[sCurrentFunction].LastLine:=A_Index
+                    ; if (snippet.Name!=sCurrentFunc) || (snippet.Name && sCurrentFunc="")
+                    ; {
+                    ;     ; sCurrentFunc:=snippet.Func
+                    ; }
+                    ; ; Snippets[sCurrentFunction].Code.=CurrentLine "`n"
+                    ; ; Snippets[sCurrentFunction].LastLine:=A_Index
  					Snippets[d:=RegExReplace(sCurrentFunction,"(\(.*\)\{*\s*)*\;*")].Code.=CurrentLine "`n"
                     Snippets[RegExReplace(sCurrentFunction,"(\(.*\)\{*\s*)*\;*")].LastLine:=A_Index
-                    snippet.Code:=CurrSnippetCode
                 }
             }
         }
@@ -1005,6 +1002,9 @@ fParseArr(Arr,SettingsIdentifier,ArrSnippetStrings)
 	}
     return [Snippets,aKeys2]
 }
+
+
+
 
 ; bracketCount taken from AHKRARE
 BracketCount(str, brackets:="{}") {                                                       	;-- helps to find the last bracket of a function
