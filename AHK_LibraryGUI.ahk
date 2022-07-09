@@ -1,5 +1,5 @@
 #SingleInstance, Force
-#Warn,,Off 
+; #Warn,,Off 
 #persistent
 SetTitleMatchMode, 2
 SendMode Input
@@ -247,14 +247,6 @@ gui, 2: new, +AlwaysOnTop -SysMenu -ToolWindow -caption +Border
         
 
         
-        ; gui, font, s7 cRed, Segoe UI
-        ; gui, add, Text, x0 y0 w0 h0, AnchorTopLeft2
-        ; ; MAIN GUI GROUPBOX
-        ; gui, add, groupbox, x15 y20 w%VGuiTabWidth% h%vGUITabHeight%
-		
-		; ; TOADD:
-		; global RC:=new RichCode(RESettings2, yp " w" WidthCopyField " " xp " h" hDescriptionField,"IngestGUI", HighlightBound=Func("HighlightAHK"))
-        ; RC.HighlightBound:=Func("HighlightAHK")
         gui, font, s7 cRed, Segoe UI
         gui, add, Text, x0 y0 w0 h0, AnchorTopLeft2
         ; MAIN GUI GROUPBOX
@@ -263,7 +255,7 @@ gui, 2: new, +AlwaysOnTop -SysMenu -ToolWindow -caption +Border
         ; GUI Search Box GroupBox
         gui, add, groupbox, x%vxPosGroupBoxSearchBox% y30 w%vWidthGroupBoxSearchBox% h90
         gui, font, s14 cRed, Segoe UI
-        gui, add, text,x%vXPosDDL% y40, Search functions
+        gui, add, text,x%vXPosDDL% y40, Search snippets
         gui, font, s11 cWhite, Segoe 
         gui, add, DDL,vSearchMethod x%vxPosDDL% y70 w%WidthDDL% vCurrentMode2 glSetSearchMethod2, Instr||RegEx
         gui, font, s11 cBlack, Segoe 
@@ -293,10 +285,6 @@ gui, 2: new, +AlwaysOnTop -SysMenu -ToolWindow -caption +Border
         gui, add, text, y%yAnchorREField% xp+315 w0 h0, 
         ; gui, add, edit, yp x%xCodeField% w%WidthCopyField% h%hDescriptionField% vhiddenfield
         guicontrol, hide, %vhiddenfield%
-        ; gui, add, tab, yp w%WidthCopyField% x%xCodeField% h%hDescriptionField%, CODE|Examples
-        ; gui, add, text, yp x%xCodeField% w%WidthCopyField% h%hDescriptionField%, Text1
-        ; GuiControl, Focus, % RC.hWnd
-        ; gui, add, edit, yp w%WidthCopyField% x%xCodeField% h%hDescriptionField% v%vCopyField%,
         												; RC:=new RichCode(Settings,"ARG",1,200,"Highlighter" :Func("HighlightAHK"))
 		global RC2:=new RichCode(RESettings2, yp " w" WidthCopyField " " xp " h" hDescriptionField,"IngestGui", HighlightBound=Func("HighlightAHK"))
         RC2.HighlightBound:=Func("HighlightAHK")
@@ -412,7 +400,7 @@ return
 
 lGUICreate_1:
 		gui, 1: destroy
-		gui,1: new, +AlwaysOnTop -SysMenu -ToolWindow -caption +Border  ;+Resize +MinSize1000x		
+		gui, 1: new, +AlwaysOnTop -SysMenu -ToolWindow -caption +Border  ;+Resize +MinSize1000x		
 		gui, 1: default
 		gui, +hwndMainGUI
 		if vsdb || (A_DebuggerName="Visual Studio Code")
@@ -545,20 +533,15 @@ lGUICreate_1:
         gui, add, text, y%yAnchorREField% xp+315 w0 h0, 
         ; gui, add, edit, yp x%xCodeField% w%WidthCopyField% h%hDescriptionField% vhiddenfield
         ; guicontrol, hide, %vhiddenfield%
-        gui, add, tab,yp w%WidthCopyField% x%xCodeField% h%hDescriptionField%, CODE||Examples|Description
+		xGuiTab:=vLV_RightEdge-(vLV_LeftEdge)
+        gui, add, tab,yp xp w%WidthCopyField%  h%hDescriptionField%, CODE||Examples|Description
+		; guicontrol, hide, vEdit1
 		gui, tab, CODE
 		WidthCopyField:=WidthCopyField-1*15
 		hDescriptionField:=hDescriptionField-2*15
-        ; gui, add, text, yp x%xCodeField% w%WidthCopyField% h%hDescriptionField%, Text1
-        ; GuiControl, Focus, % RC.hWnd
-        ; gui, add, edit, yp w%WidthCopyField% x%xCodeField% h%hDescriptionField% v%vCopyField%,
-        												; RC:=new RichCode(Settings,"ARG",1,200,"Highlighter" :Func("HighlightAHK"))
-		; gui, add, text, dadwawdw
-		; guicontrol, hide, vEdit1
-		; guicontrol, hide, LVvalue
+
 		global RC:=new RichCode(RESettings2, yp " w" WidthCopyField " " xp-50 " h" hDescriptionField,"MainGui", HighlightBound=Func("HighlightAHK"))
         RC.HighlightBound:=Func("HighlightAHK")
-        ; gui, add, statusbar, -Theme vStatusBarMainWindow BackGround373b41 glCallBack_StatusBarMainWindow
         GuiControl, -Redraw, LVvalue
         fPopulateLV(Snippets,IniObj)
         GuiControl, +Redraw, LVvalue
@@ -579,6 +562,9 @@ lGUICreate_1:
 
         GuiXPos:=(A_ScreenWidth-vGuiWidth)/2
         GuiYPos:=(A_ScreenHeight-vGuiHeight)/2
+		gui, tab
+
+		gui, add, statusbar, -Theme vStatusBarMainWindow BackGround373b41 glCallBack_StatusBarMainWindow ; finish up statusbar - settings, updating library/adding additional libraries
 		gosub, lGuiShow_1
         Hotkey, IfWinActive, % "ahk_id " MainGUI
         Hotkey, ^f, lFocusSearchBar
@@ -601,7 +587,7 @@ lGUICreate_1:
         hotkey, if, % EditFieldIsClicked
         Hotkey, ~RButton, lCopyScript
         Hotkey, ~LButton, lCopyScript
-		Gui, Color, 4f1f21, 432a2e
+		; Gui, Color, 4f1f21, 432a2e
 return
 lGuiShow_1:
 gui, 1: show, w%vGuiWidth% h%vGuiHeight%, % GuiNameMain
@@ -1041,45 +1027,45 @@ f_ThrowError(Source,Message,ErrorCode:=0,ReferencePlace:="S")
 		MsgBox, % str
 		return
 	}
-HideFocusBorder(wParam, lParam := "", uMsg := "", hWnd := "") {                         	;-- Hide the dotted focus border
+; HideFocusBorder(wParam, lParam := "", uMsg := "", hWnd := "") {                         	;-- Hide the dotted focus border
 
-	/*	DESCRIPTION OF FUNCTION: -- HideFocusBorder() --
-	-------------------------------------------------------------------------------------------------------------------
-	Description  	:	Hides the focus border for the given GUI control or GUI and all of its children
-                            	Call the function passing only the HWND of the control / GUI in wParam as only parameter.
-								WM_UPDATEUISTATE  -> msdn.microsoft.com/en-us/library/ms646361(v=vs.85).aspx
-								The Old New Thing -> blogs.msdn.com/b/oldnewthing/archive/2013/05/16/10419105.aspx
-	Link              	:	https://www.autohotkey.com/boards/viewtopic.php?t=9919
-	Author         	:	just me
-	Date             	:	23 Oct 2015
-	AHK-Version	:	AHK_L
-	License         	:	--
-	Syntax          	:	--
-	Parameter(s)	:
-	Return value	:
-	Remark(s)    	:
-	Dependencies	:	none
-	KeyWords    	:	gui, focus, border
-	-------------------------------------------------------------------------------------------------------------------
-	|	EXAMPLE(s)
-	-------------------------------------------------------------------------------------------------------------------
+; 	/*	DESCRIPTION OF FUNCTION: -- HideFocusBorder() --
+; 	-------------------------------------------------------------------------------------------------------------------
+; 	Description  	:	Hides the focus border for the given GUI control or GUI and all of its children
+;                             	Call the function passing only the HWND of the control / GUI in wParam as only parameter.
+; 								WM_UPDATEUISTATE  -> msdn.microsoft.com/en-us/library/ms646361(v=vs.85).aspx
+; 								The Old New Thing -> blogs.msdn.com/b/oldnewthing/archive/2013/05/16/10419105.aspx
+; 	Link              	:	https://www.autohotkey.com/boards/viewtopic.php?t=9919
+; 	Author         	:	just me
+; 	Date             	:	23 Oct 2015
+; 	AHK-Version	:	AHK_L
+; 	License         	:	--
+; 	Syntax          	:	--
+; 	Parameter(s)	:
+; 	Return value	:
+; 	Remark(s)    	:
+; 	Dependencies	:	none
+; 	KeyWords    	:	gui, focus, border
+; 	-------------------------------------------------------------------------------------------------------------------
+; 	|	EXAMPLE(s)
+; 	-------------------------------------------------------------------------------------------------------------------
 
-	*/
+; 	*/
 
-   ; WM_UPDATEUISTATE = 0x0128
-	Static Affected := [] ; affected controls / GUIs
-        , HideFocus := 0x00010001 ; UIS_SET << 16 | UISF_HIDEFOCUS
-	     , OnMsg := OnMessage(0x0128, Func("HideFocusBorder"))
-	If (uMsg = 0x0128) { ; called by OnMessage()
-      If (wParam = HideFocus)
-         Affected[hWnd] := True
-      Else If Affected[hWnd]
-         PostMessage, 0x0128, %HideFocus%, 0, , ahk_id %hWnd%
-   }
-   Else If DllCall("IsWindow", "Ptr", wParam, "UInt")
-	  PostMessage, 0x0128, %HideFocus%, 0, , ahk_id %wParam%
+;    ; WM_UPDATEUISTATE = 0x0128
+; 	Static Affected := [] ; affected controls / GUIs
+;         , HideFocus := 0x00010001 ; UIS_SET << 16 | UISF_HIDEFOCUS
+; 	     , OnMsg := OnMessage(0x0128, Func("HideFocusBorder"))
+; 	If (uMsg = 0x0128) { ; called by OnMessage()
+;       If (wParam = HideFocus)
+;          Affected[hWnd] := True
+;       Else If Affected[hWnd]
+;          PostMessage, 0x0128, %HideFocus%, 0, , ahk_id %hWnd%
+;    }
+;    Else If DllCall("IsWindow", "Ptr", wParam, "UInt")
+; 	  PostMessage, 0x0128, %HideFocus%, 0, , ahk_id %wParam%
 
-} ;</06.02.000023>
+; } ;</06.02.000023>
 
 AddToolTip(_CtrlHwnd, _TipText, _Modify = 0) 			;-- very easy to use function to add a tooltip to a control
 	{ ; AddToolTip | retrieved from AHK-Rare Repository, original by jballi: https://www.autohotkey.com/boards/viewtopic.php?t=30079
