@@ -18,7 +18,7 @@ CrtDate:=SubStr(CrtDate,7,  2) "." SubStr(CrtDate,5,2) "." SubStr(CrtDate,1,4)
 ModDate:=SubStr(ModDate,7,  2) "." SubStr(ModDate,5,2) "." SubStr(ModDate,1,4)
 global script := {   base         : script
                     ,name         : regexreplace(A_ScriptName, "\.\w+")
-                    ,version      : "v.11.07.2022-1"
+                    ,version      : "v.11.07.2022-2"
                     ,author       : "Gewerd Strauss"
 					,authorID	  : "Laptop-C"
 					,authorlink   : ""
@@ -67,63 +67,9 @@ Snippets:=Arr.1
 OrderKey:=Arr.2
 GuiNameMain:="TotallyNotAHKRAre"
 GuiNameIngestion:="Ingestion Helper"
-TODO=
-(LTrim
-				done0. Fix the scriptObj- script.config.libraries.LibraryFile-reference not working. 
-				done1. Figure out how the fuck the tab3 is supposed to work - because clearly enough it does not work at all.
-				done2. fix the richcode highlighter not working (aka, read through the damn documentation first :P)
-				done3. Fix RegexNeedle in fParseArr() to accomodate for snippets which don't have a function-format
-				done4. Add additional RichEditFields (at least for examples)
-		done_in_principle?5. Edit Logic acc to the format seen here: 
-		AHK-Code-Snippets\AHK_LibraryGUI - how to format description and example block.PNG
+FileRead, TODO, % A_ScriptDir "\Other\Todo-List.md"
 
-				done6. then edit the FillFields-function to cut out these blocks from the Code-Section, and add them to the respective other edits
-    7. Conceptualise the Importer-GUI to go along with this - needs to give function, 
-
-	This GUI should operate on Arr.1, because they contain all info necessary. 
-	In the end, you can just 
-	- map out the order of the snippets by index (optional)
-	- concatenate to a complete string (arr.1.[fn].Code contains the entire snippet section, including required newlines) 
-	
-	GUI requires:
-	- add snippet
-		-		- give name, long description, short, code, section
-	- edit snippet	
-		-     	- rename 
-		-     	- move to section / change Section number, but keep index
-		-     	- edit code
-		-     	- edit short description
-		-     	- edit long description
-		-     	- edit example section
-		-     	- move to section 
-	- delete snippet	
-
-	
-	
-	8. create a bootup message (vergleichbar mit dem durchrennen der zu ladenen snippets bei AHKRARE)
-			done9.5 Implement search-by-section
-    	partiallyDone10. implement regex-search
-	10.1 Expand search abilities:
-	- search by snippetID and secID and Instr()/Regex()-searches combined
-	- remove  searchmode-DDL in favour of an Instr-Check, like having the string start with "rgx:"
-	
-
-    11. Implement more section names, sensible ones
-    12. global commandline hotstring syntax to paste immediately 
-    	13.1 alternatively, give a ten-second gui preview to display the code
-    14. figure out why the description text of snippet 2 is cut off although there is still space left.
-	15. figure out how to implement a  proper fuzzy search algorithm
-    16. give this damn thing a name (ahk common?)
-    17. Create a logo for this whole charade
-	18. Figure out why the groupbox is killing the tab control.
-	19. Fix lSearchSnippets searching in the unfixed file string, where snippet ID's are not aligned → must search in Snippets[]-Object Instead
-		in-progress29. Fix fLoadFiles to load several source-files together from script.config.libraries into the same GUI
-	29.1 allow pointers to gists for updating libs
-	30. Attach tooltips to various controls
-	31. Figure out how to make the GUI resizable
-	31.1 set lower limits for minimum required sensible size yet
-)
-; MsgBox, % TODO
+MsgBox, % TODO
 RESettings :=
 		( LTrim Join Comments
 		{
@@ -1148,7 +1094,7 @@ Esc::
 gui, 2: destroy
 gui, 1: show
 return
-#If (A_ComputerName="LAPTOP-C"?1:0) 
+#If (A_ComputerName=script.AuthorID?1:0) 
 !esc::
 reload
 return ; yes I know this is not actually needed. I don't care.

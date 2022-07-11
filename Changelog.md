@@ -1,13 +1,14 @@
-Changelog
+# Changelog
 
+v.11.07.2022-2
+- build up overview on scope I intend to reach. Stuff might be added or cut from that roadmap as I progress.
+---
 v.11.07.2022-1
-
-
-
+- made gui completely scaleable (have not set lower limits for minimum required sensible size yet)
+	- fixed some scaling shenanigans
+---
 v.10.07.2022-1
 - various bugfixes
-
----
 
 Additions
 - added sorting array in LV based on Section
@@ -19,11 +20,10 @@ Additions
 - index now padded to the length of the number `Snippets.Count()`
 - added several library files to test library merging.
 
----
-
+Misc
 - changelog arbitrarily started now. Versioning arbitrarily started now, following format dd.MM.yyyy-Commit
 
----
+
 ---
 
 v0.1 - v10.07.2022-3
