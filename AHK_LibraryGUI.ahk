@@ -18,7 +18,7 @@ CrtDate:=SubStr(CrtDate,7,  2) "." SubStr(CrtDate,5,2) "." SubStr(CrtDate,1,4)
 ModDate:=SubStr(ModDate,7,  2) "." SubStr(ModDate,5,2) "." SubStr(ModDate,1,4)
 global script := {   base         : script
                     ,name         : regexreplace(A_ScriptName, "\.\w+")
-                    ,version      : "11.07.2022-3"
+                    ,version      : "11.07.3"
                     ,author       : "Gewerd Strauss"
 					,authorID	  : "Laptop-C"
 					,authorlink   : ""
@@ -38,13 +38,15 @@ global script := {   base         : script
                     ,donateLink	  : ""
                     ,resfolder    : A_ScriptDir "\res"
                     ,iconfile	  : A_ScriptDir "\res\sct.ico"
-					,vfile_local  : A_ScriptDir "\version.ini"
-					,vfile_remote : ""
+					,rfile  	  : "https://github.com/Gewerd-Strauss/AHK-Code-Snippets/archive/refs/heads/master.zip"
+					,vfile_raw	  : "https://raw.githubusercontent.com/Gewerd-Strauss/AHK-Code-Snippets/main/AHK-Rare.txt" 
+					,vfile 		  : "https://github.com/Gewerd-Strauss/AHK-Code-Snippets/AHK-Code-Snippets/main/version.ini" 
+					,vfile_local  : A_ScriptDir "\version.ini" 
                     ,config:		[]
 					,configfile   : A_ScriptDir "\INI-Files\" regexreplace(A_ScriptName, "\.\w+") ".ini"
                     ,configfolder : A_ScriptDir "\INI-Files"}
 script.Load()
-	; script.Update() ;; TODO
+script.Update() ;; TODO
 
 global Hashes:=[]
 if IsObject(script.config.libraries)
@@ -1047,7 +1049,7 @@ fPopulateLV(Snippets,SectionNames)
 			Addition.Description:=v.Description
 			Addition.Hash:=v.Hash
 			; Addition.LVInd:=fPadIndex(v.Section,Snippets.Count())"." fPadIndex(v.Ind,"00")
-			Addition.FileInd:=fPadIndex(v.Section,Snippets.Count())"." fPadIndex(v.FileInd,"00") ||Issue: when searching, the section ID gets truncated to Snippets.Count()-length. Meaning if we 13 results, the sectionID will be padded to double digits. If we only have 4 results, the sectionID will get truncated to 1 digit.
+			Addition.FileInd:=fPadIndex(v.Section,Snippets.Count())"." fPadIndex(v.FileInd,"00") ;||Issue: when searching, the section ID gets truncated to Snippets.Count()-length. Meaning if we 13 results, the sectionID will be padded to double digits. If we only have 4 results, the sectionID will get truncated to 1 digit.
 			LV_Add("-E0x200",		Addition.Section,		Addition.Name,		Addition.Description,		Addition.Hash,		Addition.FileInd		)
 			; v.FileInd:=
 			; LV_Add("-E0x200",(fPadIndex(v.Section,Snippets.Count())) " - " (SectionNames[strsplit(v.Section,".").1]=""?"-1 INVALIDSECTIONKEY":SectionNames[strsplit(v.Section,".").1]),RegExReplace(v.Name,"(\(.*\)\{*\s*)*\;*"),v.Description ,fPadIndex(v.Section,Snippets.Count())"."v.Ind)
