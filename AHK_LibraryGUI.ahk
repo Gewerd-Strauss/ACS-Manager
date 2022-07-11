@@ -10,7 +10,9 @@ CurrentMode:="Instr"
 ; m("Decrease the Listvíew-to-codesection ratio to make space for more code")
 ; Add scriptObj-template and convert Code to use it - maybe, just a thought. Syntax of the Library-File is probably way too special for doing so, and there are no real configs to save anyways
 ; separate library-files and settings-files, take a peek at ahk-rare to see what they store in settings
-
+/*
+LLLLLLLLLLLLLLLLLLLLLOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOCCCCCCCCCCCCCCCCCCCCCCCCAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+*/
 #Include <scriptObj>
 FileGetTime, ModDate,%A_ScriptFullPath%,M
 FileGetTime, CrtDate,%A_ScriptFullPath%,C
@@ -18,7 +20,7 @@ CrtDate:=SubStr(CrtDate,7,  2) "." SubStr(CrtDate,5,2) "." SubStr(CrtDate,1,4)
 ModDate:=SubStr(ModDate,7,  2) "." SubStr(ModDate,5,2) "." SubStr(ModDate,1,4)
 global script := {   base         : script
                     ,name         : regexreplace(A_ScriptName, "\.\w+")
-                    ,version      : "11.07.3"
+                    ,version      : "11.07.1"
                     ,author       : "Gewerd Strauss"
 					,authorID	  : "Laptop-C"
 					,authorlink   : ""
@@ -38,9 +40,9 @@ global script := {   base         : script
                     ,donateLink	  : ""
                     ,resfolder    : A_ScriptDir "\res"
                     ,iconfile	  : A_ScriptDir "\res\sct.ico"
-					,rfile  	  : "https://github.com/Gewerd-Strauss/AHK-Code-Snippets/archive/refs/heads/master.zip"
-					,vfile_raw	  : "https://raw.githubusercontent.com/Gewerd-Strauss/AHK-Code-Snippets/main/AHK-Rare.txt" 
-					,vfile 		  : "https://github.com/Gewerd-Strauss/AHK-Code-Snippets/AHK-Code-Snippets/main/version.ini" 
+					,rfile  	  : "https://github.com/Gewerd-Strauss/AHK-Code-Snippets/archive/refs/heads/Update()-Test.zip"
+					,vfile_raw	  : "https://raw.githubusercontent.com/Gewerd-Strauss/AHK-Code-Snippets/Update()-Test/version.ini" 
+					,vfile 		  : "https://raw.githubusercontent.com/Gewerd-Strauss/AHK-Code-Snippets/Update()-Test/version.ini" 
 					,vfile_local  : A_ScriptDir "\version.ini" 
                     ,config:		[]
 					,configfile   : A_ScriptDir "\INI-Files\" regexreplace(A_ScriptName, "\.\w+") ".ini"
