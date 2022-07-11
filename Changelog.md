@@ -1,5 +1,14 @@
 # Changelog
+v.11.07.2022-3
+- fixed GUI not autofocussing on LV when reopening.
+- fixed snippets with identical names overwriting each other by creating unique hashes as identifying keys instead of snippet-name
+- removed unnecessary code
+- fixed searching by ID working properly, but feeding the wrong ID into the listview when displaying the result
 
+
+
+
+---
 v.11.07.2022-2
 - build up overview on scope I intend to reach. Stuff might be added or cut from that roadmap as I progress.
 ---

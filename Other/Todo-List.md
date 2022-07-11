@@ -1,11 +1,15 @@
 (LTrim
-List-version 11.07.2022 09:23:01
+List-version 11.07.2022 16:29
 # TODO
 
 
 
 
 ## Fixes
+- [ ]		Seems completed, needs to be tested.			 URGENT: Fix the Structure of Snippets[] to not use the snippet name alone as Key → multiple snippets with identical name (but. f.e. different descriptions) will overwrite each other. 
+	- Suggestion: make a hash-key out of the library-file 
+- [ ] #important: fix line 1050, or decide to #wontfix.
+
 - [ ] Fix the scriptObj- script.config.libraries.LibraryFile-reference not working.
 - [ ] fix the RichCode highlighter not working (aka, read through the damn documentation first :P)
 - [ ] Fix RegexNeedle in fParseArr() to accomodate for snippets which don't have a function-format
@@ -18,12 +22,14 @@ List-version 11.07.2022 09:23:01
 - [ ] Fix: Figure out how the fuck the tab3 is supposed to work - because clearly enough it does not work at all.
 - [ ] - [ ] Fix: figure out why the description text of snippet 2 is cut off although there is still space left.
 ## Additions
+- [ ] Update scriptObj-Update()-Method to work properly with one-script-files/a repository of files.
 - [ ] Decide on a RichCode-Theme
 	- [ ] multi-language-support? Do I want to make this extendable beyond ahk?
 - [ ] Conceptualise the Importer-GUI to go along with this - needs to give function,
 	This GUI should operate on Arr.1, because they contain all info necessary.
 - [ ] Search:
 	- search by snippetID and secID and Instr()/Regex()-searches combined
+		- [ ] make the search-keys `s:` and `ID:` case-agnostic
 	- remove  searchmode-DDL in favour of an Instr-Check, like having the string start with "rgx:"
 	- [ ] implement regex-search
 	- [ ] global commandline-search hotstring syntax to paste immediately
@@ -79,6 +85,6 @@ In the end, you can just
 - map out the order of the snippets by index (optional)
 - concatenate to a complete string (arr.1.[fn].Code contains the entire snippet section, including required newlines)
 
-
+- consider rewriting the handler as a class-derived Obj instead: 
 
 )

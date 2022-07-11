@@ -54,6 +54,7 @@ Function1() ;|||SnippetInd:1,Section:1,Description:This is a very long descripti
 \\\---NewSnippet---\\\
 Function2(Width,Height) ;|||SnippetInd:2,Section:2,Description:This is 1 This is 2This is 3 This is 4 This is 5 This is 6 This is 7 This is 8 This is 9 This is 10 This is 11 This is 12 This is 13 This is 14 This is 15 This is 16 This is 17 This is 18 This is 19 This is 20 This is 21 This is 22 This is 23 This is 24 This is 25 This is 26 This is 27 This is 28 This is 29 This is 30 This is 31 This is 32 This is 33 This is 34 This is 35 This is 36 This is 37
 {
+	UniqueString_01_2
 	2	yc:=A_ScreenHeight-200
 			xc:=A_ScreenWidth-300
 	Gui, cQ: show,autosize  x%xc% y%yc%, CQ%A_ThisLabel%
@@ -68,6 +69,7 @@ Function2(Width,Height) ;|||SnippetInd:2,Section:2,Description:This is 1 This is
 \\\---NewSnippet---\\\
 Function3(Width,Height) ;|||SnippetInd:3,Section:2,Description:This is a very long description and requires a st_wrap to compile in the end. 
 {
+	UniqueString_01_3
 	2	yc:=A_ScreenHeight-200
 			xc:=A_ScreenWidth-300
 	Gui, cQ: show,autosize  x%xc% y%yc%, CQ%A_ThisLabel%
@@ -81,6 +83,7 @@ Function3(Width,Height) ;|||SnippetInd:3,Section:2,Description:This is a very lo
 }
 \\\---NewSnippet---\\\
 Function4(){ ;|||SnippetInd:4,Section:3,Description:This is a very long description and requires a st_wrap to compile in the end. 
+UniqueString_01_4
 	3	yc:=A_ScreenHeight-200
 fClip()
 			xc:=A_ScreenWidth-300
@@ -96,6 +99,7 @@ fClip()
 \\\---NewSnippet---\\\
 Function5() ;|||SnippetInd:5,Section:4,Description:This is a very long description and requires a st_wrap to compile in the end. 
 {
+	UniqueString_01_5
 	4	yc:=A_ScreenHeight-200
 		lip()	xc:=A_ScreenWidth-300
 	Gui, cQ: show,autosize  x%xc% y%yc%, CQ%A_ThisLabel%
@@ -110,6 +114,7 @@ Function5() ;|||SnippetInd:5,Section:4,Description:This is a very long descripti
 \\\---NewSnippet---\\\
 Function6() ;|||SnippetInd:6,Section:5,Description:This is a very long description and requires a st_wrap to compile in the end. 
 {
+	UniqueString_01_6
 	5	yc:=A_ScreenHeight-200
 	ip()		xc:=A_ScreenWidth-300
 	Gui, cQ: show,autosize  x%xc% y%yc%, CQ%A_ThisLabel%
@@ -123,6 +128,7 @@ Function6() ;|||SnippetInd:6,Section:5,Description:This is a very long descripti
 }
 \\\---NewSnippet---\\\
 KillAnything ;|||SnippetInd:7,Section:2,Description:A snippet which is not a function
+UniqueString_01_7
 5	yc:=A_ScreenHeight-200
 	ip()		xc:=A_ScreenWidth-300
 	Gui, cQ: show,autosize  x%xc% y%yc%, CQ%A_ThisLabel%

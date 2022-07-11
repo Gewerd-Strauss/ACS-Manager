@@ -122,7 +122,7 @@ Function12() ;|||SnippetInd:6,Section:5,Description:This is a very long descript
 	return answer
 }
 \\\---NewSnippet---\\\
-KillAnything2 ;|||SnippetInd:7,Section:2,Description:A snippet which is not a function
+KillAnything ;|||SnippetInd:7,Section:2,Description:A snippet which is not a function
 5	yc:=A_ScreenHeight-200
 	ip()		xc:=A_ScreenWidth-300
 	Gui, cQ: show,autosize  x%xc% y%yc%, CQ%A_ThisLabel%
