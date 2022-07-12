@@ -1,11 +1,14 @@
 # Changelog
+v.12.07.2022-2
+- [ ] tested updater, currently apparently bugged to create unreadable library-files when used to download them.
+- [x] fixed needles not removing description/example blocks
+
+
+- removed old test files
+
 v.12.07.2022-1
-
-
-
 Additions: 
 - [x] search by snippetID and secID and Instr()/Regex()-searches combined
-
 ---
 
 Fixes

@@ -60,11 +60,11 @@ if IsObject(script.config.libraries)
 		Else
 			script.config.libraries[k]:=A_ScriptDir "\" v 
 	}
-	Arr:=fLoadFiles(script.config.libraries,Identifier:="\\ Script-settings \\`r")
+	Arr:=fLoadFiles(script.config.libraries,Identifier:="\\ Script-settings \\")
 
 }
 else
-	Arr:=fLoadFiles(script.config.libraries,Identifier:="\\ Script-settings \\`r")
+	Arr:=fLoadFiles(script.config.libraries,Identifier:="\\ Script-settings \\")
 Clipboard:=Arr.4
 Arr.1:=Arr.1
 global SectionNames:=fCreateIniObj(Arr.2) ;; contains SectionNames
@@ -419,7 +419,7 @@ lGUICreate_1New: ;; Fully Parametric-form
 		gui, 1: default
 		gui, +hwndMainGUI
 		if vsdb || (A_DebuggerName="Visual Studio Code")
-			gui, -AlwaysOnTop
+			gui, 1: -AlwaysOnTop
 		gui_control_options := "xm w220 " . cForeground . " -E0x200"  ; remove border around edit field
 		gui_control_options2 :=  cForeground . " -E0x200"
 		; Gui, Margin, 16, 16
@@ -1092,10 +1092,10 @@ f_FillFields(Data)
 	RC.Settings.Highlighter := "HighlightAHK"
 	RC.Value := []
 	code:=RegExReplace(Data.code,"` `n\\\\\\---NewSnippet---\\\\\\`r`n")
-	code:=RegexReplace(code,"ims)^\s*\/\*\s*description.*?\*\/")
-	RC.Value:=RegexReplace(code,"ims)^\s*\/\*\s*example(\(s\))*.*?\*\/")
-	RC2.Value:=(Data.HasKey("DescriptionLong")?Data.DescriptionLong:"")
-	RC3.Value:=(Data.HasKey("Example")?Data.Example:"")
+	code:=RegexReplace(code,"ims)\s*\/\*\s*description(\(s\))*(?:\S+)?\n.*?\*\/")
+	RC.Value:=RegexReplace(code,"ims)\s*\/\*\s*example(\(s\))*(?:\S+)?\n.*?\*\/")
+	RC2.Value:=out:=LTrim(Data.HasKey("DescriptionLong")?Data.Example:"","`n`t")
+	RC3.Value:=LTrim(Data.HasKey("Example")?Data.DescriptionLong:"","`n`t")
     Name:=RegExReplace(Data.Name,"(\(.*\)\{*\s*)*\;*")
     SectionName:=FindSectionName(Data.Section)
     MainSecDescription:=Data.Description
@@ -1146,7 +1146,7 @@ fLoadFiles(File,Identifier)
 		for k,v in File
 		{
 			FileRead, f, % v
-			f0:=f
+			Clipboard:=f0:=f
 			if !Instr(f,Identifier)
         		f_ThrowError(A_ThisFunc,"Settings for " script.name " could not be loaded. The string '" Identifier "'  is missing.",A_ThisFunc . "_" 1, Exception("",-1).Line)
 			f:=strsplit(f,Identifier)
@@ -1518,13 +1518,10 @@ fParseArr(Arr,SettingsIdentifier,ArrSnippetStrings)
 	for k,v in Snippets
 	{ 	; grab description and example sections and store in respective obj.
 		; thank you to u/anonymous1184 on reddit for helping me with the needles for this section
-		if Regexmatch(v.Code,"ims)^\s*\/\*\s*description.*?\*\/",e) 
+		if Regexmatch(v.Code,"ims)\s*\/\*\s*description(\(s\))*(?:\S+)?\n.*?\*\/",e) 
 			Snippets[k,"DescriptionLong"]:=e
-		if RegExMatch(v.Code,"ims)^\s*\/\*\s*example(\(s\))*.*?\*\/",f)
+		if RegExMatch(v.Code,"ims)\s*\/\*\s*example(\(s\))*(?:\S+)?\n.*?\*\/",f)				
  			Snippets[k,"Example"]:=f
-		; Snippet.DescriptionLong:=Desc
-		; and then the same for examples below.
-		; Snippet.ExamplesLong:=RegExMatch(v.Code,"ims)^\s*\/\*\s*example.*?\*\/",q)
 	}
     return [Snippets,aKeys2]
 }

@@ -6,7 +6,8 @@ List-version 11.07.2022 16:29
 
 
 ## Fixes
-- [ ]		Seems completed, needs to be tested.			 URGENT: Fix the Structure of Snippets[] to not use the snippet name alone as Key → multiple snippets with identical name (but. f.e. different descriptions) will overwrite each other. 
+- [ ] URGENT: Fix the damn needles for matching the description and example blocks from snippet.code not matching anymore.
+- [X]		Seems completed, needs to be tested.			 URGENT: Fix the Structure of Snippets[] to not use the snippet name alone as Key → multiple snippets with identical name (but. f.e. different descriptions) will overwrite each other. 
 	- Suggestion: make a hash-key out of the library-file 
 - [ ] ~~#important: fix line 1050, or decide to #wontfix.~~ Error not reproducable right now.
 
