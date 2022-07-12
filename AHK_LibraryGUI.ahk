@@ -48,7 +48,7 @@ global script := {   base         : script
 					,configfile   : A_ScriptDir "\INI-Files\" regexreplace(A_ScriptName, "\.\w+") ".ini"
                     ,configfolder : A_ScriptDir "\INI-Files"}
 script.Load()
-script.Update() ;; TODO
+; script.Update_CHeckThisLine() ;; DO NOT ACTIVATE THISLINE UNTIL YOU DUMBO HAS FIXED THE DAMN METHOD. God damn it.
 
 global Hashes:=[]
 if IsObject(script.config.libraries)
@@ -837,28 +837,41 @@ if (A_ThisLabel="lSearchSnippetsEnter")
 	Sleep, 100
 	SendInput, {Down Up} 
 }
-
-if Instr(SearchString,"id:")
+results:=[]
+prelimresults:=[]
+if Instr(SearchString,"s:") && Instr(SearchString,"id:") 		; search both sectionID and snippetID
+{
+	if RegExMatch(SearchString,"id\:(?<Ind>\d+)",s)			
+	{
+		prelimresults:=f_FindOccurences("SnippetInd:" sInd,Arr.1,CurrentMode) ;; first search for snippetID
+		if RegExMatch(SearchString,"s\:(?<Ind>\d+)",s)
+			results:=f_FindOccurences("Sec:"sInd,prelimresults,CurrentMode) ;; next search for sectionID
+	}
+	if RegExMatch(SearchString,"s\:(?<Ind>\d+)",s)			
+	{
+		prelimresults:=f_FindOccurences("Sec:" sInd,Arr.1,CurrentMode) ;; first search for sectionID
+		if RegExMatch(SearchString,"id\:(?<Ind>\d+)",s)
+			results:=f_FindOccurences("SnippetInd:"sInd,prelimresults,CurrentMode) ;; next search for snippetID
+	}		
+}
+else if Instr(SearchString,"id:") && !Instr(SearchString,"s:") 			; search only snippetID
 {
 	if RegExMatch(SearchString,"id\:(?<Ind>\d+)",s)
-		results:=f_FindOccurences("SnippetInd:"sInd,Arr.1,CurrentMode) ;; search snippet code ||  MISSING: Find in Section
+		prelimresults:=f_FindOccurences("SnippetInd:" sInd,Arr.1,CurrentMode) ;; search snippet code ||  MISSING: Find in Section
 }
-else if Instr(SearchString,"s:")
+else if Instr(SearchString,"s:") && !Instr(SearchString,"id:") 		; search only sectionID
 {
 	if RegExMatch(SearchString,"s\:(?<Ind>\d+)",s)
-		results:=f_FindOccurences("Sec:"sInd,Arr.1,CurrentMode) ;; search snippet code ||  MISSING: Find in Section
+		prelimresults:=f_FindOccurences("Sec:"sInd,Arr.1,CurrentMode) ;; search snippet code ||  MISSING: Find in Section
 }
-else
-	results:=f_FindOccurences(SearchString,Arr.1,CurrentMode) ;; search snippet code ||  MISSING: Find in Section
+else																; search neither
+	prelimresults:=f_FindOccurences(SearchString,Arr.1,CurrentMode) ;; search snippet code ||  MISSING: Find in Section
+
 /*
-DEPRECATED
-						ArrNew:=[[],[]]
-						if IsObject(results) && (results.MaxIndex()!="")
-						{
-							SearchBackUpArray:=Arr.Clone() ; store default array
-							ArrNew[1]:=f_CollectMatchingEntries(results,Arr)
-						}
+TODO: figure out how to combine results from id/sec-search with actual string searches - need to decide on a syntax to strip away the s:/id: portion, and then continue on the found snippets with the remainder of the string.
 */
+if results.Length()=0
+	results:=prelimresults.Clone()		;; make sure the right set is used 
 GuiControl, -Redraw, LVvalue
 fPopulateLV(results,SectionNames)
 rcount:=results.Count()
@@ -1031,6 +1044,12 @@ fPopulateLV(Snippets,SectionNames)
     LV_Delete()
 	Snips:=Snippets.Clone()
 	NewSnippetsSorted:=[]
+	SectionIndexLength:=1
+	SectionPad:=""
+	for k,v in Snippets
+		SectionIndexLength:=(StrLen(SectionNames.MaxIndex())>SectionIndexLength?StrLen(SectionNames.MaxIndex()):SectionIndexLength)
+	loop, % SectionIndexLength
+		SectionPad.="0"
 	if (2>1)
 	{				;; new Snippet Indexing ensures that snippet identifiers across each section constitute a list from 1 → Section.Count(), instead of treating section and snippet identifier separately.
 		for SecInd,thisSec in SectionNames
@@ -1040,35 +1059,19 @@ fPopulateLV(Snippets,SectionNames)
 				if (v.Section==SecInd) ;; 
 				{
 					v.FileInd:=v.Ind
-					v.Ind:=fPadIndex(SectionSpecificIndex++,Snippets.Count())
+					v.Ind:=fPadIndex(SectionSpecificIndex++,Snippets.Count())	;; v.Ind is now section-specific, and this is the one being displayed
 				}
 		}
 		for k,v in Snippets
 		{
 			Addition:=[]
-			Addition.Section:=(fPadIndex(v.Section,Snippets.Count())) " - " (SectionNames[strsplit(v.Section,".").1]=""?"-1 INVALIDSECTIONKEY":SectionNames[strsplit(v.Section,".").1])
+			Addition.Section:=(fPadIndex(v.Section,SectionPad)) " - " (SectionNames[strsplit(v.Section,".").1]=""?"-1 INVALIDSECTIONKEY":SectionNames[strsplit(v.Section,".").1])
 			Addition.Name:=RegExReplace(v.Name,"(\(.*\)\{*\s*)*\;*")
 			Addition.Description:=v.Description
 			Addition.Hash:=v.Hash
-			; Addition.LVInd:=fPadIndex(v.Section,Snippets.Count())"." fPadIndex(v.Ind,"00")
-			Addition.FileInd:=fPadIndex(v.Section,Snippets.Count())"." fPadIndex(v.FileInd,"00") ;||Issue: when searching, the section ID gets truncated to Snippets.Count()-length. Meaning if we 13 results, the sectionID will be padded to double digits. If we only have 4 results, the sectionID will get truncated to 1 digit.
-			LV_Add("-E0x200",		Addition.Section,		Addition.Name,		Addition.Description,		Addition.Hash,		Addition.FileInd		)
-			; v.FileInd:=
-			; LV_Add("-E0x200",(fPadIndex(v.Section,Snippets.Count())) " - " (SectionNames[strsplit(v.Section,".").1]=""?"-1 INVALIDSECTIONKEY":SectionNames[strsplit(v.Section,".").1]),RegExReplace(v.Name,"(\(.*\)\{*\s*)*\;*"),v.Description ,fPadIndex(v.Section,Snippets.Count())"."v.Ind)
-		}
-	}
-	else
-	{				;; legacy method. Snippet index goes from 1 → N, where N==Snippets.Count(). Does not restart at 1 for each section.
-		for k,v in Snippets
-		{
-			Addition:=[]
-			Addition.Section:=(fPadIndex(v.Section,Snippets.Count())) " - " (SectionNames[strsplit(v.Section,".").1]=""?"-1 INVALIDSECTIONKEY":SectionNames[strsplit(v.Section,".").1])
-			Addition.Name:=RegExReplace(v.Name,"(\(.*\)\{*\s*)*\;*")
-			Addition.Description:=v.Description
-			Addition.Hash:=v.Hash
-			Addition.Ind:=fPadIndex(v.Section,Snippets.Count())"." fPadIndex(v.Ind,"00")
-			Addition.FileInd:=fPadIndex(v.Section,Snippets.Count())"." fPadIndex(v.FileInd,"00")	;; this is the <true> index
-			LV_Add("-E0x200",		Addition.Section,		Addition.Name,		Addition.Description,		Addition.Hash,		Addition.FileInd		)
+			; Addition.LVInd:=fPadIndex(v.Section,Snippets.Count())"." fPadIndex((Instr(A_ThisLabel,"lSearchSnippets")?v.FileInd:v.Ind),"00")	;; WORKING VERSION; EXCEPT SECTION ID NOT PADDED
+			Addition.LVInd:=fPadIndex(v.Section,SectionPad)"." fPadIndex((Instr(A_ThisLabel,"lSearchSnippets")?v.FileInd:v.Ind),"00")
+			LV_Add("-E0x200",		Addition.Section,		Addition.Name,		Addition.Description,		Addition.Hash,		Addition.LVInd		)
 		}
 	}
 	LV_ModifyCol(4,0) 
