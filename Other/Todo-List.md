@@ -24,6 +24,9 @@ List-version 13.07.2022 06:28:44
 	- [ ] Make the GUI _actually_ scaleable via AutoXYWH or similar solutions.
 - [x] Fix lSearchSnippets searching in the unfixed file string, where snippet ID's are not aligned → must search in Snippets[]-Object Instead
 ## Additions
+- [ ] Incorporate Library-Name into Snippet Info during fParseSnippet, then populate the LV field respectively. 
+	- [ ] done in principle, but must be verified to not introduce bugs somewhere else
+	- [ ] Consideration to make: Might make it hidable because the information it gives is limited, and only really relevant when you need to figure out where a snippet is located. For that however I could just as well straight out output the snippet-object or just have the file open automatically.
 - [ ] Update scriptObj-Update()-Method to work properly with one-script-files/a repository of files.
 	- [ ] this includes making more extensive tests
 	- [ ] creating a backup folder of the pre-update instance including all files within the folder/zip script-directory into a backup within script-dir and then overwrite all files.

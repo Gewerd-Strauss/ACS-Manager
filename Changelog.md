@@ -1,6 +1,11 @@
 # Changelog
+v. ????????
+---
 v.13.07.2022-2
+- removed various instances of clipboard overwriting for testing reasons. Still left in code for possible debug later on, but right now disabled.
+- added Library-Name to the Listview. Might make it hidable because the information it gives is limited, and only really relevant when you need to figure out where a snippet is located. For that however I could just as well straight out output the snippet-object or just have the file open automatically.
 - [x] fixed bug introduced in v.13.07.2022-1 which made a regex-needle unusable.
+---
 v.13.07.2022-1
 - [x] Collect all regex needles in an object at script-start to prevent accidental variation between occurences
 - [x] fix the RichCode highlighter not working

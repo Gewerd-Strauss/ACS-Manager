@@ -67,7 +67,7 @@ if IsObject(script.config.libraries)
 }
 else
 	Arr:=fLoadFiles(script.config.libraries,Identifier:="\\ Script-settings \\")
-Clipboard:=Arr.4
+; Clipboard:=Arr.4
 Arr.1:=Arr.1
 global SectionNames:=fCreateIniObj(Arr.2) ;; contains SectionNames
 
@@ -499,7 +499,7 @@ lGUICreate_1New: ;; Fully Parametric-form
 					Width_ListView:=vGuiWidth-2*WidthMargin_Global
 					Height_ListView:=vGuiHeight*HeightFraction_ListView
         			gui, font,s8
-					gui, add, Listview, x%xPos_ListView% y%yPos_ListView% w%Width_ListView% h%Height_ListView% +Report ReadOnly  -vScroll vLVvalue glLV_Callback, Section|Snippet Name|Short description|Hash|Snippet Identifier
+					gui, add, Listview, x%xPos_ListView% y%yPos_ListView% w%Width_ListView% h%Height_ListView% +Report ReadOnly  -vScroll vLVvalue glLV_Callback, Section|Snippet Name|Short description|Hash|Libraryfile|Snippet Identifier
 					guicontrol, font, LVvalue
 			; Define Parameters - Description Box
 					xPos_DescriptionBox:=WidthMargin_Global
@@ -666,6 +666,7 @@ lGUICreate_1New: ;; Fully Parametric-form
 		gui, tab
 
 		gui, add, statusbar, -Theme vStatusBarMainWindow BackGround373b41 glCallBack_StatusBarMainWindow ; finish up statusbar - settings, updating library/adding additional libraries
+		SB_SetParts()
 		gosub, lGuiShow_1
         Hotkey, IfWinActive, % "ahk_id " MainGUI
 		Hotkey, ^Tab,lTabThroughTabControl
@@ -1071,19 +1072,21 @@ fPopulateLV(Snippets,SectionNames)
 			Addition.Name:=RegExReplace(v.Name,Regex.StripFunctionName)
 			Addition.Description:=v.Description
 			Addition.Hash:=v.Hash
+			Addition.LibraryName:=v.LibraryName
 			; Addition.LVInd:=fPadIndex(v.Section,Snippets.Count())"." fPadIndex((Instr(A_ThisLabel,"lSearchSnippets")?v.FileInd:v.Ind),"00")	;; WORKING VERSION; EXCEPT SECTION ID NOT PADDED
 			Addition.LVInd:=fPadIndex(v.Section,SectionPad)"." fPadIndex((Instr(A_ThisLabel,"lSearchSnippets")?v.FileInd:v.Ind),"00")
-			LV_Add("-E0x200",		Addition.Section,		Addition.Name,		Addition.Description,		Addition.Hash,		Addition.LVInd		)
+			LV_Add("-E0x200",		Addition.Section,		Addition.Name,		Addition.Description,		Addition.Hash,		Addition.LibraryName,		Addition.LVInd		)
 		}
 	}
 	LV_ModifyCol(4,0) 
-	LV_ModifyCol(5,"Right")
+	LV_ModifyCol(6,"Right")
     LV_ModifyCol(3,"AutoHdr")
     LV_ModifyCol(1,"AutoHdr")
     LV_ModifyCol(4,"Right")
 	LV_ModifyCol(5,"AutoHdr")
+	LV_ModifyCol(6,"AutoHdr")
     LV_ModifyCol(2,"AutoHDr")
-	LV_ModifyCol(5,"Sort")
+	LV_ModifyCol(6,"Sort")
 	str:=snippets.count() " snippets loaded" 
 	guicontrol,,vSearchFunctions,% str
     return
@@ -1148,7 +1151,7 @@ fLoadFiles(File,Identifier)
 		for k,v in File
 		{
 			FileRead, f, % v
-			Clipboard:=f0:=f
+			; Clipboard:=f0:=f
 			if !Instr(f,Identifier)
         		f_ThrowError(A_ThisFunc,"Settings for " script.name " could not be loaded. The string '" Identifier "'  is missing.",A_ThisFunc . "_" 1, Exception("",-1).Line)
 			f:=strsplit(f,Identifier)
@@ -1219,7 +1222,7 @@ fMergeFileData(Files,Identifier)
 			{
 				if Instr(StringToEdit,",Section:" Map.2 ",")
 				{ ;; this step only works because FileArrayToEdit is just a map to Files. The two objects are linked, and thus altering one alters the other.
-					FileArrayToEdit[1,Index]:=StrReplace(StringToEdit,",Section:" Map.2 ",",",Section:" NewInd ",")
+					FileArrayToEdit[1,Index]:=d:=StrReplace(StringToEdit,",Section:" Map.2 ",",",Section:" NewInd ",") ; "|" Map.1
 					FileArrayToEdit[4]:=StrReplace(FileArrayToEdit[4],",Section:" Map.2 ",",",Section:" NewInd ",")
 					for Index2,StringToEdit2 in FileArrayToEdit[3]
 					{
@@ -1227,7 +1230,7 @@ fMergeFileData(Files,Identifier)
 						{
 
 						}
-						FileArrayToEdit[3,Index2]:=Strreplace(FileArrayToEdit[3,Index2],",Section:" Map.2 ",",",Section:" NewInd ",")
+						FileArrayToEdit[3,Index2]:=Strreplace(FileArrayToEdit[3,Index2],",Section:" Map.2 ",",",Section:" NewInd ",") 
 						PrevSection:=Map.2
 						
 						; if Instr(StringToEdit2,",Section:" Map.2 ",")
@@ -1267,7 +1270,7 @@ fMergeFileData(Files,Identifier)
 			MainOld:=Main.Clone()
 			Ind++
 			Main.4:=strsplit(v.4,"\\ Script-settings \\").1 ; strip off Script-settings-section
-			Clipboard:=Main.4
+			; Clipboard:=Main.4
 			continue
 		}
 		; SectionNames2:=strsplit(strsplit(v.2,":=").2,",")
@@ -1297,7 +1300,7 @@ fMergeFileData(Files,Identifier)
 	Main.2:=AllSectionString
 	; ClipBoard:=Main.4
 	; ; Main.2:=ClipBoard:=AllSectionString
-	ClipBoard:=Main.4
+	; ClipBoard:=Main.4
 		return Main
 }
 f_AddHashedFilePath(File)
@@ -1310,16 +1313,28 @@ f_IncorporateHash(File)
 {	; incorporate Hash into file struct
 	Number:=1 ;; make each Hash Unique
 	; if (Hashes="")
-		
+	SplitPath, % File.5,	,	,	,FileName
 	for ind, line in File.1
 	{
 		if RegExMatch(Line,Regex.SnippetFinder,c)
 		{
 			Hashes.Push(Hash:=Object_HashmapHash(File.5 " - " Line "-" Number++)) ; generate Hash based upon Filepath and Runtime of script  as distinguisher ; || )
-			File[1,ind]:=ST_Insert("Hash_" Hash ",",oLine:=File[1,ind],Loc:=Instr(File[1,ind],",Description:")+StrLen(",Description:"))
+			File[1,ind]:=d:=ST_Insert("Hash_" Hash ",",oLine:=File[1,ind],Loc:=Instr(File[1,ind],",Description:")+StrLen(",Description:")) . ",LibName_" FileName
+			oLine2:=File[1,Ind]
 			for k, val in File.3
+			{
 				if Instr(val,oLine)
-					File[3,k]:=  ST_Insert("Hash_" Hash ",",oLine:=val,Loc:=Instr(val,",Description:")+StrLen(",Description:"))
+				{
+					CurrEdit:= Clipboard:= ST_Insert("Hash_" Hash ",",oLine:=val,Loc:=Instr(val,",Description:")+StrLen(",Description:")) 
+					RegExMatch(CurrEdit,"\,Description\:(?<DescAlone>.*)`n",v) ;   vNewDesc NewDesc
+					DescLength:=StrLen(d:=StrSplit(vDescAlone,"`n").1)+13
+					ClipBoard:=CurrEdit
+					File[3,k]:=Clipboard:=ST_Insert(",LibName_" FileName ,CurrEdit,Loc:=Instr(CurrEdit,",Description:")+DescLength) ;. "LibName_" FileName
+
+				}
+
+			}
+				
 		}
 	}
 	; rebuild File.4 ;; maybe stop building File.4 before this point so as to save some runs
@@ -1419,7 +1434,7 @@ fParseArr(Arr,SettingsIdentifier,ArrSnippetStrings)
     bFirstFunctionDefLine:=0
 	LastSnippetInd:=0
 	TotalSnippetInd:=0
-	Clipboard:=ArrSnippetStrings.1
+	; Clipboard:=ArrSnippetStrings.1
     loop, % Arr.MaxIndex()
     {   
         snippet:={Name:"",Code:""}
@@ -1464,6 +1479,7 @@ fParseArr(Arr,SettingsIdentifier,ArrSnippetStrings)
             if aKeys[aKeys.MaxIndex()]!=""
                 sCurrentFunction:=cFunctionName
 			snippet.Hash:=strsplit(snippet.Description,",").1
+			snippet.LibraryName:=strsplit(snippet.Description,",LibName_").2
 			snippet.Description:=strsplit(snippet.Description,",").2
             if (aKeys[A_Index]="")
             {
@@ -1511,7 +1527,7 @@ fParseArr(Arr,SettingsIdentifier,ArrSnippetStrings)
         DefLine:=snippets[k,Name] "(" ")"
         Snippets[k].Code:=strsplit(Snippets[k].FullDefLine "`n" Snippets[k].Code,"\\\---NewSnippet---\\\").1
 
-		Clipboard:=Snippets[k].Code
+		; Clipboard:=Snippets[k].Code
     }
     
     
