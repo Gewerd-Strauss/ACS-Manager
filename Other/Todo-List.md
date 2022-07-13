@@ -6,13 +6,15 @@ List-version 13.07.2022 06:28:44
 
 
 ## Fixes
+- [ ] at 1080 screen sizing the textfield of the red "xx snippets loaded" will cut over the boundary of the groupbox control
+- [ ] at 1080 screen sizing the richEdit-fields will cut over the boundary of the tab control
 - [x]		Seems completed, needs to be tested.			 URGENT: Fix the Structure of Snippets[] to not use the snippet name alone as Key → multiple snippets with identical name (but. f.e. different descriptions) will overwrite each other. 
 	- Suggestion: make a hash-key out of the library-file 
 
 - [ ] Fix RegexNeedle in fParseArr() to accomodate for snippets which don't have a function-format
 
 - [ ] Fix the bars here not wrapping properly, as well as the text somehow not wrapping properly ![[Documentation/Pasted image 20220711090346.png]]
-- [ ] Fix the snippetID's not being padded when searching![[Documentation/Pasted image 20220711090843.png]] vs ![[Documentation/Pasted image 20220711090901.png]]
+- [x] Fix the snippetID's not being padded when searching![[Documentation/Pasted image 20220711090843.png]] vs ![[Documentation/Pasted image 20220711090901.png]]
 - [ ] Fix: Figure out how the fuck the tab3 is supposed to work - because clearly enough it does not work at all.
 - [ ] Fix: figure out why the description text of snippet 2 is cut off although there is still space left.
 - [ ] ~~#important: fix line 1050, or decide to #wontfix.~~ Error not reproducable right now.

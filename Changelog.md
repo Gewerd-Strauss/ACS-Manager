@@ -1,5 +1,14 @@
 # Changelog
-v. ????????
+v. 13.07.2022-3
+- removed some irrelevant code
+- added hostring `alib.s` to open GUI- added hostring `alib.s` to open GUI^[previously only possible via Numpad0, which is kinda hard on a mobile 13"-laptop]
+- added a few comments on particularly weird stuff, or todo's for later
+- renamed `f_IncorporateHash` to `f_IncorporateHashAndFilename`
+- moved code out of `f_IncorporateHashAndFileName` into `f_AddHashedFilePath`  - not entirely happy with the current solution either
+- added `CodeTimer()` to benchmark the bootup process
+- renamed `fCreateIniObj()` to `fCreateSectionNames()` because it has really _nothing to do with an Ini-Object anymore.
+- removed unused ini-files
+
 ---
 v.13.07.2022-2
 - removed various instances of clipboard overwriting for testing reasons. Still left in code for possible debug later on, but right now disabled.

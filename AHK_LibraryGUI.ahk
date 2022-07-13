@@ -8,6 +8,7 @@ CurrentMode:="Instr"
 ; Add scriptObj-template and convert Code to use it - maybe, just a thought. Syntax of the Library-File is probably way too special for doing so, and there are no real configs to save anyways
 ; separate library-files and settings-files, take a peek at ahk-rare to see what they store in settings
 #Include <scriptObj>
+CodeTimer("D")
 FileGetTime, ModDate,%A_ScriptFullPath%,M
 FileGetTime, CrtDate,%A_ScriptFullPath%,C
 CrtDate:=SubStr(CrtDate,7,  2) "." SubStr(CrtDate,5,2) "." SubStr(CrtDate,1,4)
@@ -69,52 +70,13 @@ else
 	Arr:=fLoadFiles(script.config.libraries,Identifier:="\\ Script-settings \\")
 ; Clipboard:=Arr.4
 Arr.1:=Arr.1
-global SectionNames:=fCreateIniObj(Arr.2) ;; contains SectionNames
+oArr:=Arr.Clone()
+global SectionNames:=fCreateSectionNames(Arr.2) ;; contains SectionNames
 
 Arr:=fParseArr(Arr.1,Identifier,Arr.3)
 Snippets:=Arr.1
-OrderKey:=Arr.2
 GuiNameMain:="TotallyNotAHKRAre"
 GuiNameIngestion:="Ingestion Helper"
-FileRead, TODO, % A_ScriptDir "\Other\Todo-List.md"
-
-; MsgBox, % TODO
-RESettings :=
-		( LTrim Join Comments
-		{
-		"TabSize"         	: 4,
-		"Indent"           	: "`t",
-		"FGColor"         	: 0xEDEDCD,
-		"BGColor"        	: 0x172842,
-		"Font"              	: {"Typeface": "Bitstream Vera Sans Mono", "Size": 10},
-		"WordWrap"    	: False,
-
-		"UseHighlighter"	: True,
-		"HighlightDelay"	: 200,
-
-		"Colors": {
-			"Comments"		:	0x7F9F7F,
-			"Functions"  	:	0x7CC8CF,
-			"Keywords"  	:	0xE4EDED,
-			"Multiline"   	:	0x7F9F7F,
-			"Numbers"   	:	0xF79B57,
-			"Punctuation"	:	0x97C0EB,
-			"Strings"      	:	0xCC9893,
-
-			; AHK
-			"A_Builtins"   	:	0xF79B57,
-			"Commands"		:	0xCDBFA3,
-			"Directives"  	:	0x7CC8CF,
-			"Flow"          :	0xE4EDED,
-			"KeyNames"		:	0xCB8DD9,
-			"Descriptions"	:	0xF0DD82,
-			"Link"          :	0x47B856,
-
-			; PLAIN-TEXT
-			"PlainText"		:	0x7F9F7F
-			}
-		}
-		)
 RESettings2 :=
 ( LTrim Join Comments
 {
@@ -161,9 +123,8 @@ RESettings2 :=
 }
 )
 
-
-; gosub, lGUICreate_1 ; Old hard coded form
 gosub, lGUICreate_1New
+CodeTimer("D")
 return
 
 lGuiCreate_2:
@@ -890,6 +851,7 @@ if (ContentsSearchField="")
 	GuiControl,, vSearchFunctions,% "Search in " snippets.count() " snippets"
 return
 
+::alib.s::
 Numpad0::
 if WinActive(GuiNameMain)
     gosub, lGuiHide_1
@@ -1053,30 +1015,28 @@ fPopulateLV(Snippets,SectionNames)
 		SectionIndexLength:=(StrLen(SectionNames.MaxIndex())>SectionIndexLength?StrLen(SectionNames.MaxIndex()):SectionIndexLength)
 	loop, % SectionIndexLength
 		SectionPad.="0"
-	if (2>1)
-	{				;; new Snippet Indexing ensures that snippet identifiers across each section constitute a list from 1 → Section.Count(), instead of treating section and snippet identifier separately.
-		for SecInd,thisSec in SectionNames
-		{
-			SectionSpecificIndex:=1
-			for k,v in Snippets
-				if (v.Section==SecInd) ;; 
-				{
-					v.FileInd:=v.Ind
-					v.Ind:=fPadIndex(SectionSpecificIndex++,Snippets.Count())	;; v.Ind is now section-specific, and this is the one being displayed
-				}
-		}
+	;; new Snippet Indexing ensures that snippet identifiers across each section constitute a list from 1 → Section.Count(), instead of treating section and snippet identifier separately.
+	for SecInd,thisSec in SectionNames
+	{
+		SectionSpecificIndex:=1
 		for k,v in Snippets
-		{
-			Addition:=[]
-			Addition.Section:=(fPadIndex(v.Section,SectionPad)) " - " (SectionNames[strsplit(v.Section,".").1]=""?"-1 INVALIDSECTIONKEY":SectionNames[strsplit(v.Section,".").1])
-			Addition.Name:=RegExReplace(v.Name,Regex.StripFunctionName)
-			Addition.Description:=v.Description
-			Addition.Hash:=v.Hash
-			Addition.LibraryName:=v.LibraryName
-			; Addition.LVInd:=fPadIndex(v.Section,Snippets.Count())"." fPadIndex((Instr(A_ThisLabel,"lSearchSnippets")?v.FileInd:v.Ind),"00")	;; WORKING VERSION; EXCEPT SECTION ID NOT PADDED
-			Addition.LVInd:=fPadIndex(v.Section,SectionPad)"." fPadIndex((Instr(A_ThisLabel,"lSearchSnippets")?v.FileInd:v.Ind),"00")
-			LV_Add("-E0x200",		Addition.Section,		Addition.Name,		Addition.Description,		Addition.Hash,		Addition.LibraryName,		Addition.LVInd		)
-		}
+			if (v.Section==SecInd) ;; 
+			{
+				v.FileInd:=v.Ind
+				v.Ind:=fPadIndex(SectionSpecificIndex++,Snippets.Count())	;; v.Ind is now section-specific, and this is the one being displayed
+			}
+	}
+	for k,v in Snippets
+	{
+		Addition:=[]
+		Addition.Section:=(fPadIndex(v.Section,SectionPad)) " - " (SectionNames[strsplit(v.Section,".").1]=""?"-1 INVALIDSECTIONKEY":SectionNames[strsplit(v.Section,".").1])
+		Addition.Name:=RegExReplace(v.Name,Regex.StripFunctionName)
+		Addition.Description:=v.Description
+		Addition.Hash:=v.Hash
+		Addition.LibraryName:=v.LibraryName
+		; Addition.LVInd:=fPadIndex(v.Section,Snippets.Count())"." fPadIndex((Instr(A_ThisLabel,"lSearchSnippets")?v.FileInd:v.Ind),"00")	;; WORKING VERSION; EXCEPT SECTION ID NOT PADDED
+		Addition.LVInd:=fPadIndex(v.Section,SectionPad)"." fPadIndex((Instr(A_ThisLabel,"lSearchSnippets")?v.FileInd:v.Ind),"00")
+		LV_Add("-E0x200",		Addition.Section,		Addition.Name,		Addition.Description,		Addition.Hash,		Addition.LibraryName,		Addition.LVInd		)
 	}
 	LV_ModifyCol(4,0) 
 	LV_ModifyCol(6,"Right")
@@ -1172,7 +1132,6 @@ fLoadFiles(File,Identifier)
 		f:=strsplit(f,Identifier)
 		return [strsplit(f.1,"`n"),f.2,strsplit(f.1,"\\\---NewSnippet---\\\"),f0,File]
 	}
-
 }
 
 fMergeFileData(Files,Identifier)
@@ -1186,11 +1145,9 @@ fMergeFileData(Files,Identifier)
 		if (Ind==1)
 		{
 			Main:=v.Clone()
-			MainOld:=Main.Clone()
 			Ind++
 			continue
 		}
-
 		SectionNames2:=strsplit(strsplit(v.2,":=").2,", ") ;; get the section names of the added file
 		for i,SName in SectionNames2
 			if !Instr(Main.2,SName)	;; combine Section Names
@@ -1198,9 +1155,6 @@ fMergeFileData(Files,Identifier)
 				Main.2.=", " SName 
 				EditSections.push(File " - " i "`:`:" Sname)			;; get a map of which section identifiers must be changed when indexing the scripts
 			}
-		
-		de:=
-		da:=
 		AllSectionString:=Main.2
 		AllSections:=(Strsplit(StrSplit(Main.2,":=").2,", "))
 	}
@@ -1217,7 +1171,7 @@ fMergeFileData(Files,Identifier)
 			; Map.1:=FileName of file to edit within
 			; Map.2:=Old index
 			; NewInd:=new index to replace Old Index with in Map.1 contents
-			FileArrayToEdit:=Files[Map.1]
+			FileArrayToEdit:=Files[Map.1]		;; could be clarified to operate on Files[] directly I believe? There was a reason why I did this, but given I can't recall it can't have been a serious one.
 			for Index,StringToEdit in FileArrayToEdit[1]
 			{
 				if Instr(StringToEdit,",Section:" Map.2 ",")
@@ -1226,25 +1180,13 @@ fMergeFileData(Files,Identifier)
 					FileArrayToEdit[4]:=StrReplace(FileArrayToEdit[4],",Section:" Map.2 ",",",Section:" NewInd ",")
 					for Index2,StringToEdit2 in FileArrayToEdit[3]
 					{
-						if (PrevSection==Map.2)
-						{
-
-						}
 						FileArrayToEdit[3,Index2]:=Strreplace(FileArrayToEdit[3,Index2],",Section:" Map.2 ",",",Section:" NewInd ",") 
 						PrevSection:=Map.2
-						
-						; if Instr(StringToEdit2,",Section:" Map.2 ",")
-						; {
-
-						; }
 					}
 				}
 			}
 		}
-		; Clipboard:=Object2String()
 	}
-	; Clipboard:=Files.L
-	; MsgBox, ","
  	Ind:=1
 	/*
 	; now we have 
@@ -1266,53 +1208,36 @@ fMergeFileData(Files,Identifier)
 		if (Ind==1)
 		{
 			Main:=v.Clone()
-			; Main:=f_AddHashedFilePath(Main)
-			MainOld:=Main.Clone()
 			Ind++
 			Main.4:=strsplit(v.4,"\\ Script-settings \\").1 ; strip off Script-settings-section
 			; Clipboard:=Main.4
 			continue
 		}
-		; SectionNames2:=strsplit(strsplit(v.2,":=").2,",")
-		; for i,SName in SectionNames2
-		; 	if !Instr(Main.2,SName)	;; combine Section Names
-		; 	{
-		; 		Main.2.=", " SName 
-		; 		EditSections.push(i "`:`:" Sname)			;; get a map of which 
-		; 	}
-		; 	; update Section-Identifiers in added libraries to point at the right position in Main.2
-		; 	AllSections:=Strsplit(StrSplit(Main.2,":=").2,", ")
-		
 		Main.1:=ObjM(Main.1,v.1)
-		; Main.2:=
-
 		Main.3:=ObjM(Main.3,v.3)
-		; Main.4:=""
-		; Main.4:=Strreplace()
 		Main.4.=Strsplit(v.4,"\\ Script-settings \\").1 ; strip Script-settings-section	
-		; Clipboard:=Main.4:=Strsplit(Main.4,"\\ Script-settings \\").1 ; strip Script-settings-section
-		 ;.=v.4
-		; Main:=f_AddHashedFilePath(Main)
 		Ind++
-		
 	}
 	Main.4.= Identifier AllSectionString
 	Main.2:=AllSectionString
-	; ClipBoard:=Main.4
-	; ; Main.2:=ClipBoard:=AllSectionString
-	; ClipBoard:=Main.4
-		return Main
+	return Main
 }
 f_AddHashedFilePath(File)
 {	; required to make every snippet unique, and thus distinguishable.
-	ret:=f_IncorporateHash(File)
+	ret:=f_IncorporateHashAndFileName(File)
+	OldF4:=ret.4
+	ret.4:=""
+	for k, v in ret.1
+		ret.4.=	v "`n"
+	ret.4.=ret.2			;; apend the sections at the end.
+	if (ret.4==OldF4)		;; TODO: This is no longer valid, the check must be changed to a St_Count Over every hash in Hashes to check if it appears more than once in the entire text of all files. FOr doing so, this must be moved outside of the loop which calls f_AddHashedFilePath... 
+		f_ThrowError(A_ThisFunc,"Critical error while creating unique hashes for snippet-differentiation. A specific Hash has been incoprorated more than once. " )
 	return ret.1
 }
 
-f_IncorporateHash(File)
-{	; incorporate Hash into file struct
+f_IncorporateHashAndFileName(File)
+{	; incorporate Hash into file struct, as well as FileName of the respective file.
 	Number:=1 ;; make each Hash Unique
-	; if (Hashes="")
 	SplitPath, % File.5,	,	,	,FileName
 	for ind, line in File.1
 	{
@@ -1320,7 +1245,6 @@ f_IncorporateHash(File)
 		{
 			Hashes.Push(Hash:=Object_HashmapHash(File.5 " - " Line "-" Number++)) ; generate Hash based upon Filepath and Runtime of script  as distinguisher ; || )
 			File[1,ind]:=d:=ST_Insert("Hash_" Hash ",",oLine:=File[1,ind],Loc:=Instr(File[1,ind],",Description:")+StrLen(",Description:")) . ",LibName_" FileName
-			oLine2:=File[1,Ind]
 			for k, val in File.3
 			{
 				if Instr(val,oLine)
@@ -1328,26 +1252,20 @@ f_IncorporateHash(File)
 					CurrEdit:= Clipboard:= ST_Insert("Hash_" Hash ",",oLine:=val,Loc:=Instr(val,",Description:")+StrLen(",Description:")) 
 					RegExMatch(CurrEdit,"\,Description\:(?<DescAlone>.*)`n",v) ;   vNewDesc NewDesc
 					DescLength:=StrLen(d:=StrSplit(vDescAlone,"`n").1)+13
-					ClipBoard:=CurrEdit
 					File[3,k]:=Clipboard:=ST_Insert(",LibName_" FileName ,CurrEdit,Loc:=Instr(CurrEdit,",Description:")+DescLength) ;. "LibName_" FileName
-
 				}
-
 			}
-				
 		}
 	}
-	; rebuild File.4 ;; maybe stop building File.4 before this point so as to save some runs
-	OldF4:=File.4
-	File.4:=""
-	for k, v in File.1
-		File.4.=	v "`n"
-	File.4.=File.2
-	; Clipboard:=File.4
-	if (File.4==OldF4)
-		f_ThrowError(A_ThisFunc,"Critical error while creating unique hashes for snippet-differentiation. A specific Hash has been incoprorated more than once. " )
-	; Clipboard:=File.4
-	return [File,Hashes]
+	; OldF4:=File.4
+	; File.4:=""
+	; for k, v in File.1
+	; 	File.4.=	v "`n"
+	; File.4.=File.2			;; apend the sections at the end.
+	; if (File.4==OldF4)		;; TODO: This is no longer valid, the check must be changed to a St_Count Over every hash in Hashes to check if it appears more than once in the entire text of all files. FOr doing so, this must be moved outside of the loop which calls f_AddHashedFilePath... 
+	; 	f_ThrowError(A_ThisFunc,"Critical error while creating unique hashes for snippet-differentiation. A specific Hash has been incoprorated more than once. " )
+	; ; rebuild File.4 		;; maybe stop building File.4 before this point so as to save some runs
+	return File
 }
 ST_Insert(insert,input,pos=1)
 {
@@ -1587,6 +1505,26 @@ st_pad(string, left="0", right="", LCount=1, RCount=1)
          Rout.=right
    }
    Return Lout string Rout
+}
+CodeTimer(Description,x:=500,y:=500,ClipboardFlag:=0)
+{ ; adapted from https://www.autohotkey.com/boards/viewtopic.php?t=45263
+	
+	Global StartTimer
+	
+	If (StartTimer != "")
+	{
+		FinishTimer := A_TickCount
+		TimedDuration := FinishTimer - StartTimer
+		StartTimer := ""
+		If (ClipboardFlag=1)
+		{
+			Clipboard:=TimedDuration
+		}
+		tooltip, Timer %Description%`n%TimedDuration% ms have elapsed!, x,y
+		Return TimedDuration
+	}
+	Else
+		StartTimer := A_TickCount
 }
 f_ThrowError(Source,Message,ErrorCode:=0,ReferencePlace:="S")
 	{ ; throws an error-message, possibly with further postprocessing
@@ -1909,7 +1847,7 @@ AddToolTip(_CtrlHwnd, _TipText, _Modify = 0) 			;-- very easy to use function to
 
 
 
-fCreateIniObj(str)
+fCreateSectionNames(str)
 {
     str:=strsplit(str,"=").2
     arr:=strsplit(trim(str),",")
