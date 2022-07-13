@@ -4,15 +4,9 @@
 SetTitleMatchMode, 2
 SendMode Input
 SetWorkingDir, %A_ScriptDir%
-; LibraryFile:=A_ScriptDir "\Sources\AHK_LibraryGUI.txt"
-; LibraryFile:=A_ScriptDir "\Sources\AHK_LibraryGUI.txt"
 CurrentMode:="Instr"
-; m("Decrease the Listvíew-to-codesection ratio to make space for more code")
 ; Add scriptObj-template and convert Code to use it - maybe, just a thought. Syntax of the Library-File is probably way too special for doing so, and there are no real configs to save anyways
 ; separate library-files and settings-files, take a peek at ahk-rare to see what they store in settings
-/*
-LLLLLLLLLLLLLLLLLLLLLOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOCCCCCCCCCCCCCCCCCCCCCCCCAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
-*/
 #Include <scriptObj>
 FileGetTime, ModDate,%A_ScriptFullPath%,M
 FileGetTime, CrtDate,%A_ScriptFullPath%,C
@@ -48,8 +42,16 @@ global script := {   base         : script
 					,configfile   : A_ScriptDir "\INI-Files\" regexreplace(A_ScriptName, "\.\w+") ".ini"
                     ,configfolder : A_ScriptDir "\INI-Files"}
 script.Load()
-; script.Update_CHeckThisLine() ;; DO NOT ACTIVATE THISLINE UNTIL YOU DUMBO HAS FIXED THE DAMN METHOD. God damn it.
-
+script.Update(,,1) ;; DO NOT ACTIVATE THISLINE UNTIL YOU DUMBO HAS FIXED THE DAMN METHOD. God damn it.
+global Regex:={	 NewSnippet:"`r`n\\\\\\---NewSnippet---\\\\\\`r`n"
+				,IDSearch:"id\\:\(\?<Ind>\\d\+\)"
+				,SecSearch:"s\:(?<Ind>\d+)"
+				,SnippetInd:"SnippetInd\:(?<SearchedInd>\d+)"
+				,SectionInd:"Sec\:(?<SearchedInd>\d+)"
+				,DescriptionLong:"ims)\s*\/\*\s*description(\(s\))*(?:\S+)?\n.*?\*\/"
+				,Example:"ims)\s*\/\*\s*example(\(s\))*(?:\S+)?\n.*?\*\/"
+				,StripFunctionName:"(\(.*\)\{*\s*)*\;*"
+				,SnippetFinder:"(\\\\\\---NewSnippet---\\\\\\\n)*((?<FunctionName>.*)(\((?<Parameters>.*)\))*(?<BraceOnNameLine>\{?)\s?\;?\|\|\|SnippetInd\:(?<SnippetInd>.*),Section:(?<Section>\d*(\.\d*)*)\,Description:(?<Description>.*))"}
 global Hashes:=[]
 if IsObject(script.config.libraries)
 {
@@ -792,8 +794,8 @@ guicontrol, focus, SearchString
 lCopyScript:
 SelectedLVEntry:=f_GetSelectedLVEntries()
 res:=Snippets[SelectedLVEntry.1.1.Hash].Code
-ClipBoard:=RegExReplace(res,"`r`n\\\\\\---NewSnippet---\\\\\\`r`n")
-if (Clipboard==RegExReplace(res,"`r`n\\\\\\---NewSnippet---\\\\\\`r`n"))
+ClipBoard:=RegExReplace(res,Regex.NewSnippet)
+if (Clipboard==RegExReplace(res,Regex.NewSnippet))
 	ttip("Snippet " SelectedLVEntry.1.1.SelectedEntryName " copied")
 return
 lSetSearchMethod: 
@@ -841,27 +843,27 @@ results:=[]
 prelimresults:=[]
 if Instr(SearchString,"s:") && Instr(SearchString,"id:") 		; search both sectionID and snippetID
 {
-	if RegExMatch(SearchString,"id\:(?<Ind>\d+)",s)			
+	if RegExMatch(SearchString,Regex.IDSearch,s)			
 	{
 		prelimresults:=f_FindOccurences("SnippetInd:" sInd,Arr.1,CurrentMode) ;; first search for snippetID
-		if RegExMatch(SearchString,"s\:(?<Ind>\d+)",s)
+		if RegExMatch(SearchString,Regex.SecSearch,s)
 			results:=f_FindOccurences("Sec:"sInd,prelimresults,CurrentMode) ;; next search for sectionID
 	}
-	if RegExMatch(SearchString,"s\:(?<Ind>\d+)",s)			
+	if RegExMatch(SearchString,Regex.SecSearch,s)			
 	{
 		prelimresults:=f_FindOccurences("Sec:" sInd,Arr.1,CurrentMode) ;; first search for sectionID
-		if RegExMatch(SearchString,"id\:(?<Ind>\d+)",s)
+		if RegExMatch(SearchString,Regex.IDSearch,s)
 			results:=f_FindOccurences("SnippetInd:"sInd,prelimresults,CurrentMode) ;; next search for snippetID
 	}		
 }
 else if Instr(SearchString,"id:") && !Instr(SearchString,"s:") 			; search only snippetID
 {
-	if RegExMatch(SearchString,"id\:(?<Ind>\d+)",s)
+	if RegExMatch(SearchString,Regex.IDSearch,s)
 		prelimresults:=f_FindOccurences("SnippetInd:" sInd,Arr.1,CurrentMode) ;; search snippet code ||  MISSING: Find in Section
 }
 else if Instr(SearchString,"s:") && !Instr(SearchString,"id:") 		; search only sectionID
 {
-	if RegExMatch(SearchString,"s\:(?<Ind>\d+)",s)
+	if RegExMatch(SearchString,Regex.SecSearch,s)
 		prelimresults:=f_FindOccurences("Sec:"sInd,Arr.1,CurrentMode) ;; search snippet code ||  MISSING: Find in Section
 }
 else																; search neither
@@ -964,7 +966,7 @@ f_GetLastFuncLines(Arr)
 f_FindOccurences(String,Array,Mode=1)
 {
 	SnippedOccurences:=[]
-	if RegexMatch(String, "SnippetInd\:(?<SearchedInd>\d+)",s)
+	if RegexMatch(String, Regex.SnippetInd,s)
 	{	
 		for SnippetIndex, Snippet in Array
 		{
@@ -972,7 +974,7 @@ f_FindOccurences(String,Array,Mode=1)
 				SnippedOccurences.push(Snippet)
 		}
 	}
-	else if RegexMatch(String, "Sec\:(?<SearchedInd>\d+)",s)
+	else if RegexMatch(String, Regex.SectionInd,s)
 	{	
 		for SnippetIndex, Snippet in Array
 		{
@@ -1066,7 +1068,7 @@ fPopulateLV(Snippets,SectionNames)
 		{
 			Addition:=[]
 			Addition.Section:=(fPadIndex(v.Section,SectionPad)) " - " (SectionNames[strsplit(v.Section,".").1]=""?"-1 INVALIDSECTIONKEY":SectionNames[strsplit(v.Section,".").1])
-			Addition.Name:=RegExReplace(v.Name,"(\(.*\)\{*\s*)*\;*")
+			Addition.Name:=RegExReplace(v.Name,Regex.StripFunctionName)
 			Addition.Description:=v.Description
 			Addition.Hash:=v.Hash
 			; Addition.LVInd:=fPadIndex(v.Section,Snippets.Count())"." fPadIndex((Instr(A_ThisLabel,"lSearchSnippets")?v.FileInd:v.Ind),"00")	;; WORKING VERSION; EXCEPT SECTION ID NOT PADDED
@@ -1091,12 +1093,12 @@ f_FillFields(Data)
 {
 	RC.Settings.Highlighter := "HighlightAHK"
 	RC.Value := []
-	code:=RegExReplace(Data.code,"` `n\\\\\\---NewSnippet---\\\\\\`r`n")
-	code:=RegexReplace(code,"ims)\s*\/\*\s*description(\(s\))*(?:\S+)?\n.*?\*\/")
-	RC.Value:=RegexReplace(code,"ims)\s*\/\*\s*example(\(s\))*(?:\S+)?\n.*?\*\/")
+	code:=RegExReplace(Data.code,Regex.NewSnippet)
+	code:=RegexReplace(code,Regex.DescriptionLong)
+	RC.Value:=RegexReplace(code,Regex.Example)
 	RC2.Value:=out:=LTrim(Data.HasKey("DescriptionLong")?Data.Example:"","`n`t")
 	RC3.Value:=LTrim(Data.HasKey("Example")?Data.DescriptionLong:"","`n`t")
-    Name:=RegExReplace(Data.Name,"(\(.*\)\{*\s*)*\;*")
+    Name:=RegExReplace(Data.Name,Regex.StripFunctionName)
     SectionName:=FindSectionName(Data.Section)
     MainSecDescription:=Data.Description
     e=
@@ -1311,7 +1313,7 @@ f_IncorporateHash(File)
 		
 	for ind, line in File.1
 	{
-		if RegExMatch(Line,"(\\\\\\---NewSnippet---\\\\\\\n)*((?<FunctionName>.*)(\((?<Parameters>.*)\))*(?<BraceOnNameLine>\{?)\s?\;?\|\|\|SnippetInd\:(?<SnippetInd>.*),Section:(?<Section>\d*(\.\d*)*)\,Description:(?<Description>.*))",c)
+		if RegExMatch(Line,Regex.SnippetFinder,c)
 		{
 			Hashes.Push(Hash:=Object_HashmapHash(File.5 " - " Line "-" Number++)) ; generate Hash based upon Filepath and Runtime of script  as distinguisher ; || )
 			File[1,ind]:=ST_Insert("Hash_" Hash ",",oLine:=File[1,ind],Loc:=Instr(File[1,ind],",Description:")+StrLen(",Description:"))
@@ -1426,9 +1428,7 @@ fParseArr(Arr,SettingsIdentifier,ArrSnippetStrings)
             break
         LastSnippetInd:=(cSnippetInd=""?LastSnippetInd:cSnippetInd)
         cFunctionName:=cParameters:=cSnippetInd:=cSection:=cSubSection:=cDescription:=cOpts:=""
-		; old:: "(\\\\\\---NewSnippet---\\\\\\\n)*((?<FunctionName>.*)\((?<Parameters>.*)\)(?<BraceOnNameLine>\{?)\s?\;?\|\|\|SnippetInd\:(?<SnippetInd>.*),Section:(?<Section>\d*(\.\d*)*)\,Description:(?<Description>.*))"
-		RegExMatch(CurrentLine,"(\\\\\\---NewSnippet---\\\\\\\n)*((?<FunctionName>.*)(\((?<Parameters>.*)\))*(?<BraceOnNameLine>\{?)\s?\;?\|\|\|SnippetInd\:(?<SnippetInd>.*),Section:(?<Section>\d*(\.\d*)*)\,Description:(?<Description>.*))",c)
-        ; RegExMatch(CurrentLine,"(?<FunctionName>.*)\((?<Parameters>.*)\)(?<BraceOnNameLine>\{?)\s?\;?\|\|\|SnippetInd\:(?<SnippetInd>.*),Section:(?<Section>\d*(\.\d*)*)\,Description:(?<Description>.*)",c)
+		RegExMatch(CurrentLine,Regex.SnippetFinder,c)
         sFirstCharCurrentLine:=SubStr(CurrentLine,1)
         if (sFirstCharCurrentLine!="`r") && (sFirstCharCurrentLine!="`t")   ; not in ["`r","`n","`t"]
         {
@@ -1451,7 +1451,7 @@ fParseArr(Arr,SettingsIdentifier,ArrSnippetStrings)
 				
 			}
 			if (cSection>d:=SectionNames.Count())
- 				f_ThrowError(A_ThisFunc,"Section index of of snippet """ regexreplace(snippet.Name,"(\(.*\)\{*\s*)*\;*\s*") """ does not correspond to any section. Please add section name at corresponding location into the csv at the bottom of the LibraryFile.`n`nSnippet begins at line " snippet.StartLine ".",A_ThisFunc . "_" 1, Exception("",-1).Line)
+ 				f_ThrowError(A_ThisFunc,"Section index of of snippet """ regexreplace(snippet.Name,Regex.StripFunctionName) """ does not correspond to any section. Please add section name at corresponding location into the csv at the bottom of the LibraryFile.`n`nSnippet begins at line " snippet.StartLine ".",A_ThisFunc . "_" 1, Exception("",-1).Line)
             if cSection
                 snippet.Section:=cSection
             if cSubSection
@@ -1518,9 +1518,9 @@ fParseArr(Arr,SettingsIdentifier,ArrSnippetStrings)
 	for k,v in Snippets
 	{ 	; grab description and example sections and store in respective obj.
 		; thank you to u/anonymous1184 on reddit for helping me with the needles for this section
-		if Regexmatch(v.Code,"ims)\s*\/\*\s*description(\(s\))*(?:\S+)?\n.*?\*\/",e) 
+		if Regexmatch(v.Code,Regex.DescriptionLong,e) 
 			Snippets[k,"DescriptionLong"]:=e
-		if RegExMatch(v.Code,"ims)\s*\/\*\s*example(\(s\))*(?:\S+)?\n.*?\*\/",f)				
+		if RegExMatch(v.Code,Regex.Example,f)				
  			Snippets[k,"Example"]:=f
 	}
     return [Snippets,aKeys2]

@@ -1,4 +1,8 @@
 # Changelog
+v.13.07.2022-1
+- [x] Collect all regex needles in an object at script-start to prevent accidental variation between occurences
+- [x] fix the RichCode highlighter not working
+---
 v.12.07.2022-2
 - [ ] tested updater, currently apparently bugged to create unreadable library-files when used to download them.
 - [x] fixed needles not removing description/example blocks
@@ -6,15 +10,16 @@ v.12.07.2022-2
 
 - removed old test files
 
+---
 v.12.07.2022-1
 Additions: 
 - [x] search by snippetID and secID and Instr()/Regex()-searches combined
----
 
 Fixes
 - [x] Fix lSearchSnippets searching in the unfixed file string, where snippet ID's are not aligned → must search in Snippets[]-Object Instead
 - [x] Fix fLoadFiles to load several source-files together from script.config.libraries into the same GUI
 
+---
 v.11.07.2022-3
 - fixed GUI not autofocussing on LV when reopening.
 - fixed snippets with identical names overwriting each other by creating unique hashes as identifying keys instead of snippet-name
