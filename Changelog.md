@@ -1,4 +1,6 @@
 # Changelog
+v.13.07.2022-2
+- [x] fixed bug introduced in v.13.07.2022-1 which made a regex-needle unusable.
 v.13.07.2022-1
 - [x] Collect all regex needles in an object at script-start to prevent accidental variation between occurences
 - [x] fix the RichCode highlighter not working

@@ -44,7 +44,7 @@ global script := {   base         : script
 script.Load()
 script.Update(,,1) ;; DO NOT ACTIVATE THISLINE UNTIL YOU DUMBO HAS FIXED THE DAMN METHOD. God damn it.
 global Regex:={	 NewSnippet:"`r`n\\\\\\---NewSnippet---\\\\\\`r`n"
-				,IDSearch:"id\\:\(\?<Ind>\\d\+\)"
+				,IDSearch:"id\:(?<Ind>\d+)"
 				,SecSearch:"s\:(?<Ind>\d+)"
 				,SnippetInd:"SnippetInd\:(?<SearchedInd>\d+)"
 				,SectionInd:"Sec\:(?<SearchedInd>\d+)"
