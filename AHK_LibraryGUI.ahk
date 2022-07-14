@@ -3,6 +3,13 @@
 #persistent
 SetTitleMatchMode, 2
 SendMode Input
+
+; some performance stuff
+; ListLines, Off
+#KeyHistory, 0
+
+
+
 SetWorkingDir, %A_ScriptDir%
 CurrentMode:="Instr"
 ; Add scriptObj-template and convert Code to use it - maybe, just a thought. Syntax of the Library-File is probably way too special for doing so, and there are no real configs to save anyways
@@ -43,7 +50,7 @@ global script := {   base         : script
 					,configfile   : A_ScriptDir "\INI-Files\" regexreplace(A_ScriptName, "\.\w+") ".ini"
                     ,configfolder : A_ScriptDir "\INI-Files"}
 script.Load()
-script.Update(,,1) ;; DO NOT ACTIVATE THISLINE UNTIL YOU DUMBO HAS FIXED THE DAMN METHOD. God damn it.
+, script.Update(,,1) ;; DO NOT ACTIVATE THISLINE UNTIL YOU DUMBO HAS FIXED THE DAMN METHOD. God damn it.
 global Regex:={	 NewSnippet:"`r`n\\\\\\---NewSnippet---\\\\\\`r`n"
 				,IDSearch:"id\:(?<Ind>\d+)"
 				,SecSearch:"s\:(?<Ind>\d+)"
@@ -64,20 +71,19 @@ if IsObject(script.config.libraries)
 			script.config.libraries[k]:=A_ScriptDir "\" v 
 	}
 	Arr:=fLoadFiles(script.config.libraries,Identifier:="\\ Script-settings \\")
-
 }
 else
 	Arr:=fLoadFiles(script.config.libraries,Identifier:="\\ Script-settings \\")
 ; Clipboard:=Arr.4
 Arr.1:=Arr.1
-oArr:=Arr.Clone()
+, oArr:=Arr.Clone()
 global SectionNames:=fCreateSectionNames(Arr.2) ;; contains SectionNames
 
 Arr:=fParseArr(Arr.1,Identifier,Arr.3)
-Snippets:=Arr.1
-GuiNameMain:="TotallyNotAHKRAre"
-GuiNameIngestion:="Ingestion Helper"
-RESettings2 :=
+, Snippets:=Arr.1
+, GuiNameMain:="TotallyNotAHKRAre"
+, GuiNameIngestion:="Ingestion Helper"
+, RESettings2 :=
 ( LTrim Join Comments
 {
 	"TabSize": 4,
@@ -273,7 +279,7 @@ lGuiCreate_2:
         GuiControl, +Redraw, LVvalue2
         SearchIsFocused:=Func("ControlIsFocused").Bind("Edit1")
         ListViewIsFocused:=Func("ControlIsFocused").Bind("SysListView321")
-        EditFieldIsClicked:=Func("ControlIsFocused").Bind("Edit3")
+        ; EditFieldIsClicked:=Func("ControlIsFocused").Bind("Edit3")
         RCFieldIsClicked:=Func("ControlIsFocused").Bind("RICHEDIT50W1")
 
         GuiXPos:=(A_ScreenWidth-vGuiWidth)/2
@@ -298,9 +304,9 @@ lGuiCreate_2:
         hotkey, if, % RCFieldIsClicked
         Hotkey, ~RButton, lCopyScript
         Hotkey, ~LButton, lCopyScript
-        hotkey, if, % EditFieldIsClicked
-        Hotkey, ~RButton, lCopyScript
-        Hotkey, ~LButton, lCopyScript
+        ; hotkey, if, % EditFieldIsClicked
+        ; Hotkey, ~RButton, lCopyScript
+        ; Hotkey, ~LButton, lCopyScript
 		; 1. RichEdit-Field to paste Code into
 		; 2. DDL to choose Secion Name (allow for new ones to be added by string manually)
 		; 3. Edit Field to addit Short Description String
@@ -356,7 +362,7 @@ lGuiCreate_2:
         GuiControl, +Redraw, LVvalue
         SearchIsFocused:=Func("ControlIsFocused").Bind("Edit1")
         ListViewIsFocused:=Func("ControlIsFocused").Bind("SysListView321")
-        EditFieldIsClicked:=Func("ControlIsFocused").Bind("Edit3")
+        ; EditFieldIsClicked:=Func("ControlIsFocused").Bind("Edit3")
         RCFieldIsClicked:=Func("ControlIsFocused").Bind("RICHEDIT50W1")
 
         GuiXPos:=(A_ScreenWidth-vGuiWidth)/2
@@ -384,89 +390,85 @@ lGUICreate_1New: ;; Fully Parametric-form
 		if vsdb || (A_DebuggerName="Visual Studio Code")
 			gui, 1: -AlwaysOnTop
 		gui_control_options := "xm w220 " . cForeground . " -E0x200"  ; remove border around edit field
-		gui_control_options2 :=  cForeground . " -E0x200"
-		; Gui, Margin, 16, 16
-		; Gui, Margin, 0,0
-		
-		; Gui,  -SysMenu -ToolWindow -caption +Border
-		cBackground := "c" . "1d1f21"
-		cCurrentLine := "c" . "282a2e"
-		cSelection := "c" . "373b41"
-		cForeground := "c" . "c5c8c6"
-		cComment := "c" . "969896"
-		cRed := "c" . "cc6666"
-		cOrange := "c" . "de935f"
-		cYellow := "c" . "f0c674"
-		cGreen := "c" . "b5bd68"
-		cAqua := "c" . "8abeb7"
-		cBlue := "c" . "81a2be"
-		cPurple := "c" . "b294bb"
+		, gui_control_options2 :=  cForeground . " -E0x200"
+		, cBackground := "c" . "1d1f21"
+		, cCurrentLine := "c" . "282a2e"
+		, cSelection := "c" . "373b41"
+		, cForeground := "c" . "c5c8c6"
+		, cComment := "c" . "969896"
+		, cRed := "c" . "cc6666"
+		, cOrange := "c" . "de935f"
+		, cYellow := "c" . "f0c674"
+		, cGreen := "c" . "b5bd68"
+		, cAqua := "c" . "8abeb7"
+		, cBlue := "c" . "81a2be"
+		, cPurple := "c" . "b294bb"
+		, vLastCreationScreenHeight:=vGuiHeight  
+		, vLastCreationScreenWidth:=vGuiWidth
 		gui, font, s9 cWhite, Segoe UI
-		vLastCreationScreenHeight:=vGuiHeight  
-		vLastCreationScreenWidth:=vGuiWidth
 		SysGet, Mon,MonitorWorkArea 
 		if (!vGUIWidth and !vGuiHeight) || (vGUIWidth!=(A_ScreenWidth-20)) || (vGuiHeight!=(A_ScreenHeight)) ; assign outer gui dimensions either if they don't exist or if the resolution of the active screen has changed - f.e. when undocking or docking to a higher resolution display. The lGuiCreate_1-subroutine is also invoked in total if the resolution changes, but this is the necessary inner check to reassign dimensions.
 		{ 
 			vGUIWidth:=A_ScreenWidth*1.0 - 20  ;-910 ; 0.6@1440 starts clipping
-			vGUIHeight:=MonBottom*1.0 - 20 
+			, vGUIHeight:=MonBottom*1.0 - 20 
 		}
 		; vGuiHeight:=100
 		; vGuiWidth:=100
 		gui, font, s7 cRed, Segoe UI
 		{
 					; checked values will be indented unto this level
-
+		; values which still seem a bit fishy or which I suspect to be at fault for some weird shit are indented to this line
 			; Define Parameters - Margins
 				WidthMargin_Global:=vGuiWidth*0.01
-				HeightMargin_Global:=vGuiHeight*0.01
+				, HeightMargin_Global:=vGuiHeight*0.01
 
 			; Define Parameters - SearchBox:										
 				;; ratio's checked on 100%-model
 		xPos_Search_GroupBox:=vGuiWidth*0.47 
-		yPos_Search_GroupBox:=vGuiHeight*0.01
-		Height_Search_GroupBox:=vGuiHeight*0.08
-					Width_Search_GroupBox:=vGuiWidth-(xPos_Search_GroupBox+WidthMargin_Global)
+		, yPos_Search_GroupBox:=vGuiHeight*0.01
+		, Height_Search_GroupBox:=vGuiHeight*0.08
+					, Width_Search_GroupBox:=vGuiWidth-(xPos_Search_GroupBox+WidthMargin_Global)
 					gui, add, groupbox, x%xPos_Search_GroupBox% y%yPos_Search_GroupBox% w%Width_Search_GroupBox% h%Height_Search_GroupBox%
 				
 			; Define Parameters - Text XX Snippets
 					xPos_Text_XXSnippetsLoaded:=xPos_Search_GroupBox											+WidthMargin_Global
-					yPos_Text_XXSnippetsLoaded:=yPos_Search_GroupBox											+(HeightMargin_Global/2)
-		Width_Text_XXSnippetsLoaded:=Width_Search_GroupBox*0.3
-		Height_Text_XXSnippetsLoaded:=Height_Search_GroupBox*0.3
+					, yPos_Text_XXSnippetsLoaded:=yPos_Search_GroupBox											+(HeightMargin_Global/2)
+		, Width_Text_XXSnippetsLoaded:=Width_Search_GroupBox*0.3
+		, Height_Text_XXSnippetsLoaded:=Height_Search_GroupBox*0.3
 					gui, font, s14 cRed, Segoe UI
         			gui, add, text,x%xPos_Text_XXSnippetsLoaded%  y%yPos_Text_XXSnippetsLoaded% vvSearchFunctions, _____________________________________________
 
 			; Define Parameters - DDL Searchmode:
 					xPos_DDL_SearchMode:=xPos_Text_XXSnippetsLoaded
-					yPos_DDL_SearchMode:=yPos_Text_XXSnippetsLoaded+Height_Text_XXSnippetsLoaded				+(HeightMargin_Global/2)
-				Width_DDL_SearchMode:=Width_Text_XXSnippetsLoaded ;; note: this seems extensively too large
-					Height_DDL_SearchMode:=Height_Search_GroupBox-yPos_DDL_SearchMode							-(HeightMargin_Global/2)
+					, yPos_DDL_SearchMode:=yPos_Text_XXSnippetsLoaded+Height_Text_XXSnippetsLoaded				+(HeightMargin_Global/2)
+				, Width_DDL_SearchMode:=Width_Text_XXSnippetsLoaded ;; note: this seems extensively too large
+					, Height_DDL_SearchMode:=Height_Search_GroupBox-yPos_DDL_SearchMode							-(HeightMargin_Global/2)
 					gui, font, s11 cWhite, Segoe 
         			gui, add, DDL,vSearchMethod x%xPos_DDL_SearchMode% y%yPos_DDL_SearchMode% h%Height_DDL_SearchMode% vCurrentMode glSetSearchMethod HwndCurrentModeHWND, Instr||RegEx
 					AddToolTip(CurrentModeHWND,"Select between Normal Instr()- and Regex-Search")
 			; Define Parameters: Edit Searchmode
 					xPos_Edit_SearchMode:=xPos_DDL_SearchMode+Width_DDL_SearchMode+WidthMargin_Global
-					yPos_Edit_SearchMode:=yPos_DDL_SearchMode
-					Width_Edit_SearchMode:=Width_Search_GroupBox-Width_DDL_SearchMode-3*WidthMargin_Global
-					Height_Edit_SearchMode:=Height_DDL_SearchMode
+					, yPos_Edit_SearchMode:=yPos_DDL_SearchMode
+					, Width_Edit_SearchMode:=Width_Search_GroupBox-Width_DDL_SearchMode-3*WidthMargin_Global
+					, Height_Edit_SearchMode:=Height_DDL_SearchMode
 					gui, font, s11 cBlack, Segoe 
         			gui, add, edit, x%xPos_Edit_SearchMode% y%yPos_Edit_SearchMode% w%Width_Edit_SearchMode% r1 cBlack glCheckStringForLVRestore vSearchString HwndSearchStringHWND,  ; Search here
 					AddToolTip(SearchStringHWND,"Enter search string. Use key 'ID:xx' to search by function ID, and key 's:xx' to search by section index")
 			; Define Parameters - ListView
 					xPos_ListView:=WidthMargin_Global
-	yFraction_ListView:=0.1
-	HeightFraction_ListView:=0.40
-					yPos_ListView:=vGuiHeight*yFraction_ListView
-					Width_ListView:=vGuiWidth-2*WidthMargin_Global
-					Height_ListView:=vGuiHeight*HeightFraction_ListView
+	, yFraction_ListView:=0.1
+	, HeightFraction_ListView:=0.40
+					, yPos_ListView:=vGuiHeight*yFraction_ListView
+					, Width_ListView:=vGuiWidth-2*WidthMargin_Global
+					, Height_ListView:=vGuiHeight*HeightFraction_ListView
         			gui, font,s8
 					gui, add, Listview, x%xPos_ListView% y%yPos_ListView% w%Width_ListView% h%Height_ListView% +Report ReadOnly  -vScroll vLVvalue glLV_Callback, Section|Snippet Name|Short description|Hash|Libraryfile|Snippet Identifier
 					guicontrol, font, LVvalue
 			; Define Parameters - Description Box
 					xPos_DescriptionBox:=WidthMargin_Global
-		yPos_DescriptionBox:=(yPos_ListView+Height_ListView+(HeightMargin_Global))			;;vGuiHeight*HeightFraction_UpToDescriptionBox:=(HeightFraction_ListView+yFraction_ListView+(HeightMargin_Global/100))		;; yPos_ListView+HeightListView+1*Margin
-		Width_DescriptionBox:=vGuiWidth*(0.135+0.02+0.005)
-		Height_DescriptionBox:= vGuiHeight*((vGuiHeight-(yPos_DescriptionBox+2*HeightMargin_Global))/vGuiHeight)  ;vGuiHeight*d:=(1-(HeightFraction_UpToDescriptionBox+(HeightMargin_Global/100)))
+		, yPos_DescriptionBox:=(yPos_ListView+Height_ListView+(HeightMargin_Global))			;;vGuiHeight*HeightFraction_UpToDescriptionBox:=(HeightFraction_ListView+yFraction_ListView+(HeightMargin_Global/100))		;; yPos_ListView+HeightListView+1*Margin
+		, Width_DescriptionBox:=vGuiWidth*(0.135+0.02+0.005)
+		, Height_DescriptionBox:= vGuiHeight*((vGuiHeight-(yPos_DescriptionBox+2*HeightMargin_Global))/vGuiHeight)  ;vGuiHeight*d:=(1-(HeightFraction_UpToDescriptionBox+(HeightMargin_Global/100)))
 													; yPos_DescriptionBox:=vGuiHeight*(0.71)
 													; Width_DescriptionBox:=vGuiWidth*(0.135+0.02+0.005)
 													; Height_DescriptionBox:=vGuiHeight*0.275
@@ -475,18 +477,18 @@ lGUICreate_1New: ;; Fully Parametric-form
 			; Define Parameters - Tab3
 
 					xPos_Tab3:=xPos_DescriptionBox+Width_DescriptionBox+(WidthMargin_Global/1)
-					yPos_Tab3:=yPos_DescriptionBox
-					; FractionTab3:=(100-((xPos_Tab3-2*WidthMargin_Global)))
-					Width_Tab3:=((vGuiWidth-(Width_DescriptionBox+3*WidthMargin_Global)))
-					Height_Tab3:=Height_DescriptionBox
+					, yPos_Tab3:=yPos_DescriptionBox
+					, Width_Tab3:=((vGuiWidth-(Width_DescriptionBox+3*WidthMargin_Global)))
+					, Height_Tab3:=Height_DescriptionBox
+					; FractionTab3:=(100-((xPos_Tab3-2*WidthMargin_Global))
 					gui, font,
 					gui, add, tab,y%yPos_Tab3% x%xPos_Tab3% w%Width_Tab3%  h%Height_Tab3%, CODE||Examples|Description
 			; Define Parameters - Richfields
 			{		;; Definition set 1
 		xPos_RichCode:=xPos_Tab3+WidthMargin_Global*2
-		yPos_RichCode:=yPos_Tab3+HeightMargin_Global*2
-				Width_RichCode:=Width_Tab3-2*WidthMargin_Global
-				Height_RichCode:=Height_Tab3-2*HeightMargin_Global
+		, yPos_RichCode:=yPos_Tab3+HeightMargin_Global*2
+				, Width_RichCode:=Width_Tab3-2*WidthMargin_Global
+				, Height_RichCode:=Height_Tab3-2*HeightMargin_Global
 			; RichField1
 			gui, tab, CODE
 			global RC:=new RichCode(RESettings2, "y" yPos_RichCode " x" xPos_RichCode  " w" Width_RichCode " h" Height_RichCode,"MainGui", HighlightBound=Func("HighlightAHK"))
@@ -500,116 +502,6 @@ lGUICreate_1New: ;; Fully Parametric-form
 			gosub, lGuiShow_1
 
 		}
-/*
-
-
-        	; vGUIWidth//=2
-  			; vGUIHeight//=2
-		; vGuiHeight_Reduction:=60 
-		; vGuiHeightControl:=A_ScreenHeight-vGuiHeight_Reduction
-		
-		; if (vGUIHeight>vGuiHeightControl)
-		; {
-		; 	vGuiHeightOriginal:=vGuiHeight
-		; 	vGUIHeight:=vGUIHeight-vGuiHeight_Reduction
-		; }
-		
-		if vGUIWidth<1000
-			f_ThrowError(A_ThisFunc,"Screen Width is smaller than 1000 pixels. As a result, the gui cannot be properly shown.`nIf this error is shown after opening the IniSettingsCreator, ignore it and open the gui again.",A_ScriptNameNoExt . "_"3, Exception("",-1).Line)
-
-		; vGUITabWidth:=vGUIWidth-30
-        ; vGUITabRightEdge:=vGUITabWidth+15
-        ; vGuiTabLeftEdge:=15
-        ; vGUITabHeight:=vGUIHeight-45
-        
-        ; vGuiGroupBoxSearchBoxWidth:=vGUITabWidth*0.65-360
-
-        ; vLV_LeftEdge:=vGuiTabLeftEdge+15
-        ; vLV_RightEdge:=vGUITabRightEdge-15
-        ; vLV_Width:=vLV_RightEdge-vLV_LeftEdge 
-		; vLV_Height:=(vGuiHeight*0.3)
-
-
-        ; ; vGuiGroupBoxSearchBoxWidth:= vLV_RightEdge-
-        ; vxPosGroupBoxSearchBox:=vLV_RightEdge-(vLV_Width*0.65)
-		; vyPosGroupBoxSearchBox:=vGuiHeight*0.01
-        ; vWidthGroupBoxSearchBox:=(vLV_Width*0.65)
-		; vHeightGroupBoxSearchBox:=vGUIHeight*0.1
-
-        ; ; vxPosGroupBoxSearchBox:=vLV_RightEdge-vLV_Width*0.35
-        ; vxPosGuiGroupBoxSearchBoxTRC:=vGUITabWidth-15-vGuiGroupBoxSearchBoxWidth+25
-
-        ; ; vxPosGuiGroupBoxSearchBoxTRC
-        ; vxDDLSearchBox:=vxPosGroupBoxSearchBox+20
-        ; WidthDDL:=80
-        ; xPosEdit:=(vxPosGroupBoxSearchBox+20)+90
-        ; vWidthEditSearchBox:=vWidthGroupBoxSearchBox
-        ; ; vWidthEditFSearchBox
-
-        ; ; Position Left Edge SearchBox: vxPosGroupBoxSearchBox
-        ; ; Position Right Edge SearchBox: vxPosGroupBoxSearchBox+vWidthGroupBoxSearchBox
-        ; ; + Space To DDL: vxDDLSearchBox (+20)
-        ; ; + Width DDL : + WidthDDLSearchBox
-        ; ; + Space to Edit: vXDDLSearchBox + WidthDDLSearchBox + 20
-        ; ; + Width Edit Field ??
-        
-        ; ; + Margin To groupBox 
-        ; vLeftEdgeSearchBox:=vxPosGroupBoxSearchBox
-        ; vRightEdgeSearchBox:=vxPosGroupBoxSearchBox+vWidthGroupBoxSearchBox
-        ; vWidthSearchBox:=vRightEdgeSearchBox-vLeftEdgeSearchBox
-        ; vInterElementAndBordeMargin:=3*15
-        ; vSpaceAvaliableforEditAndDDL:=vWidthSearchBox-vInterElementAndBordeMargin
-       
-        ; vxPosDDL:=vLeftEdgeSearchBox+(vInterElementAndBordeMargin/3)
-        ; WidthDDL:=WidthDDL
-     
-        ; vXPosEditField:=vLeftEdgeSearchBox + (vInterElementAndBordeMargin/3) + WidthDDL + (vInterElementAndBordeMargin/3)
-        ; WidthEditField:=vRightEdgeSearchBox-vXPosEditField-(vInterElementAndBordeMargin/3)
-        ; vRightEdgeEditToGroupBox_SearchBox:= (vxPosGroupBoxSearchBox+vWidthGroupBoxSearchBox)-20
-
-        
-*/
-        
-        
-        ; gui, add, Text, x0 y0 w0 h0, AnchorTopLeft1awdawdwad
-        ; MAIN GUI GROUPBOX
-        ; gui, add, groupbox, x15 y20 w%VGuiTabWidth% h%vGUITabHeight% ;; activating this line will result in the Tab-control not showing. I have no clue _why_ that is the case, but it is.
-
-        ; GUI Search Box GroupBox
-       
-		; vHeightTextSearchFunctions:=vHeightGroupBoxSearchBox*0.3
-		; vyPosSearchFunctionsText:=vyPosGroupBoxSearchBox+5
-		; vyPosSearchFunctionsDDL
-        
-        
-        ; vwEditSearchBox:=vxDDLSearchBox-120
-        ; vGuiHeightAnchorHeightOfSearchBoxWidth:=55+70 ; 70is die Summe der y-verschiebung bis hierher
-
-        
-        ; gui, add, text, y%vGuiHeightAnchorHeightOfSearchBoxWidth% x0 w0                 vAnkerLV,  
-
-      
-        ; yAnkerLV2:=vGuiHeightAnchorHeightOfSearchBoxWidth
-        ; gui, add, text, y%yAnkerLV2% x0                  vAnkerLV2,  
-        ; yTopListView:=0+20+10+30+vGuiHeightAnchorHeightOfSearchBoxWidth
-        ; yPosDescriptionField:=135+500+10
-        ; yPosDescriptionField:=yAnkerLV2+20 ;vGUITabHeight
-		; yPosDescriptionField:=vLV_Height
-        ; hDescriptionField:=vGUITabHeight-yPosDescriptionField+5
-        ;RC:=new RichCode(Settings,"ARG",1,200,"Highlighter" :Func("HighlightAHK"))
-        
-        ; yPosCodeField:=yPosDescriptionField
-        ; xCodeField:=vLV_LeftEdge+300+15
-        ; WidthCopyField:=vLV_RightEdge-xCodeField
-        ; xPositionCopyField:=vLV_LeftEdge+100+300
-        ; yAnchorREField:=yPosDescriptionField-15
-        ; gui, add, text, y%yAnchorREField% xp+315 w0 h0, 
-        ; gui, add, edit, yp x%xCodeField% w%WidthCopyField% h%hDescriptionField% vhiddenfield
-        ; guicontrol, hide, %vhiddenfield%
-		; xGuiTab:=vLV_RightEdge-(vLV_LeftEdge)
-		
-		; guicontrol, hide, vEdit1
-		
 		
 		gui, tab, Examples
 		global RC2:=new RichCode(RESettings2, "y" yPos_RichCode " x" xPos_RichCode  " w" Width_RichCode " h" Height_RichCode,"MainGui", HighlightBound=Func("HighlightAHK"))
@@ -621,9 +513,9 @@ lGUICreate_1New: ;; Fully Parametric-form
 		; gui, add, statusbar, -Theme vStatusBarMainWindow BackGround373b41 glCallBack_StatusBarMainWindow
         
         SearchIsFocused:=Func("ControlIsFocused").Bind("Edit1")
-        ListViewIsFocused:=Func("ControlIsFocused").Bind("SysListView321")
-        EditFieldIsClicked:=Func("ControlIsFocused").Bind("Edit3")
-        RCFieldIsClicked:=Func("ControlIsFocused").Bind("RICHEDIT50W1")
+        , ListViewIsFocused:=Func("ControlIsFocused").Bind("SysListView321")
+        ; , EditFieldIsClicked:=Func("ControlIsFocused").Bind("Edit3")
+        , RCFieldIsClicked:=Func("ControlIsFocused").Bind("RICHEDIT50W1")
 		gui, tab
 
 		gui, add, statusbar, -Theme vStatusBarMainWindow BackGround373b41 glCallBack_StatusBarMainWindow ; finish up statusbar - settings, updating library/adding additional libraries
@@ -648,9 +540,10 @@ lGUICreate_1New: ;; Fully Parametric-form
         hotkey, if, % RCFieldIsClicked
         Hotkey, ~RButton, lCopyScript
         Hotkey, ~LButton, lCopyScript
-        hotkey, if, % EditFieldIsClicked
-        Hotkey, ~RButton, lCopyScript
-        Hotkey, ~LButton, lCopyScript
+		hotkey, if
+        ; hotkey, if, % EditFieldIsClicked
+        ; Hotkey, ~RButton, lCopyScript
+        ; Hotkey, ~LButton, lCopyScript
 		; Gui, Color, 4f1f21, 432a2e
 		; gosub, lFocusListView
 		; sleep, 300
@@ -753,10 +646,11 @@ SendINput, ^{PgDn}
 return
 lFocusSearchBar:
 guicontrol, focus, SearchString
+return
 lCopyScript:
 SelectedLVEntry:=f_GetSelectedLVEntries()
-res:=Snippets[SelectedLVEntry.1.1.Hash].Code
-ClipBoard:=RegExReplace(res,Regex.NewSnippet)
+, res:=Snippets[SelectedLVEntry.1.1.Hash].Code
+, ClipBoard:=RegExReplace(res,Regex.NewSnippet)
 if (Clipboard==RegExReplace(res,Regex.NewSnippet))
 	ttip("Snippet " SelectedLVEntry.1.1.SelectedEntryName " copied")
 return
@@ -774,8 +668,7 @@ gui, submit, Nohide
 if (A_GuiControlEvent="ColClick")
 	return
 SelectedLVEntry:=f_GetSelectedLVEntries()		
-Data:=Snippets[d:=SelectedLVEntry.1.1.Hash]		;; using name could be problematic when having multiple snippets  of same name
-f_FillFields(Data)
+f_FillFields(Snippets[d:=SelectedLVEntry.1.1.Hash])		;; using name as the identifier could be problematic when having multiple snippets  of same name
 return
 
 lCheckStringForLVRestore: 
@@ -801,10 +694,10 @@ if (A_ThisLabel="lSearchSnippetsEnter")
 	Sleep, 100
 	SendInput, {Down Up} 
 }
-results:=[]
-prelimresults:=[]
-if Instr(SearchString,"s:") && Instr(SearchString,"id:") 		; search both sectionID and snippetID
-{
+results:=[]				;; keep these empty every time the searchstring changes so that we don't get into weird feedback issues
+, prelimresults:=[]
+if Instr(SearchString,"s:") && Instr(SearchString,"id:") 			; search both sectionID and snippetID
+{																; TODO: find the bug resulting in weird 
 	if RegExMatch(SearchString,Regex.IDSearch,s)			
 	{
 		prelimresults:=f_FindOccurences("SnippetInd:" sInd,Arr.1,CurrentMode) ;; first search for snippetID
@@ -818,7 +711,7 @@ if Instr(SearchString,"s:") && Instr(SearchString,"id:") 		; search both section
 			results:=f_FindOccurences("SnippetInd:"sInd,prelimresults,CurrentMode) ;; next search for snippetID
 	}		
 }
-else if Instr(SearchString,"id:") && !Instr(SearchString,"s:") 			; search only snippetID
+else if Instr(SearchString,"id:") && !Instr(SearchString,"s:") 		; search only snippetID
 {
 	if RegExMatch(SearchString,Regex.IDSearch,s)
 		prelimresults:=f_FindOccurences("SnippetInd:" sInd,Arr.1,CurrentMode) ;; search snippet code ||  MISSING: Find in Section
@@ -834,7 +727,7 @@ else																; search neither
 /*
 TODO: figure out how to combine results from id/sec-search with actual string searches - need to decide on a syntax to strip away the s:/id: portion, and then continue on the found snippets with the remainder of the string.
 */
-if results.Length()=0
+if (results.Length()=0)
 	results:=prelimresults.Clone()		;; make sure the right set is used 
 GuiControl, -Redraw, LVvalue
 fPopulateLV(results,SectionNames)
@@ -885,55 +778,16 @@ return
 reload
 return ; yes I know this is not actually needed. I don't care.
 
-f_CollectMatchingEntries(results,Arr)
-{	; probably Deprecated
-    SearchResults:={}
-    for FunctionName, FunctionArray in Arr[1]
-    {
-        for ind, FoundLineInd in results
-        {
-            if (FoundLineInd>=FunctionArray.StartLine && FoundLineInd<=FunctionArray.LastLine) 
-            {
-                SearchResults[FunctionName]:=FunctionArray
-            }
-            if (FoundLineInd=FunctionArray.StartLine) 
-            {
-                SearchResults[FunctionName]:=FunctionArray
-            }
-            if (FoundLineInd=FunctionArray.LastLine)
-            {
-                SearchResults[FunctionName]:=FunctionArray
-            }
-        }
-
-        ; ; IndNextFunctionName:=""
-        ; ; IndNextFunctionName:=HasVal(Arr[2],FunctionName)
-        ; ; IndNextFunctionName++
-        ; ; NextFunctionName:=Arr[2 , IndNextFunctionName]
-
-        ; SearchResults[NextFunctionName]:=Arr[1 , NextFunctionName]
-    }
-    return SearchResults
-}
-
-f_GetLastFuncLines(Arr)
-{
-    FirstFuncLines:=[]
-    for k,v in Arr[2]
-    {
-        FirstFuncLines.push(Arr.1[v].StartLine)
-    }
-    LastFuncLines:=[]
-}
-
 f_FindOccurences(String,Array,Mode=1)
-{
+{	;; Find occurences of str <String> within Array.k.Code, either by direct InStr()- or Regex-Matching
+	if (String="") || !IsObject(Array)
+		return
 	SnippedOccurences:=[]
 	if RegexMatch(String, Regex.SnippetInd,s)
 	{	
 		for SnippetIndex, Snippet in Array
 		{
-			if Instr(Snippet.Ind,sSearchedInd) || Instr(Snippet.Ind,Ltrim(sSearchedInd,0))
+			if (Instr(Snippet.Ind,sSearchedInd) || Instr(Snippet.Ind,Ltrim(sSearchedInd,0)))
 				SnippedOccurences.push(Snippet)
 		}
 	}
@@ -941,29 +795,27 @@ f_FindOccurences(String,Array,Mode=1)
 	{	
 		for SnippetIndex, Snippet in Array
 		{
-			if Instr(Snippet.Section,sSearchedInd) || Instr(Snippet.Section,Ltrim(sSearchedInd,0))
+			if (Instr(Snippet.Section,sSearchedInd) || Instr(Snippet.Section,Ltrim(sSearchedInd,0)))
 				SnippedOccurences.push(Snippet)
 		}
 	}
 	else
 	{
-
 		if (Mode=1) || (Mode="Instr") ; normal
 		{
 			for SnippetIndex, Snippet in Array
 			{
-				if (String="") || (Snippet="")
+				if (Snippet="")
 					continue
 				If instr(Snippet.Code,String)
 					SnippedOccurences.push(Snippet)
-
 			}
 		}
 		else if (Mode=2) || (Mode="Regex") ; Regex
 		{
 			for SnippetIndex, Snippet in Array
 			{
-				if (String="") || (v="")
+				if (Snippet="")
 					continue
 				If RegExMatch(Snippet.Code, String)
 					SnippedOccurences.push(Snippet)
@@ -974,32 +826,31 @@ f_FindOccurences(String,Array,Mode=1)
 }
 
 HasVal(haystack, needle) 
-	{	; code from jNizM on the ahk forums: https://www.autohotkey.com/boards/viewtopic.php?p=109173&sid=e530e129dcf21e26636fec1865e3ee30#p109173
- 		if !(IsObject(haystack)) || (haystack.Length() = 0)
-			return 0
-		for index, value in haystack
-			if (value = needle)
-				return index
+{	; code from jNizM on the ahk forums: https://www.autohotkey.com/boards/viewtopic.php?p=109173&sid=e530e129dcf21e26636fec1865e3ee30#p109173
+	if !(IsObject(haystack)) || (haystack.Length() = 0)
 		return 0
-	}
-	
+	for index, value in haystack
+		if (value = needle)
+			return index
+	return 0
+}
 
 f_GetSelectedLVEntries()
-{ ;A_DefaultListView
+{ ; Get Values from selected row in LV A_DefaultListView
     vRowNum:=0
-    sel:=[]
+	, sel:=[]
     loop 
     {
         vRowNum:=LV_GetNext(vRowNum)
         if not vRowNum  ; The above returned zero, so there are no more selected rows.
             break
         LV_GetText(sCurrText1,vRowNum,1)
-        LV_GetText(sCurrText2,vRowNum,2)
-        LV_GetText(sCurrText3,vRowNum,3)
-        LV_GetText(sCurrText4,vRowNum,4)
-        LV_GetText(sCurrText5,vRowNum,5)
+        , LV_GetText(sCurrText2,vRowNum,2)
+        , LV_GetText(sCurrText3,vRowNum,3)
+        , LV_GetText(sCurrText4,vRowNum,4)
+        , LV_GetText(sCurrText5,vRowNum,5)
+        , sel[A_Index]:={SelectedEntrySection:sCurrText1,SelectedEntryName:sCurrText2,SelectedEntryDescription:sCurrText3,SelectedEntrySnippetIdentifier:sCurrText5,Hash:sCurrText4}
 		; LV_GetText(sCurrText6,vRowNum,6)
-        sel[A_Index]:={SelectedEntrySection:sCurrText1,SelectedEntryName:sCurrText2,SelectedEntryDescription:sCurrText3,SelectedEntrySnippetIdentifier:sCurrText5,Hash:sCurrText4}
         return [sel,vRowNum]
     }
 }
@@ -1007,11 +858,10 @@ f_GetSelectedLVEntries()
 fPopulateLV(Snippets,SectionNames)
 {
     LV_Delete()
-	Snips:=Snippets.Clone()
-	NewSnippetsSorted:=[]
-	SectionIndexLength:=1
-	SectionPad:=""
-	for k,v in Snippets
+	, NewSnippetsSorted:=[]
+	, SectionIndexLength:=1
+	, SectionPad:=""
+	for k,v in Snippets	; TODO: figure out if I can incorporate this loop and the loop % sectionindexlength into the snippets-loob below, because I dunno if that could be done right now.
 		SectionIndexLength:=(StrLen(SectionNames.MaxIndex())>SectionIndexLength?StrLen(SectionNames.MaxIndex()):SectionIndexLength)
 	loop, % SectionIndexLength
 		SectionPad.="0"
@@ -1023,20 +873,20 @@ fPopulateLV(Snippets,SectionNames)
 			if (v.Section==SecInd) ;; 
 			{
 				v.FileInd:=v.Ind
-				v.Ind:=fPadIndex(SectionSpecificIndex++,Snippets.Count())	;; v.Ind is now section-specific, and this is the one being displayed
+				, v.Ind:=fPadIndex(SectionSpecificIndex++,Snippets.Count())	;; v.Ind is now section-specific, and this is the one being displayed
 			}
 	}
 	for k,v in Snippets
 	{
 		Addition:=[]
-		Addition.Section:=(fPadIndex(v.Section,SectionPad)) " - " (SectionNames[strsplit(v.Section,".").1]=""?"-1 INVALIDSECTIONKEY":SectionNames[strsplit(v.Section,".").1])
-		Addition.Name:=RegExReplace(v.Name,Regex.StripFunctionName)
-		Addition.Description:=v.Description
-		Addition.Hash:=v.Hash
-		Addition.LibraryName:=v.LibraryName
+		, Addition.Section:=(fPadIndex(v.Section,SectionPad)) " - " (SectionNames[strsplit(v.Section,".").1]=""?"-1 INVALIDSECTIONKEY":SectionNames[strsplit(v.Section,".").1])
+		, Addition.Name:=RegExReplace(v.Name,Regex.StripFunctionName)
+		, Addition.Description:=v.Description
+		, Addition.Hash:=v.Hash
+		, Addition.LibraryName:=v.LibraryName
+		, Addition.LVInd:=fPadIndex(v.Section,SectionPad)"." fPadIndex((Instr(A_ThisLabel,"lSearchSnippets")?v.FileInd:v.Ind),"00")
+		, LV_Add("-E0x200",		Addition.Section,		Addition.Name,		Addition.Description,		Addition.Hash,		Addition.LibraryName,		Addition.LVInd		)
 		; Addition.LVInd:=fPadIndex(v.Section,Snippets.Count())"." fPadIndex((Instr(A_ThisLabel,"lSearchSnippets")?v.FileInd:v.Ind),"00")	;; WORKING VERSION; EXCEPT SECTION ID NOT PADDED
-		Addition.LVInd:=fPadIndex(v.Section,SectionPad)"." fPadIndex((Instr(A_ThisLabel,"lSearchSnippets")?v.FileInd:v.Ind),"00")
-		LV_Add("-E0x200",		Addition.Section,		Addition.Name,		Addition.Description,		Addition.Hash,		Addition.LibraryName,		Addition.LVInd		)
 	}
 	LV_ModifyCol(4,0) 
 	LV_ModifyCol(6,"Right")
@@ -1047,8 +897,7 @@ fPopulateLV(Snippets,SectionNames)
 	LV_ModifyCol(6,"AutoHdr")
     LV_ModifyCol(2,"AutoHDr")
 	LV_ModifyCol(6,"Sort")
-	str:=snippets.count() " snippets loaded" 
-	guicontrol,,vSearchFunctions,% str
+	guicontrol,,vSearchFunctions,% snippets.count() " snippets loaded" 
     return
 }
 
@@ -1062,7 +911,7 @@ f_FillFields(Data)
 	RC2.Value:=out:=LTrim(Data.HasKey("DescriptionLong")?Data.Example:"","`n`t")
 	RC3.Value:=LTrim(Data.HasKey("Example")?Data.DescriptionLong:"","`n`t")
     Name:=RegExReplace(Data.Name,Regex.StripFunctionName)
-    SectionName:=FindSectionName(Data.Section)
+    SectionName:=f_FindSectionName(Data.Section)
     MainSecDescription:=Data.Description
     e=
     (LTrim
@@ -1076,38 +925,28 @@ f_FillFields(Data)
         %MainSecDescription%
         -------------------------------------------
     )
-    if MainSecDescription
-    {
-        e.=		;; wtf is this for?
-        (
-                HELLO WORLD
-        )
-    }
     guicontrol,1:, Edit2,% e
 }
 
-FindSectionName(ThisSec)
+f_FindSectionName(ThisSec)
 {
     return SectionNames[strsplit(ThisSec,".").1]
 }
 
-ControlIsFocused(ControlID) {                                                                  	;-- true or false if specified gui control is active or not
-
+ControlIsFocused(ControlID)                                                                   	;-- true or false if specified gui control is active or not
+{
 	GuiControlGet, FControlID, 1:Focus
-	If Instr(FControlID, ControlID)
-			return true
-
-return false
+	return (Instr(FControlID, ControlID)?true:false)
+	/*
+	TODO: fix this returning true when I _don't_ click on RC-fields, but f.e. on the disabled Description-Editfield or the bottom part of the LV-Control
+	*/
 }
-
-
 
 fLoadFiles(File,Identifier)
 {		; loads multitude of files into the GUI
  	if IsObject(File)
 	{
 		Ret:=[]
-		; Ind:=1
 		for k,v in File
 		{
 			FileRead, f, % v
@@ -1116,7 +955,6 @@ fLoadFiles(File,Identifier)
         		f_ThrowError(A_ThisFunc,"Settings for " script.name " could not be loaded. The string '" Identifier "'  is missing.",A_ThisFunc . "_" 1, Exception("",-1).Line)
 			f:=strsplit(f,Identifier)
     		Ret[k]:=[strsplit(f.1,"`n"),f.2,strsplit(f.1,"\\\---NewSnippet---\\\"),f0,v]
-			; Ind++
 		}
  		if (Ret.count()>1)
 			return d:=fMergeFileData(Ret,Identifier)	
@@ -1136,27 +974,26 @@ fLoadFiles(File,Identifier)
 
 fMergeFileData(Files,Identifier)
 {  ;; merge Libraries. Note that the Index which is shown in the GUI does not correspond to the Index the snippet has on disk. This is necessary to accomodate several libs to be mergeable.
-	
 	Ind:=1
-	Main:=[]
-	EditSections:=[]
+	, Main:=[]
+	, EditSections:=[]
  	for File,v in Files
 	{
 		if (Ind==1)
 		{
 			Main:=v.Clone()
-			Ind++
-			continue
+			, Ind++
+			, continue
 		}
 		SectionNames2:=strsplit(strsplit(v.2,":=").2,", ") ;; get the section names of the added file
 		for i,SName in SectionNames2
 			if !Instr(Main.2,SName)	;; combine Section Names
 			{
 				Main.2.=", " SName 
-				EditSections.push(File " - " i "`:`:" Sname)			;; get a map of which section identifiers must be changed when indexing the scripts
+				, EditSections.push(File " - " i "`:`:" Sname)			;; get a map of which section identifiers must be changed when indexing the scripts
 			}
 		AllSectionString:=Main.2
-		AllSections:=(Strsplit(StrSplit(Main.2,":=").2,", "))
+		, AllSections:=(Strsplit(StrSplit(Main.2,":=").2,", "))
 	}
 	LastSnippetIndLine:=Main[3,Main[3].MaxIndex()]
 	LastSnippetInd:=strsplit(strsplit(LastSnippetIndLine,"|||SnippetInd:").2,",").1+0
@@ -1166,22 +1003,22 @@ fMergeFileData(Files,Identifier)
 		
 		if NewInd:=HasVal(AllSections,s:=(z0:=strsplit(v,"`:`:")).2)
 		{ ; get New Index of the respective Section To Edit
-			Map:=Strsplit(z0.1," - ")
 
 			; Map.1:=FileName of file to edit within
 			; Map.2:=Old index
 			; NewInd:=new index to replace Old Index with in Map.1 contents
-			FileArrayToEdit:=Files[Map.1]		;; could be clarified to operate on Files[] directly I believe? There was a reason why I did this, but given I can't recall it can't have been a serious one.
+			Map:=Strsplit(z0.1," - ")
+			, FileArrayToEdit:=Files[Map.1]		;; could be clarified to operate on Files[] directly I believe? There was a reason why I did this, but given I can't recall it can't have been a serious one.
 			for Index,StringToEdit in FileArrayToEdit[1]
 			{
 				if Instr(StringToEdit,",Section:" Map.2 ",")
 				{ ;; this step only works because FileArrayToEdit is just a map to Files. The two objects are linked, and thus altering one alters the other.
 					FileArrayToEdit[1,Index]:=d:=StrReplace(StringToEdit,",Section:" Map.2 ",",",Section:" NewInd ",") ; "|" Map.1
-					FileArrayToEdit[4]:=StrReplace(FileArrayToEdit[4],",Section:" Map.2 ",",",Section:" NewInd ",")
+					, FileArrayToEdit[4]:=StrReplace(FileArrayToEdit[4],",Section:" Map.2 ",",",Section:" NewInd ",")
 					for Index2,StringToEdit2 in FileArrayToEdit[3]
 					{
 						FileArrayToEdit[3,Index2]:=Strreplace(FileArrayToEdit[3,Index2],",Section:" Map.2 ",",",Section:" NewInd ",") 
-						PrevSection:=Map.2
+						, PrevSection:=Map.2
 					}
 				}
 			}
@@ -1204,24 +1041,25 @@ fMergeFileData(Files,Identifier)
 	for File,v in Files
 	{
 		HashedFile:=f_AddHashedFilePath(v)
-		Files[File]:=HashedFile
+		, Files[File]:=HashedFile
 		if (Ind==1)
 		{
 			Main:=v.Clone()
-			Ind++
-			Main.4:=strsplit(v.4,"\\ Script-settings \\").1 ; strip off Script-settings-section
+			, Ind++
+			, Main.4:=strsplit(v.4,"\\ Script-settings \\").1 ; strip off Script-settings-section
 			; Clipboard:=Main.4
 			continue
 		}
 		Main.1:=ObjM(Main.1,v.1)
-		Main.3:=ObjM(Main.3,v.3)
-		Main.4.=Strsplit(v.4,"\\ Script-settings \\").1 ; strip Script-settings-section	
-		Ind++
+		, Main.3:=ObjM(Main.3,v.3)
+		, Main.4.=Strsplit(v.4,"\\ Script-settings \\").1 ; strip Script-settings-section	
+		, Ind++
 	}
 	Main.4.= Identifier AllSectionString
-	Main.2:=AllSectionString
+	, Main.2:=AllSectionString
 	return Main
 }
+
 f_AddHashedFilePath(File)
 {	; required to make every snippet unique, and thus distinguishable.
 	ret:=f_IncorporateHashAndFileName(File)
@@ -1244,38 +1082,23 @@ f_IncorporateHashAndFileName(File)
 		if RegExMatch(Line,Regex.SnippetFinder,c)
 		{
 			Hashes.Push(Hash:=Object_HashmapHash(File.5 " - " Line "-" Number++)) ; generate Hash based upon Filepath and Runtime of script  as distinguisher ; || )
-			File[1,ind]:=d:=ST_Insert("Hash_" Hash ",",oLine:=File[1,ind],Loc:=Instr(File[1,ind],",Description:")+StrLen(",Description:")) . ",LibName_" FileName
+			, File[1,ind]:=d:=ST_Insert("Hash_" Hash ",",oLine:=File[1,ind],Loc:=Instr(File[1,ind],",Description:")+StrLen(",Description:")) . ",LibName_" FileName
 			for k, val in File.3
 			{
 				if Instr(val,oLine)
 				{
-					CurrEdit:= Clipboard:= ST_Insert("Hash_" Hash ",",oLine:=val,Loc:=Instr(val,",Description:")+StrLen(",Description:")) 
-					RegExMatch(CurrEdit,"\,Description\:(?<DescAlone>.*)`n",v) ;   vNewDesc NewDesc
-					DescLength:=StrLen(d:=StrSplit(vDescAlone,"`n").1)+13
-					File[3,k]:=Clipboard:=ST_Insert(",LibName_" FileName ,CurrEdit,Loc:=Instr(CurrEdit,",Description:")+DescLength) ;. "LibName_" FileName
+					CurrEdit:=ST_Insert("Hash_" Hash ",",oLine:=val,Loc:=Instr(val,",Description:")+StrLen(",Description:")) 
+					, RegExMatch(CurrEdit,"\,Description\:(?<DescAlone>.*)`n",v) ;   vNewDesc NewDesc
+					, DescLength:=StrLen(d:=StrSplit(vDescAlone,"`n").1)+13
+					, File[3,k]:=ST_Insert(",LibName_" FileName ,CurrEdit,Loc:=Instr(CurrEdit,",Description:")+DescLength) ;. "LibName_" FileName
 				}
 			}
 		}
 	}
-	; OldF4:=File.4
-	; File.4:=""
-	; for k, v in File.1
-	; 	File.4.=	v "`n"
-	; File.4.=File.2			;; apend the sections at the end.
-	; if (File.4==OldF4)		;; TODO: This is no longer valid, the check must be changed to a St_Count Over every hash in Hashes to check if it appears more than once in the entire text of all files. FOr doing so, this must be moved outside of the loop which calls f_AddHashedFilePath... 
-	; 	f_ThrowError(A_ThisFunc,"Critical error while creating unique hashes for snippet-differentiation. A specific Hash has been incoprorated more than once. " )
-	; ; rebuild File.4 		;; maybe stop building File.4 before this point so as to save some runs
 	return File
 }
-ST_Insert(insert,input,pos=1)
-{
-	Length := StrLen(input)
-	((pos > 0) ? (pos2 := pos - 1) : (((pos = 0) ? (pos2 := StrLen(input),Length := 0) : (pos2 := pos))))
-	output := SubStr(input, 1, pos2) . insert . SubStr(input, pos, Length)
-	If (StrLen(output) > StrLen(input) + StrLen(insert))
-		((Abs(pos) <= StrLen(input)/2) ? (output := SubStr(output, 1, pos2 - 1) . SubStr(output, pos + 1, StrLen(input))) : (output := SubStr(output, 1, pos2 - StrLen(insert) - 2) . SubStr(output, pos - StrLen(insert), StrLen(input))))
-	return, output
-}
+
+
 
 Object_HashmapHash(Key)
 {		;; thank you to u/anonymous1184 for writing this for me for an old project, certainly helped a lot here.
@@ -1294,113 +1117,71 @@ Object_HashmapHash(Key)
 		, "UInt")
 }
 
-
-
 ObjM(DestinationObj,MergedObj)
-{
-	If !IsObject(DestinationObj) || !IsObject(MergedObj)
+{	; TODO: compare the ObjMerge if this is actually valid
+	If (!IsObject(DestinationObj) || !IsObject(MergedObj))
         Return False
-
 	for k,v in MergedObj
 		DestinationObj.push(v)
-
-
-
 	return DestinationObj	
 }
-ObjMerge(OrigObj, MergingObj, MergeBase=True) {                    	;-- merge two objects
 
-    If !IsObject(OrigObj) || !IsObject(MergingObj)
-        Return False
-    For k, v in MergingObj
-        ObjInsert(OrigObj, k, v)
-    if MergeBase && IsObject(MergingObj.base) {
-        If !IsObject(OrigObj.base)
-            OrigObj.base := []
-        For k, v in MergingObj.base
-            ObjInsert(OrigObj.base, k, v)
-    }
-    Return True
-} ;</12.01.000001>
-Object2String(Obj,FullPath:=1,BottomBlank:=0){
-	static String,Blank
-	if(FullPath=1)
-		String:=FullPath:=Blank:=""
-	if(IsObject(Obj)){
-		for a,b in Obj{
-			if(IsObject(b))
-				Object2String(b,FullPath "." a,BottomBlank)
-			else{
-				if(BottomBlank=0)
-					String.=FullPath "." a " = " b "`n"
-				else if(b!="")
-					String.=FullPath "." a " = " b "`n"
-				else
-					Blank.=FullPath "." a " =`n"
-			}
-	}}
-	return String Blank
-}
 
 fParseArr(Arr,SettingsIdentifier,ArrSnippetStrings)
-{
+{ ; Pain. Also parses the array to assemble the respective fields of each snippet.
     aDescriptions:={}
-    aCodeBodies:={}
-    aKeys:={}
-    aKeys2:={}
-    Snippets:=[]
-    bFirstFunctionDefLine:=0
-	LastSnippetInd:=0
-	TotalSnippetInd:=0
+    , aCodeBodies:={}
+    , aKeys:={}
+    , aKeys2:={}
+    , Snippets:=[]
+    , bFirstFunctionDefLine:=0
+	, LastSnippetInd:=0
+	, TotalSnippetInd:=0
 	; Clipboard:=ArrSnippetStrings.1
     loop, % Arr.MaxIndex()
     {   
         snippet:={Name:"",Code:""}
-        CurrentLine:=Arr[A_Index]
+        , CurrentLine:=Arr[A_Index]
         if (CurrentLine=SettingsIdentifier)
             break
         LastSnippetInd:=(cSnippetInd=""?LastSnippetInd:cSnippetInd)
-        cFunctionName:=cParameters:=cSnippetInd:=cSection:=cSubSection:=cDescription:=cOpts:=""
-		RegExMatch(CurrentLine,Regex.SnippetFinder,c)
-        sFirstCharCurrentLine:=SubStr(CurrentLine,1)
+        , cFunctionName:=cParameters:=cSnippetInd:=cSection:=cSubSection:=cDescription:=cOpts:=""
+		, RegExMatch(CurrentLine,Regex.SnippetFinder,c)
+        , sFirstCharCurrentLine:=SubStr(CurrentLine,1)
         if (sFirstCharCurrentLine!="`r") && (sFirstCharCurrentLine!="`t")   ; not in ["`r","`n","`t"]
         {
-            ; snippet.Name:=[]
             if cFunctionName
             {  
                 snippet.FullDefLine:=Trim(strsplit(strsplit(CurrentLine, "|||").1, ";").1)
-                snippet.Name:=cFunctionName
-                snippet.StartLine:=A_Index
-                sLastFunctionName:=cFunctionName
-				
+                , snippet.Name:=cFunctionName
+                , snippet.StartLine:=A_Index
+                , sLastFunctionName:=cFunctionName
             }
             FDL:=""
+			/*
+			TODO: replace all these if statements with ternaries 
+			*/
             if cParameters
-                snippet.Parameters:=cParameters
+                snippet.Parameters:=(cParameters?cParameters:"")
             if cSnippetInd
-			{
-                snippet.Ind:=(cSnippetInd>TotalSnippetInd?cSnippetInd:TotalSnippetInd) ;cSnippetInd
-				; TotalSnippetInd
-				
-			}
+                snippet.Ind:=(cSnippetInd>TotalSnippetInd?cSnippetInd:TotalSnippetInd)
 			if (cSection>d:=SectionNames.Count())
  				f_ThrowError(A_ThisFunc,"Section index of of snippet """ regexreplace(snippet.Name,Regex.StripFunctionName) """ does not correspond to any section. Please add section name at corresponding location into the csv at the bottom of the LibraryFile.`n`nSnippet begins at line " snippet.StartLine ".",A_ThisFunc . "_" 1, Exception("",-1).Line)
-            if cSection
-                snippet.Section:=cSection
-            if cSubSection
-                snippet.Section:=cSubSection
-            if cDescription
-                snippet.Description:=cDescription
+            ; if cSection
+                snippet.Section:=(cSection?cSection:"")
+            ; if cDescription
+                snippet.Description:=cDescription?cDescription:""
             aKeys.push(cFunctionName)
             if (cFunctionName!="")
                 aKeys2.push(cFunctionName)
-            if aKeys[aKeys.MaxIndex()]!=""
+            if (aKeys[aKeys.MaxIndex()]!="")
                 sCurrentFunction:=cFunctionName
 			snippet.Hash:=strsplit(snippet.Description,",").1
-			snippet.LibraryName:=strsplit(snippet.Description,",LibName_").2
-			snippet.Description:=strsplit(snippet.Description,",").2
+			, snippet.LibraryName:=strsplit(snippet.Description,",LibName_").2
+			, snippet.Description:=strsplit(snippet.Description,",").2
             if (aKeys[A_Index]="")
             {
+				;; all this commented code is deprecated I believe, but I haven't completely tested yet.
             ; (snippets[snippets.MaxIndex]!="") && (snippets[snippets.MaxIndex].name)
 
                 {
@@ -1411,25 +1192,19 @@ fParseArr(Arr,SettingsIdentifier,ArrSnippetStrings)
                     ; }
                     ; ; Snippets[sCurrentFunction].Code.=CurrentLine "`n"
                     ; ; Snippets[sCurrentFunction].LastLine:=A_Index
-					e:=Snippets.Count()
-					d:=Snippets[Snippets.Count()]
  					Snippets[LastHash].Code.=CurrentLine "`n"
-                     Snippets[LastHash].LastLine:=A_Index
+                    , Snippets[LastHash].LastLine:=A_Index
                 }
             }
         }
-		; if (snippet.Ind==8)
-		; {
-
-		; }
         if snippet.Name
         {
  			TotalSnippetInd++
-			LastHash:=snippet.Hash
-            Snippets[snippet.Hash]:=[] 																									; RegExReplace(sCurrentFunction,"(\(.*\)\{*\s*)*\;*")
-            Snippets[snippet.Hash]:=snippet
-			snippet.Ind:=TotalSnippetInd
-            sCurrentFunc:=snippet.Name
+			, LastHash:=snippet.Hash
+            , Snippets[snippet.Hash]:=[] 																									; RegExReplace(sCurrentFunction,"(\(.*\)\{*\s*)*\;*")
+            , Snippets[snippet.Hash]:=snippet
+			, snippet.Ind:=TotalSnippetInd
+            , sCurrentFunc:=snippet.Name
 			if (snippet.Ind<=LastSnippetInd) ;throw error if snippet ind is not incremented:
 			{
 				snippet.Ind:=LastSnippetInd+1
@@ -1441,16 +1216,12 @@ fParseArr(Arr,SettingsIdentifier,ArrSnippetStrings)
 			snippet:=fPadIndex(snippet,ArrSnippetStrings)
     }
     for k,v in Snippets
-    {
+    {	; assemble Defline onto .Code, then grab the description and Example sections for the respective RichCodes
+		f:=e:=""
         DefLine:=snippets[k,Name] "(" ")"
-        Snippets[k].Code:=strsplit(Snippets[k].FullDefLine "`n" Snippets[k].Code,"\\\---NewSnippet---\\\").1
-
+        , Snippets[k].Code:=strsplit(Snippets[k].FullDefLine "`n" Snippets[k].Code,"\\\---NewSnippet---\\\").1
 		; Clipboard:=Snippets[k].Code
-    }
-    
-    
-	for k,v in Snippets
-	{ 	; grab description and example sections and store in respective obj.
+		
 		; thank you to u/anonymous1184 on reddit for helping me with the needles for this section
 		if Regexmatch(v.Code,Regex.DescriptionLong,e) 
 			Snippets[k,"DescriptionLong"]:=e
@@ -1461,29 +1232,64 @@ fParseArr(Arr,SettingsIdentifier,ArrSnippetStrings)
 }
 
 fPadIndex(snippet,aSnippets)
-{		;; pads snippet indeces to the maximum number of snippets loaded.
+{ ; pads snippet indeces to the maximum number of snippets loaded.
 	if IsObject(snippet)
 	{
-		IndLength:=StrLen(snippet.Ind)
 		global MaxLenNecessary:=StrLen(aSnippets.MaxIndex())
-		StrLenDiff:=MaxLenNecessary-IndLength
+		StrLenDiff:=MaxLenNecessary-StrLen(snippet.Ind)
 		if (StrLenDiff>0)
 			snippet.Ind:=st_pad(snippet.Ind,"0","",StrLenDiff,0) +0
 		return snippet
 	}
 	else
+		return st_pad(snippet,"0","",(StrLen(aSnippets)-StrLen(snippet))) ; + 0
+}
+
+f_ThrowError(Source,Message,ErrorCode:=0,ReferencePlace:="S")
+{ ; throws an error-message, possibly with further postprocessing
+	if (ReferencePlace="D")
+		Reference:="Documentation"
+	else 
+		Reference:="Source Code: Function called on line " ReferencePlace "`nError invoked in function body on line " Exception("", -1).Line
+	if (ErrorCode!=0)
 	{
-		ret:=st_pad(snippet,"0","",(StrLen(aSnippets)-StrLen(snippet)))
-		return ret ; + 0
+		str=
+	(LTRIM
+	Function: %Source%
+	Errorcode: "%ErrorCode%" - Refer to %Reference%
+
+	Error: 
+	%Message%
+	)
 	}
+	else
+	{
+		str=
+	(LTRIM
+	Function: %Source%	
+	Errorcode: Refer to %Reference%
+
+	Error: 
+	%Message%
+	)
+	}
+	MsgBox, % str
+	return
+}
+
+fCreateSectionNames(str)
+{ ; converts sectionName-string to an array of section names
+    return strsplit(trim(strsplit(str,"=").2),", ")
 }
 
 
+
 ; bracketCount taken from AHKRARE
-BracketCount(str, brackets:="{}") {                                                       	;-- helps to find the last bracket of a function
+BracketCount(str, brackets:="{}")                                                       	;-- helps to find the last bracket of a function
+{
 	RegExReplace(str, SubStr(brackets, 1, 1), "", open)
 	RegExReplace(str, SubStr(brackets, 2, 1), "", closed)
-return open - closed
+	return open - closed
 }
 
 st_pad(string, left="0", right="", LCount=1, RCount=1)
@@ -1506,6 +1312,300 @@ st_pad(string, left="0", right="", LCount=1, RCount=1)
    }
    Return Lout string Rout
 }
+
+ST_Insert(insert,input,pos=1)
+{
+	Length := StrLen(input)
+	((pos > 0) ? (pos2 := pos - 1) : (((pos = 0) ? (pos2 := StrLen(input),Length := 0) : (pos2 := pos))))
+	output := SubStr(input, 1, pos2) . insert . SubStr(input, pos, Length)
+	If (StrLen(output) > StrLen(input) + StrLen(insert))
+		((Abs(pos) <= StrLen(input)/2) ? (output := SubStr(output, 1, pos2 - 1) . SubStr(output, pos + 1, StrLen(input))) : (output := SubStr(output, 1, pos2 - StrLen(insert) - 2) . SubStr(output, pos - StrLen(insert), StrLen(input))))
+	return, output
+}
+
+ObjMerge(OrigObj, MergingObj, MergeBase=True)                    	;-- merge two objects
+{
+    If !IsObject(OrigObj) || !IsObject(MergingObj)
+        Return False
+    For k, v in MergingObj
+        ObjInsert(OrigObj, k, v)
+    if MergeBase && IsObject(MergingObj.base) {
+        If !IsObject(OrigObj.base)
+            OrigObj.base := []
+        For k, v in MergingObj.base
+            ObjInsert(OrigObj.base, k, v)
+    }
+    Return True
+} ;</12.01.000001>
+
+Object2String(Obj,FullPath:=1,BottomBlank:=0)
+{
+	static String,Blank
+	if(FullPath=1)
+		String:=FullPath:=Blank:=""
+	if(IsObject(Obj)){
+		for a,b in Obj{
+			if(IsObject(b))
+				Object2String(b,FullPath "." a,BottomBlank)
+			else{
+				if(BottomBlank=0)
+					String.=FullPath "." a " = " b "`n"
+				else if(b!="")
+					String.=FullPath "." a " = " b "`n"
+				else
+					Blank.=FullPath "." a " =`n"
+			}
+	}}
+	return String Blank
+}
+
+AddToolTip(_CtrlHwnd, _TipText, _Modify = 0) 			;-- very easy to use function to add a tooltip to a control
+{ ; AddToolTip | retrieved from AHK-Rare Repository, original by jballi: https://www.autohotkey.com/boards/viewtopic.php?t=30079
+
+	; retrieved from AHK-Rare Repository, original by jballi: https://www.autohotkey.com/boards/viewtopic.php?t=30079
+
+		/*                              	DESCRIPTION
+
+				Adds Multi-line ToolTips to any Gui Control
+				AHK basic, AHK ANSI, Unicode x86/x64 compatible
+
+				Thanks Superfraggle & Art: http://www.autohotkey.com/forum/viewtopic.php?p=188241
+				Heavily modified by Rseding91 3/4/2014:
+				Version: 1.0
+				* Fixed 64 bit support
+				* Fixed multiple GUI support
+				* Changed the _Modify parameter
+						* blank/0/false:                                	Create/update the tool tip.
+						* -1:                                           		Delete the tool tip.
+						* any other value:                             Update an existing tool tip - same as blank/0/false
+																					but skips unnecessary work if the tool tip already
+																					exists - silently fails if it doesn't exist.
+				* Added clean-up methods:
+						* AddToolTip(YourGuiHwnd, "Destroy", -1):       		Cleans up and erases the cached tool tip data created
+																				for that GUI. Meant to be used in conjunction with
+																				GUI, Destroy.
+							* AddToolTip(YourGuiHwnd, "Remove All", -1):	   	Removes all tool tips from every control in the GUI.
+																				Has the same effect as "Destroy" but first removes
+																				every tool tip from every control. This is only used
+																				when you want to remove every tool tip but not destroy
+																				the entire GUI afterwords.
+						* NOTE: Neither of the above are required if
+									your script is closing.
+
+				- 'Text' and 'Picture' Controls requires a g-label to be defined.
+				- 'ComboBox' = Drop-Down button + Edit (Get hWnd of the 'Edit'   control using "ControlGet" command).
+				- 'ListView' = ListView + Header       (Get hWnd of the 'Header' control using "ControlGet" command).
+
+	*/
+
+	Static TTHwnds, GuiHwnds, Ptr
+	, LastGuiHwnd
+	, LastTTHwnd
+	, TTM_DELTOOLA := 1029
+	, TTM_DELTOOLW := 1075
+	, TTM_ADDTOOLA := 1028
+	, TTM_ADDTOOLW := 1074
+	, TTM_UPDATETIPTEXTA := 1036
+	, TTM_UPDATETIPTEXTW := 1081
+	, TTM_SETMAXTIPWIDTH := 1048
+	, WS_POPUP := 0x80000000
+	, BS_AUTOCHECKBOX = 0x3
+	, CW_USEDEFAULT := 0x80000000
+
+	Ptr := A_PtrSize ? "Ptr" : "UInt"
+
+		/*                              	NOTE
+
+					This is used to remove all tool tips from a given GUI and to clean up references used
+					This can be used if you want to remove every tool tip but not destroy the GUI
+					When a GUI is destroyed all Windows tool tip related data is cleaned up.
+					The cached Hwnd's in this function will be removed automatically if the caching code
+					ever matches them to a new GUI that doesn't actually own the Hwnd's.
+					It's still possible that a new GUI could have the same Hwnd as a previously destroyed GUI
+					If such an event occurred I have no idea what would happen. Either the tool tip
+					To avoid that issue, do either of the following:
+						* Don't destroy a GUI once created
+					NOTE: You do not need to do the above if you're exiting the script Windows will clean up
+					all tool tip related data and the cached Hwnd's in this function are lost when the script
+					exits anyway.AtEOF
+	*/
+
+	If (_TipText = "Destroy" Or _TipText = "Remove All" And _Modify = -1)
+	{
+		; Check if the GuiHwnd exists in the cache list of GuiHwnds
+		; If it doesn't exist, no tool tips can exist for the GUI.
+		;
+		; If it does exist, find the cached TTHwnd for removal.
+		Loop, Parse, GuiHwnds, |
+			If (A_LoopField = _CtrlHwnd)
+		{
+			TTHwnd := A_Index
+			, TTExists := True
+			Loop, Parse, TTHwnds, |
+				If (A_Index = TTHwnd)
+				TTHwnd := A_LoopField
+		}
+
+		If (TTExists)
+		{
+			If (_TipText = "Remove All")
+			{
+				WinGet, ChildHwnds, ControlListHwnd, ahk_id %_CtrlHwnd%
+
+				Loop, Parse, ChildHwnds, `n
+					AddToolTip(A_LoopField, "", _Modify) ;Deletes the individual tooltip for a given control if it has one
+
+				DllCall("DestroyWindow", Ptr, TTHwnd)
+			}
+
+			GuiHwnd := _CtrlHwnd
+			; This sub removes 'GuiHwnd' and 'TTHwnd' from the cached list of Hwnds
+			GoSub, RemoveCachedHwnd
+		}
+
+		Return
+	}
+
+	If (!GuiHwnd := DllCall("GetParent", Ptr, _CtrlHwnd, Ptr))
+		Return "Invalid control Hwnd: """ _CtrlHwnd """. No parent GUI Hwnd found for control."
+
+	; If this GUI is the same one as the potential previous one
+	; else look through the list of previous GUIs this function
+	; has operated on and find the existing TTHwnd if one exists.
+	If (GuiHwnd = LastGuiHwnd)
+		TTHwnd := LastTTHwnd
+	Else
+	{
+		Loop, Parse, GuiHwnds, |
+			If (A_LoopField = GuiHwnd)
+		{
+			TTHwnd := A_Index
+			Loop, Parse, TTHwnds, |
+				If (A_Index = TTHwnd)
+				TTHwnd := A_LoopField
+		}
+	}
+
+	; If the TTHwnd isn't owned by the controls parent it's not the correct window handle
+	If (TTHwnd And GuiHwnd != DllCall("GetParent", Ptr, TTHwnd, Ptr))
+	{
+		GoSub, RemoveCachedHwnd
+		TTHwnd := ""
+	}
+
+	; Create a new tooltip window for the control's GUI - only one needs to exist per GUI.
+	; The TTHwnd's are cached for re-use in any subsequent calls to this function.
+	If (!TTHwnd)
+	{
+		TTHwnd := DllCall("CreateWindowEx"
+			, "UInt", 0 ;dwExStyle
+			, "Str", "TOOLTIPS_CLASS32" ;lpClassName
+			, "UInt", 0 ;lpWindowName
+			, "UInt", WS_POPUP | BS_AUTOCHECKBOX ;dwStyle
+			, "UInt", CW_USEDEFAULT ;x
+			, "UInt", 0 ;y
+			, "UInt", 0 ;nWidth
+			, "UInt", 0 ;nHeight
+			, "UInt", GuiHwnd ;hWndParent
+			, "UInt", 0 ;hMenu
+			, "UInt", 0 ;hInstance
+		, "UInt", 0) ;lpParam
+
+		; TTM_SETWINDOWTHEME
+		DllCall("uxtheme\SetWindowTheme"
+			, Ptr, TTHwnd
+			, Ptr, 0
+		, Ptr, 0)
+
+		; Record the TTHwnd and GuiHwnd for re-use in any subsequent calls.
+		TTHwnds .= (TTHwnds ? "|" : "") TTHwnd
+		, GuiHwnds .= (GuiHwnds ? "|" : "") GuiHwnd
+	}
+
+	; Record the last-used GUIHwnd and TTHwnd for re-use in any immediate future calls.
+	LastGuiHwnd := GuiHwnd
+	, LastTTHwnd := TTHwnd
+		/*
+			*TOOLINFO STRUCT*
+
+			UINT        cbSize
+			UINT        uFlags
+			HWND        hwnd
+			UINT_PTR    uId
+			RECT        rect
+			HINSTANCE   hinst
+			LPTSTR      lpszText
+			#if (_WIN32_IE >= 0x0300)
+				LPARAM    lParam;
+			#endif
+			#if (_WIN32_WINNT >= Ox0501)
+				void      *lpReserved;
+			#endif
+	*/
+
+	, TInfoSize := 4 + 4 + ((A_PtrSize ? A_PtrSize : 4) * 2) + (4 * 4) + ((A_PtrSize ? A_PtrSize : 4) * 4)
+	, Offset := 0
+	, Varsetcapacity(TInfo, TInfoSize, 0)
+	, Numput(TInfoSize, TInfo, Offset, "UInt"), Offset += 4 ; cbSize
+	, Numput(1 | 16, TInfo, Offset, "UInt"), Offset += 4 ; uFlags
+	, Numput(GuiHwnd, TInfo, Offset, Ptr), Offset += A_PtrSize ? A_PtrSize : 4 ; hwnd
+	, Numput(_CtrlHwnd, TInfo, Offset, Ptr), Offset += A_PtrSize ? A_PtrSize : 4 ; UINT_PTR
+	, Offset += 16 ; RECT (not a pointer but the entire RECT)
+	, Offset += A_PtrSize ? A_PtrSize : 4 ; hinst
+	, Numput(&_TipText, TInfo, Offset, Ptr) ; lpszText
+	; The _Modify flag can be used to skip unnecessary removal and creation if
+	; the caller follows usage properly but it won't hurt if used incorrectly.
+	If (!_Modify Or _Modify = -1)
+	{
+		If (_Modify = -1)
+		{
+			; Removes a tool tip if it exists - silently fails if anything goes wrong.
+			DllCall("SendMessage"
+				, Ptr, TTHwnd
+				, "UInt", A_IsUnicode ? TTM_DELTOOLW : TTM_DELTOOLA
+				, Ptr, 0
+			, Ptr, &TInfo)
+
+			Return
+		}
+
+		; Adds a tool tip and assigns it to a control.
+		DllCall("SendMessage"
+			, Ptr, TTHwnd
+			, "UInt", A_IsUnicode ? TTM_ADDTOOLW : TTM_ADDTOOLA
+			, Ptr, 0
+		, Ptr, &TInfo)
+
+		; Sets the preferred wrap-around width for the tool tip.
+		DllCall("SendMessage"
+			, Ptr, TTHwnd
+			, "UInt", TTM_SETMAXTIPWIDTH
+			, Ptr, 0
+		, Ptr, A_ScreenWidth)
+	}
+
+	; Sets the text of a tool tip - silently fails if anything goes wrong.
+	DllCall("SendMessage"
+		, Ptr, TTHwnd
+		, "UInt", A_IsUnicode ? TTM_UPDATETIPTEXTW : TTM_UPDATETIPTEXTA
+		, Ptr, 0
+	, Ptr, &TInfo)
+
+	Return
+	RemoveCachedHwnd:
+		Loop, Parse, GuiHwnds, |
+			NewGuiHwnds .= (A_LoopField = GuiHwnd ? "" : ((NewGuiHwnds = "" ? "" : "|") A_LoopField))
+
+		Loop, Parse, TTHwnds, |
+			NewTTHwnds .= (A_LoopField = TTHwnd ? "" : ((NewTTHwnds = "" ? "" : "|") A_LoopField))
+
+		GuiHwnds := NewGuiHwnds
+		, TTHwnds := NewTTHwnds
+		, LastGuiHwnd := ""
+		, LastTTHwnd := ""
+	Return
+}
+
 CodeTimer(Description,x:=500,y:=500,ClipboardFlag:=0)
 { ; adapted from https://www.autohotkey.com/boards/viewtopic.php?t=45263
 	
@@ -1526,337 +1626,9 @@ CodeTimer(Description,x:=500,y:=500,ClipboardFlag:=0)
 	Else
 		StartTimer := A_TickCount
 }
-f_ThrowError(Source,Message,ErrorCode:=0,ReferencePlace:="S")
-	{ ; throws an error-message, possibly with further postprocessing
-		if (ReferencePlace="D")
-			Reference:="Documentation"
-		else 
-			Reference:="Source Code: Function called on line " ReferencePlace "`nError invoked in function body on line " Exception("", -1).Line
-		if (ErrorCode!=0)
-		{
-			str=
-	(LTRIM
-	Function: %Source%
-	Errorcode: "%ErrorCode%" - Refer to %Reference%
 
-	Error: 
-	%Message%
-	)
-		}
-		else
-		{
-			str=
-	(
-	Function: %Source%	
-	Errorcode: Refer to %Reference%
-
-	Error: 
-	%Message%
-	)
-		}
-		MsgBox, % str
-		return
-	}
-; HideFocusBorder(wParam, lParam := "", uMsg := "", hWnd := "") {                         	;-- Hide the dotted focus border
-
-; 	/*	DESCRIPTION OF FUNCTION: -- HideFocusBorder() --
-; 	-------------------------------------------------------------------------------------------------------------------
-; 	Description  	:	Hides the focus border for the given GUI control or GUI and all of its children
-;                             	Call the function passing only the HWND of the control / GUI in wParam as only parameter.
-; 								WM_UPDATEUISTATE  -> msdn.microsoft.com/en-us/library/ms646361(v=vs.85).aspx
-; 								The Old New Thing -> blogs.msdn.com/b/oldnewthing/archive/2013/05/16/10419105.aspx
-; 	Link              	:	https://www.autohotkey.com/boards/viewtopic.php?t=9919
-; 	Author         	:	just me
-; 	Date             	:	23 Oct 2015
-; 	AHK-Version	:	AHK_L
-; 	License         	:	--
-; 	Syntax          	:	--
-; 	Parameter(s)	:
-; 	Return value	:
-; 	Remark(s)    	:
-; 	Dependencies	:	none
-; 	KeyWords    	:	gui, focus, border
-; 	-------------------------------------------------------------------------------------------------------------------
-; 	|	EXAMPLE(s)
-; 	-------------------------------------------------------------------------------------------------------------------
-
-; 	*/
-
-;    ; WM_UPDATEUISTATE = 0x0128
-; 	Static Affected := [] ; affected controls / GUIs
-;         , HideFocus := 0x00010001 ; UIS_SET << 16 | UISF_HIDEFOCUS
-; 	     , OnMsg := OnMessage(0x0128, Func("HideFocusBorder"))
-; 	If (uMsg = 0x0128) { ; called by OnMessage()
-;       If (wParam = HideFocus)
-;          Affected[hWnd] := True
-;       Else If Affected[hWnd]
-;          PostMessage, 0x0128, %HideFocus%, 0, , ahk_id %hWnd%
-;    }
-;    Else If DllCall("IsWindow", "Ptr", wParam, "UInt")
-; 	  PostMessage, 0x0128, %HideFocus%, 0, , ahk_id %wParam%
-
-; } ;</06.02.000023>
-
-AddToolTip(_CtrlHwnd, _TipText, _Modify = 0) 			;-- very easy to use function to add a tooltip to a control
-	{ ; AddToolTip | retrieved from AHK-Rare Repository, original by jballi: https://www.autohotkey.com/boards/viewtopic.php?t=30079
-
-		; retrieved from AHK-Rare Repository, original by jballi: https://www.autohotkey.com/boards/viewtopic.php?t=30079
-
-			/*                              	DESCRIPTION
-
-					Adds Multi-line ToolTips to any Gui Control
-					AHK basic, AHK ANSI, Unicode x86/x64 compatible
-
-					Thanks Superfraggle & Art: http://www.autohotkey.com/forum/viewtopic.php?p=188241
-					Heavily modified by Rseding91 3/4/2014:
-					Version: 1.0
-					* Fixed 64 bit support
-					* Fixed multiple GUI support
-					* Changed the _Modify parameter
-							* blank/0/false:                                	Create/update the tool tip.
-							* -1:                                           		Delete the tool tip.
-							* any other value:                             Update an existing tool tip - same as blank/0/false
-																						but skips unnecessary work if the tool tip already
-																						exists - silently fails if it doesn't exist.
-					* Added clean-up methods:
-							* AddToolTip(YourGuiHwnd, "Destroy", -1):       		Cleans up and erases the cached tool tip data created
-																					for that GUI. Meant to be used in conjunction with
-																					GUI, Destroy.
-								* AddToolTip(YourGuiHwnd, "Remove All", -1):	   	Removes all tool tips from every control in the GUI.
-																					Has the same effect as "Destroy" but first removes
-																					every tool tip from every control. This is only used
-																					when you want to remove every tool tip but not destroy
-																					the entire GUI afterwords.
-							* NOTE: Neither of the above are required if
-										your script is closing.
-
-					- 'Text' and 'Picture' Controls requires a g-label to be defined.
-					- 'ComboBox' = Drop-Down button + Edit (Get hWnd of the 'Edit'   control using "ControlGet" command).
-					- 'ListView' = ListView + Header       (Get hWnd of the 'Header' control using "ControlGet" command).
-
-		*/
-
-		Static TTHwnds, GuiHwnds, Ptr
-		, LastGuiHwnd
-		, LastTTHwnd
-		, TTM_DELTOOLA := 1029
-		, TTM_DELTOOLW := 1075
-		, TTM_ADDTOOLA := 1028
-		, TTM_ADDTOOLW := 1074
-		, TTM_UPDATETIPTEXTA := 1036
-		, TTM_UPDATETIPTEXTW := 1081
-		, TTM_SETMAXTIPWIDTH := 1048
-		, WS_POPUP := 0x80000000
-		, BS_AUTOCHECKBOX = 0x3
-		, CW_USEDEFAULT := 0x80000000
-
-		Ptr := A_PtrSize ? "Ptr" : "UInt"
-
-			/*                              	NOTE
-
-						This is used to remove all tool tips from a given GUI and to clean up references used
-						This can be used if you want to remove every tool tip but not destroy the GUI
-						When a GUI is destroyed all Windows tool tip related data is cleaned up.
-						The cached Hwnd's in this function will be removed automatically if the caching code
-						ever matches them to a new GUI that doesn't actually own the Hwnd's.
-						It's still possible that a new GUI could have the same Hwnd as a previously destroyed GUI
-						If such an event occurred I have no idea what would happen. Either the tool tip
-						To avoid that issue, do either of the following:
-							* Don't destroy a GUI once created
-						NOTE: You do not need to do the above if you're exiting the script Windows will clean up
-						all tool tip related data and the cached Hwnd's in this function are lost when the script
-						exits anyway.AtEOF
-		*/
-
-		If (_TipText = "Destroy" Or _TipText = "Remove All" And _Modify = -1)
-		{
-			; Check if the GuiHwnd exists in the cache list of GuiHwnds
-			; If it doesn't exist, no tool tips can exist for the GUI.
-			;
-			; If it does exist, find the cached TTHwnd for removal.
-			Loop, Parse, GuiHwnds, |
-				If (A_LoopField = _CtrlHwnd)
-			{
-				TTHwnd := A_Index
-				, TTExists := True
-				Loop, Parse, TTHwnds, |
-					If (A_Index = TTHwnd)
-					TTHwnd := A_LoopField
-			}
-
-			If (TTExists)
-			{
-				If (_TipText = "Remove All")
-				{
-					WinGet, ChildHwnds, ControlListHwnd, ahk_id %_CtrlHwnd%
-
-					Loop, Parse, ChildHwnds, `n
-						AddToolTip(A_LoopField, "", _Modify) ;Deletes the individual tooltip for a given control if it has one
-
-					DllCall("DestroyWindow", Ptr, TTHwnd)
-				}
-
-				GuiHwnd := _CtrlHwnd
-				; This sub removes 'GuiHwnd' and 'TTHwnd' from the cached list of Hwnds
-				GoSub, RemoveCachedHwnd
-			}
-
-			Return
-		}
-
-		If (!GuiHwnd := DllCall("GetParent", Ptr, _CtrlHwnd, Ptr))
-			Return "Invalid control Hwnd: """ _CtrlHwnd """. No parent GUI Hwnd found for control."
-
-		; If this GUI is the same one as the potential previous one
-		; else look through the list of previous GUIs this function
-		; has operated on and find the existing TTHwnd if one exists.
-		If (GuiHwnd = LastGuiHwnd)
-			TTHwnd := LastTTHwnd
-		Else
-		{
-			Loop, Parse, GuiHwnds, |
-				If (A_LoopField = GuiHwnd)
-			{
-				TTHwnd := A_Index
-				Loop, Parse, TTHwnds, |
-					If (A_Index = TTHwnd)
-					TTHwnd := A_LoopField
-			}
-		}
-
-		; If the TTHwnd isn't owned by the controls parent it's not the correct window handle
-		If (TTHwnd And GuiHwnd != DllCall("GetParent", Ptr, TTHwnd, Ptr))
-		{
-			GoSub, RemoveCachedHwnd
-			TTHwnd := ""
-		}
-
-		; Create a new tooltip window for the control's GUI - only one needs to exist per GUI.
-		; The TTHwnd's are cached for re-use in any subsequent calls to this function.
-		If (!TTHwnd)
-		{
-			TTHwnd := DllCall("CreateWindowEx"
-				, "UInt", 0 ;dwExStyle
-				, "Str", "TOOLTIPS_CLASS32" ;lpClassName
-				, "UInt", 0 ;lpWindowName
-				, "UInt", WS_POPUP | BS_AUTOCHECKBOX ;dwStyle
-				, "UInt", CW_USEDEFAULT ;x
-				, "UInt", 0 ;y
-				, "UInt", 0 ;nWidth
-				, "UInt", 0 ;nHeight
-				, "UInt", GuiHwnd ;hWndParent
-				, "UInt", 0 ;hMenu
-				, "UInt", 0 ;hInstance
-			, "UInt", 0) ;lpParam
-
-			; TTM_SETWINDOWTHEME
-			DllCall("uxtheme\SetWindowTheme"
-				, Ptr, TTHwnd
-				, Ptr, 0
-			, Ptr, 0)
-
-			; Record the TTHwnd and GuiHwnd for re-use in any subsequent calls.
-			TTHwnds .= (TTHwnds ? "|" : "") TTHwnd
-			, GuiHwnds .= (GuiHwnds ? "|" : "") GuiHwnd
-		}
-
-		; Record the last-used GUIHwnd and TTHwnd for re-use in any immediate future calls.
-		LastGuiHwnd := GuiHwnd
-		, LastTTHwnd := TTHwnd
-			/*
-				*TOOLINFO STRUCT*
-
-				UINT        cbSize
-				UINT        uFlags
-				HWND        hwnd
-				UINT_PTR    uId
-				RECT        rect
-				HINSTANCE   hinst
-				LPTSTR      lpszText
-				#if (_WIN32_IE >= 0x0300)
-					LPARAM    lParam;
-				#endif
-				#if (_WIN32_WINNT >= Ox0501)
-					void      *lpReserved;
-				#endif
-		*/
-
-		, TInfoSize := 4 + 4 + ((A_PtrSize ? A_PtrSize : 4) * 2) + (4 * 4) + ((A_PtrSize ? A_PtrSize : 4) * 4)
-		, Offset := 0
-		, Varsetcapacity(TInfo, TInfoSize, 0)
-		, Numput(TInfoSize, TInfo, Offset, "UInt"), Offset += 4 ; cbSize
-		, Numput(1 | 16, TInfo, Offset, "UInt"), Offset += 4 ; uFlags
-		, Numput(GuiHwnd, TInfo, Offset, Ptr), Offset += A_PtrSize ? A_PtrSize : 4 ; hwnd
-		, Numput(_CtrlHwnd, TInfo, Offset, Ptr), Offset += A_PtrSize ? A_PtrSize : 4 ; UINT_PTR
-		, Offset += 16 ; RECT (not a pointer but the entire RECT)
-		, Offset += A_PtrSize ? A_PtrSize : 4 ; hinst
-		, Numput(&_TipText, TInfo, Offset, Ptr) ; lpszText
-		; The _Modify flag can be used to skip unnecessary removal and creation if
-		; the caller follows usage properly but it won't hurt if used incorrectly.
-		If (!_Modify Or _Modify = -1)
-		{
-			If (_Modify = -1)
-			{
-				; Removes a tool tip if it exists - silently fails if anything goes wrong.
-				DllCall("SendMessage"
-					, Ptr, TTHwnd
-					, "UInt", A_IsUnicode ? TTM_DELTOOLW : TTM_DELTOOLA
-					, Ptr, 0
-				, Ptr, &TInfo)
-
-				Return
-			}
-
-			; Adds a tool tip and assigns it to a control.
-			DllCall("SendMessage"
-				, Ptr, TTHwnd
-				, "UInt", A_IsUnicode ? TTM_ADDTOOLW : TTM_ADDTOOLA
-				, Ptr, 0
-			, Ptr, &TInfo)
-
-			; Sets the preferred wrap-around width for the tool tip.
-			DllCall("SendMessage"
-				, Ptr, TTHwnd
-				, "UInt", TTM_SETMAXTIPWIDTH
-				, Ptr, 0
-			, Ptr, A_ScreenWidth)
-		}
-
-		; Sets the text of a tool tip - silently fails if anything goes wrong.
-		DllCall("SendMessage"
-			, Ptr, TTHwnd
-			, "UInt", A_IsUnicode ? TTM_UPDATETIPTEXTW : TTM_UPDATETIPTEXTA
-			, Ptr, 0
-		, Ptr, &TInfo)
-
-		Return
-		RemoveCachedHwnd:
-			Loop, Parse, GuiHwnds, |
-				NewGuiHwnds .= (A_LoopField = GuiHwnd ? "" : ((NewGuiHwnds = "" ? "" : "|") A_LoopField))
-
-			Loop, Parse, TTHwnds, |
-				NewTTHwnds .= (A_LoopField = TTHwnd ? "" : ((NewTTHwnds = "" ? "" : "|") A_LoopField))
-
-			GuiHwnds := NewGuiHwnds
-			, TTHwnds := NewTTHwnds
-			, LastGuiHwnd := ""
-			, LastTTHwnd := ""
-		Return
-	}
-
-
-
-
-fCreateSectionNames(str)
+HighlightAHK(Settings, ByRef Code)
 {
-    str:=strsplit(str,"=").2
-    arr:=strsplit(trim(str),",")
-    for k,v in arr
-        arr[k]:=trim(StrReplace(v,"`r`n"))
-    return arr
-}
-
-HighlightAHK(Settings, ByRef Code) {
 	static Flow := "break|byref|catch|class|continue|else|exit|exitapp|finally|for|global|gosub|goto|if|ifequal|ifexist|ifgreater|ifgreaterorequal|ifinstring|ifless|iflessorequal|ifmsgbox|ifnotequal|ifnotexist|ifnotinstring|ifwinactive|ifwinexist|ifwinnotactive|ifwinnotexist|local|loop|onexit|pause|return|settimer|sleep|static|suspend|throw|try|until|var|while"
 	, Commands := "autotrim|blockinput|clipwait|control|controlclick|controlfocus|controlget|controlgetfocus|controlgetpos|controlgettext|controlmove|controlsend|controlsendraw|controlsettext|coordmode|critical|detecthiddentext|detecthiddenwindows|drive|driveget|drivespacefree|edit|envadd|envdiv|envget|envmult|envset|envsub|envupdate|fileappend|filecopy|filecopydir|filecreatedir|filecreateshortcut|filedelete|fileencoding|filegetattrib|filegetshortcut|filegetsize|filegettime|filegetversion|fileinstall|filemove|filemovedir|fileread|filereadline|filerecycle|filerecycleempty|fileremovedir|fileselectfile|fileselectfolder|filesetattrib|filesettime|formattime|getkeystate|groupactivate|groupadd|groupclose|groupdeactivate|gui|guicontrol|guicontrolget|hotkey|imagesearch|inidelete|iniread|iniwrite|input|inputbox|keyhistory|keywait|listhotkeys|listlines|listvars|menu|mouseclick|mouseclickdrag|mousegetpos|mousemove|msgbox|outputdebug|pixelgetcolor|pixelsearch|postmessage|process|progress|random|regdelete|regread|regwrite|reload|run|runas|runwait|send|sendevent|sendinput|sendlevel|sendmessage|sendmode|sendplay|sendraw|setbatchlines|setcapslockstate|setcontroldelay|setdefaultmousespeed|setenv|setformat|setkeydelay|setmousedelay|setnumlockstate|setregview|setscrolllockstate|setstorecapslockmode|settitlematchmode|setwindelay|setworkingdir|shutdown|sort|soundbeep|soundget|soundgetwavevolume|soundplay|soundset|soundsetwavevolume|splashimage|splashtextoff|splashtexton|splitpath|statusbargettext|statusbarwait|stringcasesense|stringgetpos|stringleft|stringlen|stringlower|stringmid|stringreplace|stringright|stringsplit|stringtrimleft|stringtrimright|stringupper|sysget|thread|tooltip|transform|traytip|urldownloadtofile|winactivate|winactivatebottom|winclose|winget|wingetactivestats|wingetactivetitle|wingetclass|wingetpos|wingettext|wingettitle|winhide|winkill|winmaximize|winmenuselectitem|winminimize|winminimizeall|winminimizeallundo|winmove|winrestore|winset|winsettitle|winshow|winwait|winwaitactive|winwaitclose|winwaitnotactive"
 	, Functions := "abs|acos|array|asc|asin|atan|ceil|chr|comobjactive|comobjarray|comobjconnect|comobjcreate|comobject|comobjenwrap|comobjerror|comobjflags|comobjget|comobjmissing|comobjparameter|comobjquery|comobjtype|comobjunwrap|comobjvalue|cos|dllcall|exception|exp|fileexist|fileopen|floor|func|getkeyname|getkeysc|getkeystate|getkeyvk|il_add|il_create|il_destroy|instr|isbyref|isfunc|islabel|isobject|isoptional|ln|log|ltrim|lv_add|lv_delete|lv_deletecol|lv_getcount|lv_getnext|lv_gettext|lv_insert|lv_insertcol|lv_modify|lv_modifycol|lv_setimagelist|mod|numget|numput|objaddref|objclone|object|objgetaddress|objgetcapacity|objhaskey|objinsert|objinsertat|objlength|objmaxindex|objminindex|objnewenum|objpop|objpush|objrawset|objrelease|objremove|objremoveat|objsetcapacity|onmessage|ord|regexmatch|regexreplace|registercallback|round|rtrim|sb_seticon|sb_setparts|sb_settext|sin|sqrt|strget|strlen|strput|strsplit|substr|tan|trim|tv_add|tv_delete|tv_get|tv_getchild|tv_getcount|tv_getnext|tv_getparent|tv_getprev|tv_getselection|tv_gettext|tv_modify|tv_setimagelist|varsetcapacity|winactive|winexist|_addref|_clone|_getaddress|_getcapacity|_haskey|_insert|_maxindex|_minindex|_newenum|_release|_remove|_setcapacity"
@@ -1931,7 +1703,8 @@ HighlightAHK(Settings, ByRef Code) {
 	return Settings.Cache.RTFHeader . RTF . "\cf" Map.Plain " " EscapeRTF(SubStr(Code, Pos)) "\`n}"
 }
 
-GenHighlighterCache(Settings) {
+GenHighlighterCache(Settings)
+{
 
 	if Settings.HasKey("Cache")
 		return
@@ -1988,7 +1761,8 @@ GenHighlighterCache(Settings) {
 	Cache.RTFHeader := RTF
 }
 
-GetCharWidthTwips(Font) {
+GetCharWidthTwips(Font)
+{
 
 	static Cache := {}
 
@@ -2030,15 +1804,13 @@ GetCharWidthTwips(Font) {
 	Cache[Font.Typeface "_" Font.Size "_" Font.Bold] := Twips
 	return Twips
 }
-EscapeRTF(Code) {
+
+EscapeRTF(Code)
+{
 	for each, Char in ["\", "{", "}", "`n"]
 		Code := StrReplace(Code, Char, "\" Char)
 	return StrReplace(StrReplace(Code, "`t", "\tab "), "`r")
 }
-
-
-
-
 
 FuzzySearch(string1, string2)
 {
@@ -2108,7 +1880,6 @@ StringDifference(string1, string2, maxOffset=1) {    ;returns a float: between "
   } 
   Return ((n0 + m0)/2 - lcs) / (n0 > m0 ? n0 : m0) 
 }
-
 
 Quote(String)
 { ; u/anonymous1184 | fetched from https://www.reddit.com/r/AutoHotkey/comments/p2z9co/comment/h8oq1av/?utm_source=share&utm_medium=web2x&context=3

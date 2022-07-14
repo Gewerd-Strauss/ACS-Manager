@@ -1,5 +1,9 @@
 # Changelog
-v. 13.07.2022-3
+v. 14.07.2022-1
+- added a bunch of performance changes to most loops
+- removed more redundand code.
+- combined some loops to reduce overall bootup time
+v.13.07.2022-3
 - removed some irrelevant code
 - added hostring `alib.s` to open GUI- added hostring `alib.s` to open GUI^[previously only possible via Numpad0, which is kinda hard on a mobile 13"-laptop]
 - added a few comments on particularly weird stuff, or todo's for later

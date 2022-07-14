@@ -2,8 +2,8 @@
 List-version 13.07.2022 06:28:44
 # TODO
 
-
-
+- [ ] Figure out how to drastically reduce the amount of loops required to do this. 
+- [ ] hunt down the most reasonable performance gains wherever possible, refer to https://www.autohotkey.com/boards/viewtopic.php?t=6413 for overview and go from there.
 
 ## Fixes
 - [ ] at 1080 screen sizing the textfield of the red "xx snippets loaded" will cut over the boundary of the groupbox control
