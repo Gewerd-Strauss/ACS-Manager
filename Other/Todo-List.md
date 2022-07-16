@@ -1,11 +1,21 @@
 (LTrim
 List-version 13.07.2022 06:28:44
 # TODO
-
+- [ ] Figure out what's the best step forward regarding speed - which largely depends on how many loops I require.
+- [ ] Consider switching storage over to something like JSON, (or rather SerDes in this case) both make my life much easier when loading the data, and when parsing it - because there is basically nothing to parse
+	- considerations: 
+		- 1 SerDes-Str/File, so that we don't loose file-relative hash uniqueness
+		- Hash must be created based upon something other, maybe based upon FileInd?
+		- make sure that the integrity of Snippets[] remains intact, otherwhise I'll have to rewrite about 90%
+		- Create a snippet's Save Function which takes Snippets and "FIlePath" as inputs, then only collects all Snippets.entries which are from said file, then push all of that to SerDes and write to a new file, to translate the syntax'
+			- after that, you should only be able to add new snippets by AdditionGui/GUI2, which will incorporate the respective input into the chosen file's Object, then save the respective string to file again. 
+		- consider splitting code and metadata (but why, if we're already using serdes?)
+	
 - [ ] Figure out how to drastically reduce the amount of loops required to do this. 
 - [ ] hunt down the most reasonable performance gains wherever possible, refer to https://www.autohotkey.com/boards/viewtopic.php?t=6413 for overview and go from there.
 
 ## Fixes
+- [ ] #important - fix the ID-regex trimming preceeding zeros, which makes looking for low integer indexed snippets difficult if there are many snippets, because they are _all_ getting found.
 - [ ] at 1080 screen sizing the textfield of the red "xx snippets loaded" will cut over the boundary of the groupbox control
 - [ ] at 1080 screen sizing the richEdit-fields will cut over the boundary of the tab control
 - [x]		Seems completed, needs to be tested.			 URGENT: Fix the Structure of Snippets[] to not use the snippet name alone as Key → multiple snippets with identical name (but. f.e. different descriptions) will overwrite each other. 
@@ -26,9 +36,9 @@ List-version 13.07.2022 06:28:44
 	- [ ] Make the GUI _actually_ scaleable via AutoXYWH or similar solutions.
 - [x] Fix lSearchSnippets searching in the unfixed file string, where snippet ID's are not aligned → must search in Snippets[]-Object Instead
 ## Additions
-- [ ] Incorporate Library-Name into Snippet Info during fParseSnippet, then populate the LV field respectively. 
-	- [ ] done in principle, but must be verified to not introduce bugs somewhere else
-	- [ ] Consideration to make: Might make it hidable because the information it gives is limited, and only really relevant when you need to figure out where a snippet is located. For that however I could just as well straight out output the snippet-object or just have the file open automatically.
+- [x] Incorporate Library-Name into Snippet Info during fParseSnippet, then populate the LV field respectively. 
+	- [x] done in principle, but must be verified to not introduce bugs somewhere else
+	- [x] Consideration to make: Might make it hidable because the information it gives is limited, and only really relevant when you need to figure out where a snippet is located. For that however I could just as well straight out output the snippet-object or just have the file open automatically.
 - [ ] Update scriptObj-Update()-Method to work properly with one-script-files/a repository of files.
 	- [ ] this includes making more extensive tests
 	- [ ] creating a backup folder of the pre-update instance including all files within the folder/zip script-directory into a backup within script-dir and then overwrite all files.

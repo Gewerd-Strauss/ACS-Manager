@@ -15,7 +15,6 @@ CurrentMode:="Instr"
 ; Add scriptObj-template and convert Code to use it - maybe, just a thought. Syntax of the Library-File is probably way too special for doing so, and there are no real configs to save anyways
 ; separate library-files and settings-files, take a peek at ahk-rare to see what they store in settings
 #Include <scriptObj>
-CodeTimer("D")
 FileGetTime, ModDate,%A_ScriptFullPath%,M
 FileGetTime, CrtDate,%A_ScriptFullPath%,C
 CrtDate:=SubStr(CrtDate,7,  2) "." SubStr(CrtDate,5,2) "." SubStr(CrtDate,1,4)
@@ -61,6 +60,7 @@ global Regex:={	 NewSnippet:"`r`n\\\\\\---NewSnippet---\\\\\\`r`n"
 				,StripFunctionName:"(\(.*\)\{*\s*)*\;*"
 				,SnippetFinder:"(\\\\\\---NewSnippet---\\\\\\\n)*((?<FunctionName>.*)(\((?<Parameters>.*)\))*(?<BraceOnNameLine>\{?)\s?\;?\|\|\|SnippetInd\:(?<SnippetInd>.*),Section:(?<Section>\d*(\.\d*)*)\,Description:(?<Description>.*))"}
 global Hashes:=[]
+CodeTimer("Legacy Loading")
 if IsObject(script.config.libraries)
 {
 	for k,v in script.config.libraries ; expand relative paths of Snippet libraries to full paths. So far only tested for libraries located within A_ScriptDir
@@ -130,258 +130,51 @@ Arr:=fParseArr(Arr.1,Identifier,Arr.3)
 )
 
 gosub, lGUICreate_1New
-CodeTimer("D")
+LegTime:=CodeTimer("Legacy Loading",,,1)
+; FileAppend,% "`n" LegTime, % A_ScriptDir "\LegacyBenchmark.txt" ;; for benchmarking, repopulate "AHK_LibraryGUI.txt" with the contents stored in "AHK_LibraryGUI_Longbench.txt"
+; gosub, SerDesBenchmark
+; if !GetKeyState("Esc")
+; 	reload
 return
 
 lGuiCreate_2:
-		gui, 2: destroy
-		gui, 2: new, +AlwaysOnTop -SysMenu -ToolWindow -caption +Border
-		gui, +hwndIngestGUI
-		if vsdb || (A_DebuggerName="Visual Studio Code")
-			gui, -AlwaysOnTop
-		gui_control_options := "xm w220 " . cForeground . " -E0x200"  ; remove border around edit field
-		gui_control_options2 :=  cForeground . " -E0x200"
-		Gui, Margin, 16, 16
-		
-		; Gui,  -SysMenu -ToolWindow -caption +Border
-		cBackground := "c" . "1d1f21"
-		cCurrentLine := "c" . "282a2e"
-		cSelection := "c" . "373b41"
-		cForeground := "c" . "c5c8c6"
-		cComment := "c" . "969896"
-		cRed := "c" . "cc6666"
-		cOrange := "c" . "de935f"
-		cYellow := "c" . "f0c674"
-		cGreen := "c" . "b5bd68"
-		cAqua := "c" . "8abeb7"
-		cBlue := "c" . "81a2be"
-		cPurple := "c" . "b294bb"
-		gui, font, s9 cWhite, Segoe UI
-		vLastCreationScreenHeight:=vGuiHeight
-		vLastCreationScreenWidth:=vGuiWidth
-		if (!vGUIWidth and !vGuiHeight) || (vGUIWidth!=(A_ScreenWidth-20)) || (vGuiHeight!=(A_ScreenHeight)) ; assign outer gui dimensions either if they don't exist or if the resolution of the active screen has changed - f.e. when undocking or docking to a higher resolution display. The lGuiCreate_1-subroutine is also invoked in total if the resolution changes, but this is the necessary inner check to reassign dimensions.
-		{ 
-			vGUIWidth:=A_ScreenWidth - 20  ;-910
-			vGUIHeight:=A_ScreenHeight 
-		}
-        	; vGUIWidth:=1920 - 20  ;-910
-			; vGUIHeight:=1080
-		vGuiHeight_Reduction:=60 
-		vGuiHeightControl:=A_ScreenHeight-vGuiHeight_Reduction
-		
-		; if (vGUIHeight>vGuiHeightControl)
-		; {
-		; 	vGuiHeightOriginal:=vGuiHeight
-		; 	vGUIHeight:=vGUIHeight-vGuiHeight_Reduction
-		; }
-		
-		if vGUIWidth<1000
-			f_ThrowError(A_ThisFunc,"Screen Width is smaller than 1000 pixels. As a result, the gui cannot be properly shown.`nIf this error is shown after opening the IniSettingsCreator, ignore it and open the gui again.",A_ScriptNameNoExt . "_"3, Exception("",-1).Line)
-
-		vGUITabWidth:=vGUIWidth-30
-        vGUITabRightEdge:=vGUITabWidth+15
-        vGuiTabLeftEdge:=15
-        vGUITabHeight:=vGUIHeight-45
-        
-        vGuiGroupBoxSearchBoxWidth:=vGUITabWidth*0.65-360
-
-        vLV_LeftEdge:=vGuiTabLeftEdge+15
-        vLV_RightEdge:=vGUITabRightEdge-15
-        vLV_Width:=vLV_RightEdge-vLV_LeftEdge 
-
-
-        ; vGuiGroupBoxSearchBoxWidth:= vLV_RightEdge-
-        vxPosGroupBoxSearchBox:=vLV_RightEdge-(vLV_Width*0.65)
-        vWidthGroupBoxSearchBox:=(vLV_Width*0.65)
-
-        ; vxPosGroupBoxSearchBox:=vLV_RightEdge-vLV_Width*0.35
-        vxPosGuiGroupBoxSearchBoxTRC:=vGUITabWidth-15-vGuiGroupBoxSearchBoxWidth+25
-
-        ; vxPosGuiGroupBoxSearchBoxTRC
-        vxDDLSearchBox:=vxPosGroupBoxSearchBox+20
-        WidthDDL:=80
-        xPosEdit:=(vxPosGroupBoxSearchBox+20)+90
-        vWidthEditSearchBox:=vWidthGroupBoxSearchBox
-        ; vWidthEditFSearchBox
-
-        ; Position Left Edge SearchBox: vxPosGroupBoxSearchBox
-        ; Position Right Edge SearchBox: vxPosGroupBoxSearchBox+vWidthGroupBoxSearchBox
-        ; + Space To DDL: vxDDLSearchBox (+20)
-        ; + Width DDL : + WidthDDLSearchBox
-        ; + Space to Edit: vXDDLSearchBox + WidthDDLSearchBox + 20
-        ; + Width Edit Field ??
-        
-        ; + Margin To groupBox 
-        vLeftEdgeSearchBox:=vxPosGroupBoxSearchBox
-        vRightEdgeSearchBox:=vxPosGroupBoxSearchBox+vWidthGroupBoxSearchBox
-        vWidthSearchBox:=vRightEdgeSearchBox-vLeftEdgeSearchBox
-        vInterElementAndBordeMargin:=3*15
-        vSpaceAvaliableforEditAndDDL:=vWidthSearchBox-vInterElementAndBordeMargin
-       
-        vxPosDDL:=vLeftEdgeSearchBox+(vInterElementAndBordeMargin/3)
-        WidthDDL:=WidthDDL
-     
-        vXPosEditField:=vLeftEdgeSearchBox + (vInterElementAndBordeMargin/3) + WidthDDL + (vInterElementAndBordeMargin/3)
-        WidthEditField:=vRightEdgeSearchBox-vXPosEditField-(vInterElementAndBordeMargin/3)
-        vRightEdgeEditToGroupBox_SearchBox:= (vxPosGroupBoxSearchBox+vWidthGroupBoxSearchBox)-20
-
-        
-
-        
-        gui, font, s7 cRed, Segoe UI
-        gui, add, Text, x0 y0 w0 h0, AnchorTopLeft2
-        ; MAIN GUI GROUPBOX
-        gui, add, groupbox, x15 y20 w%VGuiTabWidth% h%vGUITabHeight%
-
-        ; GUI Search Box GroupBox
-        gui, add, groupbox, x%vxPosGroupBoxSearchBox% y30 w%vWidthGroupBoxSearchBox% h90
-        gui, font, s14 cRed, Segoe UI
-        gui, add, text,x%vXPosDDL% y40, Search snippets
-        gui, font, s11 cWhite, Segoe 
-        gui, add, DDL,vSearchMethod x%vxPosDDL% y70 w%WidthDDL% vCurrentMode2 glSetSearchMethod2, Instr||RegEx
-        gui, font, s11 cBlack, Segoe 
-        vwEditSearchBox:=vxDDLSearchBox-120
-        vGuiHeightAnchorHeightOfSearchBoxWidth:=55+70 ; 70is die Summe der y-verschiebung bis hierher
-
-        gui, add, edit, x%vXPosEditField% y70 w%WidthEditField% cBlack glCheckStringForLVRestore2 vSearchString2 ,  New ; Search here
-        gui, add, text, y%vGuiHeightAnchorHeightOfSearchBoxWidth% x0 w0                 vAnkerLV,  
-
-        
-        gui, font, s6
-        gui, add, Listview, xp y%vGuiHeightAnchorHeightOfSearchBoxWidth% +Report ReadOnly x%vLV_LeftEdge% w%vLV_Width% h500 -vScroll vLVvalue2 glLV_Callback2, Section|Snippet Name|Short description|Snippet Identifier|Hash
-		gui, show
-		guicontrol, font, LVvalue2
-        yAnkerLV2:=vGuiHeightAnchorHeightOfSearchBoxWidth+500
-        gui, add, text, y%yAnkerLV2% x0                  vAnkerLV2,  
-        yTopListView:=0+20+10+30+vGuiHeightAnchorHeightOfSearchBoxWidth
-        ; yPosDescriptionField:=135+500+10
-        yPosDescriptionField:=yAnkerLV2+15 ;vGUITabHeight
-        hDescriptionField:=vGUITabHeight-yPosDescriptionField
-        gui, font, s12, Segoe UI
-        ;RC:=new RichCode(Settings,"ARG",1,200,"Highlighter" :Func("HighlightAHK"))
-        gui, add, edit, y%yPosDescriptionField% x%vLV_LeftEdge% w300 h%hDescriptionField% disabled, Edit1
-        yPosCodeField:=yPosDescriptionField
-        xCodeField:=vLV_LeftEdge+300+15
-        WidthCopyField:=vLV_RightEdge-xCodeField
-        xPositionCopyField:=vLV_LeftEdge+100+300
-        yAnchorREField:=yPosDescriptionField-20
-        gui, add, text, y%yAnchorREField% xp+315 w0 h0, 
-        ; gui, add, edit, yp x%xCodeField% w%WidthCopyField% h%hDescriptionField% vhiddenfield
-        guicontrol, hide, %vhiddenfield%
-        												; RC:=new RichCode(Settings,"ARG",1,200,"Highlighter" :Func("HighlightAHK"))
-		global RC2:=new RichCode(RESettings2, yp " w" WidthCopyField " " xp " h" hDescriptionField,"IngestGui", HighlightBound=Func("HighlightAHK"))
-        RC2.HighlightBound:=Func("HighlightAHK")
-        ; gui, add, statusbar, -Theme vStatusBarMainWindow BackGround373b41 glCallBack_StatusBarMainWindow
-        GuiControl, -Redraw, LVvalue2
-
-        fPopulateLV(Snippets,SectionNames)
-
-        GuiControl, +Redraw, LVvalue2
-        SearchIsFocused:=Func("ControlIsFocused").Bind("Edit1")
-        ListViewIsFocused:=Func("ControlIsFocused").Bind("SysListView321")
-        ; EditFieldIsClicked:=Func("ControlIsFocused").Bind("Edit3")
-        RCFieldIsClicked:=Func("ControlIsFocused").Bind("RICHEDIT50W1")
-
-        GuiXPos:=(A_ScreenWidth-vGuiWidth)/2
-        GuiYPos:=(A_ScreenHeight-vGuiHeight)/2
-		gosub, lGuiShow_1
-        Hotkey, IfWinActive, % "ahk_id " IngestGUI
-        Hotkey, ^f, lFocusSearchBar
-        Hotkey, ^s, lFocusSearchBar
-        Hotkey, ^k, lFocusListView
-		Hotkey, ^r, lGuiCreate_2
-        Hotkey, if, % SearchIsFocused
-        HotKey, ^BS, lDeleteWordFromSearchBar
-        Hotkey, ^k, lFocusListView
-        Hotkey, ~Enter, lSearchSnippetsEnter
-        ; Hotkey, Del, lClearSearchbar
-
-
-        Hotkey, if, % ListViewIsFocused
-        Hotkey, ~Up, ListViewUp
-        Hotkey, ~Down, ListViewDown
-        
-        hotkey, if, % RCFieldIsClicked
-        Hotkey, ~RButton, lCopyScript
-        Hotkey, ~LButton, lCopyScript
-        ; hotkey, if, % EditFieldIsClicked
-        ; Hotkey, ~RButton, lCopyScript
-        ; Hotkey, ~LButton, lCopyScript
-		; 1. RichEdit-Field to paste Code into
-		; 2. DDL to choose Secion Name (allow for new ones to be added by string manually)
-		; 3. Edit Field to addit Short Description String
-		; 4. Edit Field to paste Snippet Name (if not a function)
-
-
-		; snippet ind is global, not restricted to section
-        ; GUI Search Box GroupBox
-        ; gui, add, groupbox, x%vxPosGroupBoxSearchBox% y30 w%vWidthGroupBoxSearchBox% h90
-        ; gui, font, s14 cRed, Segoe UI
-        ; gui, add, text,x%vXPosDDL% y40, Search functions
-        ; gui, font, s11 cWhite, Segoe 
-        ; gui, add, DDL,vSearchMethod x%vxPosDDL% y70 w%WidthDDL% vCurrentMode glSetSearchMethod, Basic||RegEx
-        ; gui, font, s11 cBlack, Segoe 
-        ; vwEditSearchBox:=vxDDLSearchBox-120
-        ; vGuiHeightAnchorHeightOfSearchBoxWidth:=55+70 ; 70is die Summe der y-verschiebung bis hierher
-
-        ; gui, add, edit, x%vXPosEditField% y70 w%WidthEditField% cBlack glCheckStringForLVRestore vIngestionEdit1 ,  New ; Search here
-        ; gui, add, text, y%vGuiHeightAnchorHeightOfSearchBoxWidth% x0 w0                 vAnkerLV,  
-
-        
-        ; gui, font, s9 cOrange, Segoe UI
-        ; gui, add, Listview, xp y%vGuiHeightAnchorHeightOfSearchBoxWidth% +Report ReadOnly x%vLV_LeftEdge% w%vLV_Width% h500 -vScroll vLVvalueIngestion glLV_Callback, Section|Snippet Name|Short description|Snippet Identifier
-        ; yAnkerLV2:=vGuiHeightAnchorHeightOfSearchBoxWidth+500
-        ; gui, add, text, y%yAnkerLV2% x0                  vAnkerLV2,  
-        ; yTopListView:=0+20+10+30+vGuiHeightAnchorHeightOfSearchBoxWidth
-        ; yPosDescriptionField:=135+500+10
-        ; yPosDescriptionField:=yAnkerLV2+15 ;vGUITabHeight
-        ; hDescriptionField:=vGUITabHeight-yPosDescriptionField
-        ; gui, font, s12, Segoe UI
-        ;RC:=new RichCode(Settings,"ARG",1,200,"Highlighter" :Func("HighlightAHK"))
-        ; gui, add, edit, y%yPosDescriptionField% x%vLV_LeftEdge% w300 h%hDescriptionField% disabled, Edit1
-        ; yPosCodeField:=yPosDescriptionField
-        ; xCodeField:=vLV_LeftEdge+300+15
-        ; WidthCopyField:=vLV_RightEdge-xCodeField
-        ; xPositionCopyField:=vLV_LeftEdge+100+300
-        ; yAnchorREField:=yPosDescriptionField-20
-        ; gui, add, text, y%yAnchorREField% xp+315 w0 h0, 
-        ; ; gui, add, edit, yp x%xCodeField% w%WidthCopyField% h%hDescriptionField% vhiddenfield
-        ; guicontrol, hide, %vhiddenfield%
-        ; gui, add, tab, yp w%WidthCopyField% x%xCodeField% h%hDescriptionField%, CODE|Examples
-        ; gui, add, text, yp x%xCodeField% w%WidthCopyField% h%hDescriptionField%, Text1
-        ; GuiControl, Focus, % RC.hWnd
-        ; gui, add, edit, yp w%WidthCopyField% x%xCodeField% h%hDescriptionField% v%vCopyField%,
-        												; RC:=new RichCode(Settings,"ARG",1,200,"Highlighter" :Func("HighlightAHK"))
-		; global RC:=new RichCode(RESettings2, yp " w" WidthCopyField " " xp " h" hDescriptionField,"MainGui", HighlightBound=Func("HighlightAHK"))
-        ; RC.HighlightBound:=Func("HighlightAHK")
-        gui, add, statusbar, -Theme vStatusBarMainWindow BackGround373b41 glCallBack_StatusBarMainWindow
-        GuiControl, -Redraw, LVvalue
-
-        fPopulateLV(Snippets,SectionNames)
-
-        GuiControl, +Redraw, LVvalue
-        SearchIsFocused:=Func("ControlIsFocused").Bind("Edit1")
-        ListViewIsFocused:=Func("ControlIsFocused").Bind("SysListView321")
-        ; EditFieldIsClicked:=Func("ControlIsFocused").Bind("Edit3")
-        RCFieldIsClicked:=Func("ControlIsFocused").Bind("RICHEDIT50W1")
-
-        GuiXPos:=(A_ScreenWidth-vGuiWidth)/2
-        GuiYPos:=(A_ScreenHeight-vGuiHeight)/2
-		; guicontrol, 1+Background1d1f21,vLVvalueIngestion
-        Gui, Color, 1d1f21, 282a2e
-		gosub, lGuiShow_2
-		
-
-; gui, 2: show,, IngestGui
-		
+/*
+	removed initual code for Ingestion GUI, because I am not working on it right now and won't for quite some time.
+*/
 return
 lGuiShow_2:
 gui, 1: hide
 ; hwndOT:=ObjTree(Snippets)
-gui, 2: show, w%vGuiWidth% h%vGuiHeight%, % GuiNameIngestion
+; gui, 2: show, w%vGuiWidth% h%vGuiHeight%, % GuiNameIngestion
 return
 
-
+/*
+	SerDes-Benchmarking, to decide if I want to move over completely
+	Start: 20:48
+	End:   21:48
+*/
+Numpad2::
+SerDesBenchmark:
+gui, 1: hide
+Snippets2:=[]
+NPaths:=[]
+ClipBoard:=SErDes(Snippets)
+; CodeTimer(-1)
+; CodeTimer("SerDes-Method")
+for k,v in script.config.libraries
+	NPaths.push(strreplace(v,".txt","_SerDes.txt"))
+for k,v in NPaths
+	for s,w in d:=SerDes(v)
+		Snippets2[s]:=w
+; FileAppend,% "`n" CodeTimer("SerDes-Loading",,,1), % A_ScriptDir "\SerDesBenchmark.txt"
+return
+Numpad3::
+Missing:=0
+for k,v in Snippets
+	if !Snippets2.HasKey(k)
+		Missing++
+m(Missing)
+return
 lGUICreate_1New: ;; Fully Parametric-form
 		gui, 1: destroy
 		gui, 1: new, +AlwaysOnTop -SysMenu -ToolWindow -caption +Border +labelgResizing +Resize ;+MinSize1000x		
@@ -562,75 +355,7 @@ lGuiShow_1:
 gui, 1: show, w%vGuiWidth% h%vGuiHeight%, % GuiNameMain
 gosub, lFocusListView
 return
-; Original: http://ahkscript.org/boards/viewtopic.php?t=1079
-AutoSize(DimSize, cList*) {				; retrieved from https://www.autohotkey.com/boards/viewtopic.php?p=417609#p417609
-    Static cInfo := {}
-    Local
 
-    If (DimSize = "reset") {
-        Return cInfo := {}
-    }
-
-    For i, ctrl in cList {
-        ctrlID := A_Gui . ":" . ctrl
-        If (cInfo[ctrlID].x = "") {
-            GuiControlGet i, %A_Gui%: Pos, %ctrl%
-            MMD := InStr(DimSize, "*") ? "MoveDraw" : "Move"
-            fx := fy := fw := fh := 0
-            For i, dim in (a := StrSplit(RegExReplace(DimSize, "i)[^xywh]"))) {
-                If (!RegExMatch(DimSize, "i)" . dim . "\s*\K[\d.-]+", f%dim%)) {
-                    f%dim% := 1
-                }
-            }
-
-            If (InStr(DimSize, "t")) {
-                GuiControlGet hWnd, %A_Gui%: hWnd, %ctrl%
-                hWndParent := DllCall("GetParent", "Ptr", hWnd, "Ptr")
-                VarSetCapacity(RECT, 16, 0)
-                DllCall("GetWindowRect", "Ptr", hWndParent, "Ptr", &RECT)
-                DllCall("MapWindowPoints", "Ptr", 0, "Ptr"
-                , DllCall("GetParent", "Ptr", hWndParent, "Ptr"), "Ptr", &RECT, "UInt", 1)
-                ix -= (NumGet(RECT, 0, "Int") * 96) // A_ScreenDPI
-                iy -= (NumGet(RECT, 4, "Int") * 96) // A_ScreenDPI
-            }
-
-            cInfo[ctrlID] := {x: ix, fx: fx, y: iy, fy: fy, w: iw, fw: fw, h: ih, fh: fh, gw: A_GuiWidth, gh: A_GuiHeight, a: a, m: MMD}
-
-        } Else If (cInfo[ctrlID].a.1) {
-            dgx := dgw := A_GuiWidth - cInfo[ctrlID].gw
-            dgy := dgh := A_GuiHeight - cInfo[ctrlID].gh
-
-            Options := ""
-            For i, dim in cInfo[ctrlID]["a"] {
-                Options .= dim . (dg%dim% * cInfo[ctrlID]["f" . dim] + cInfo[ctrlID][dim]) . A_Space
-            }
-
-            GuiControl, % A_Gui ":" cInfo[ctrlID].m, % ctrl, % Options
-        }
-    }
-}
-AutoXYWH(DimSize, cList*){       ; http://ahkscript.org/boards/viewtopic.php?t=1079
-	static cInfo := {}
-	
-	If (DimSize = "reset")
-		Return cInfo := {}
-	
-	For i, ctrl in cList {
-		ctrlID := A_Gui ":" ctrl
-		If ( cInfo[ctrlID].x = "" ){
-			GuiControlGet, i, %A_Gui%:Pos, %ctrl%
-			MMD := InStr(DimSize, "*") ? "MoveDraw" : "Move"
-			fx := fy := fw := fh := 0
-			For i, dim in (a := StrSplit(RegExReplace(DimSize, "i)[^xywh]")))
-				If !RegExMatch(DimSize, "i)" dim "\s*\K[\d.-]+", f%dim%)
-					f%dim% := 1
-			cInfo[ctrlID] := { x:ix, fx:fx, y:iy, fy:fy, w:iw, fw:fw, h:ih, fh:fh, gw:A_GuiWidth, gh:A_GuiHeight, a:a , m:MMD}
-		}Else If ( cInfo[ctrlID].a.1) {
-			dgx := dgw := A_GuiWidth  - cInfo[ctrlID].gw  , dgy := dgh := A_GuiHeight - cInfo[ctrlID].gh
-			For i, dim in cInfo[ctrlID]["a"]
-				Options .= dim (dg%dim% * cInfo[ctrlID]["f" dim] + cInfo[ctrlID][dim]) A_Space
-			GuiControl, % A_Gui ":" cInfo[ctrlID].m , % ctrl, % Options
-} } }
 lFocusListView:
 guicontrol, focus, LVvalue
 return
@@ -759,7 +484,7 @@ If Instr(A_ThisLabel, "ListViewUp")
 		Send, {Up}
 else
 		Send, {Down}
-ttip("Pressing enter should immediately select the LV, then load the very first result and stay focused on it - not sure what's going on" Exception.Line())  ;; TODO - replace this by a tooltip attached to the LV-control
+; ttip("Pressing enter should immediately select the LV, then load the very first result and stay focused on it - not sure what's going on" Exception.Line())  ;; TODO - replace this by a tooltip attached to the LV-control
 selRow:= LV_GetNext("F")
 gosub, lLV_Callback
 return
@@ -857,6 +582,7 @@ f_GetSelectedLVEntries()
 
 fPopulateLV(Snippets,SectionNames)
 {
+	; CodeTimer("PopulateLV")
     LV_Delete()
 	, NewSnippetsSorted:=[]
 	, SectionIndexLength:=1
@@ -886,8 +612,8 @@ fPopulateLV(Snippets,SectionNames)
 		, Addition.LibraryName:=v.LibraryName
 		, Addition.LVInd:=fPadIndex(v.Section,SectionPad)"." fPadIndex((Instr(A_ThisLabel,"lSearchSnippets")?v.FileInd:v.Ind),"00")
 		, LV_Add("-E0x200",		Addition.Section,		Addition.Name,		Addition.Description,		Addition.Hash,		Addition.LibraryName,		Addition.LVInd		)
-		; Addition.LVInd:=fPadIndex(v.Section,Snippets.Count())"." fPadIndex((Instr(A_ThisLabel,"lSearchSnippets")?v.FileInd:v.Ind),"00")	;; WORKING VERSION; EXCEPT SECTION ID NOT PADDED
-	}
+		; LV_Add("-E0x200",		(fPadIndex(v.Section,SectionPad)) " - " (SectionNames[strsplit(v.Section,".").1]=""?"-1 INVALIDSECTIONKEY":SectionNames[strsplit(v.Section,".").1]),		RegExReplace(v.Name,Regex.StripFunctionName),		v.Description,		v.Hash,		v.LibraryName,		fPadIndex(v.Section,SectionPad)"." fPadIndex((Instr(A_ThisLabel,"lSearchSnippets")?v.FileInd:v.Ind),"00")		)
+	}		;; direct: 719, indirect: 844
 	LV_ModifyCol(4,0) 
 	LV_ModifyCol(6,"Right")
     LV_ModifyCol(3,"AutoHdr")
@@ -898,7 +624,7 @@ fPopulateLV(Snippets,SectionNames)
     LV_ModifyCol(2,"AutoHDr")
 	LV_ModifyCol(6,"Sort")
 	guicontrol,,vSearchFunctions,% snippets.count() " snippets loaded" 
-    return
+	; CodeTimer("PopulateLV",,,1)Fi    return
 }
 
 f_FillFields(Data)
@@ -942,12 +668,12 @@ ControlIsFocused(ControlID)                                                     
 	*/
 }
 
-fLoadFiles(File,Identifier)
+fLoadFiles(Files,Identifier)
 {		; loads multitude of files into the GUI
- 	if IsObject(File)
+ 	if IsObject(Files)
 	{
 		Ret:=[]
-		for k,v in File
+		for k,v in Files
 		{
 			FileRead, f, % v
 			; Clipboard:=f0:=f
@@ -1037,11 +763,14 @@ fMergeFileData(Files,Identifier)
 	*/
 	Main:=[]
 	; m(Files)
+	vHashTime:=0
 				;; now find Which 
+	StartHash:=A_Now
 	for File,v in Files
 	{
-		HashedFile:=f_AddHashedFilePath(v)
-		, Files[File]:=HashedFile
+
+				;; 54 s for hashing the 10k+ file
+		Files[File]:=f_AddHashedFilePath(v)
 		if (Ind==1)
 		{
 			Main:=v.Clone()
@@ -1063,19 +792,24 @@ fMergeFileData(Files,Identifier)
 f_AddHashedFilePath(File)
 {	; required to make every snippet unique, and thus distinguishable.
 	ret:=f_IncorporateHashAndFileName(File)
-	OldF4:=ret.4
-	ret.4:=""
-	for k, v in ret.1
-		ret.4.=	v "`n"
-	ret.4.=ret.2			;; apend the sections at the end.
-	if (ret.4==OldF4)		;; TODO: This is no longer valid, the check must be changed to a St_Count Over every hash in Hashes to check if it appears more than once in the entire text of all files. FOr doing so, this must be moved outside of the loop which calls f_AddHashedFilePath... 
-		f_ThrowError(A_ThisFunc,"Critical error while creating unique hashes for snippet-differentiation. A specific Hash has been incoprorated more than once. " )
+	/* DEPRECATED
+
+		; OldF4:=ret.4		;; this removed section here accounted for ~85% of bootup time
+		; ret.4:=""
+		; for k, v in ret.1	
+		; 	ret.4.=	v "`n"
+		; ret.4.=ret.2			;; apend the sections at the end.
+		; if (ret.4==OldF4)		;; TODO: This is no longer valid, the check must be changed to a St_Count Over every hash in Hashes to check if it appears more than once in the entire text of all files. FOr doing so, this must be moved outside of the loop which calls f_AddHashedFilePath... 
+		; 	f_ThrowError(A_ThisFunc,"Critical error while creating unique hashes for snippet-differentiation. A specific Hash has been incoprorated more than once. " )
+	*/
 	return ret.1
 }
 
 f_IncorporateHashAndFileName(File)
 {	; incorporate Hash into file struct, as well as FileName of the respective file.
+
 	Number:=1 ;; make each Hash Unique
+	File.4:=""
 	SplitPath, % File.5,	,	,	,FileName
 	for ind, line in File.1
 	{
@@ -1090,7 +824,7 @@ f_IncorporateHashAndFileName(File)
 					CurrEdit:=ST_Insert("Hash_" Hash ",",oLine:=val,Loc:=Instr(val,",Description:")+StrLen(",Description:")) 
 					, RegExMatch(CurrEdit,"\,Description\:(?<DescAlone>.*)`n",v) ;   vNewDesc NewDesc
 					, DescLength:=StrLen(d:=StrSplit(vDescAlone,"`n").1)+13
-					, File[3,k]:=ST_Insert(",LibName_" FileName ,CurrEdit,Loc:=Instr(CurrEdit,",Description:")+DescLength) ;. "LibName_" FileName
+					, File[3,k]:=LastLine:=ST_Insert(",LibName_" FileName ,CurrEdit,Loc:=Instr(CurrEdit,",Description:")+DescLength) ;. "LibName_" FileName
 				}
 			}
 		}
@@ -1610,7 +1344,12 @@ CodeTimer(Description,x:=500,y:=500,ClipboardFlag:=0)
 { ; adapted from https://www.autohotkey.com/boards/viewtopic.php?t=45263
 	
 	Global StartTimer
-	
+	if (Description="-1")
+	{
+		tooltip
+		return
+
+	}
 	If (StartTimer != "")
 	{
 		FinishTimer := A_TickCount
@@ -1625,6 +1364,31 @@ CodeTimer(Description,x:=500,y:=500,ClipboardFlag:=0)
 	}
 	Else
 		StartTimer := A_TickCount
+}
+CodeTimer2(Description,x:=500,y:=500,ClipboardFlag:=0)
+{ ; adapted from https://www.autohotkey.com/boards/viewtopic.php?t=45263
+	
+	Global StartTimer2
+	if (Description="-1")
+	{
+		tooltip
+		return
+
+	}
+	If (StartTimer != "")
+	{
+		FinishTimer := A_TickCount
+		TimedDuration := FinishTimer - StartTimer2
+		StartTimer2 := ""
+		If (ClipboardFlag=1)
+		{
+			Clipboard:=TimedDuration
+		}
+		tooltip, Timer %Description%`n%TimedDuration% ms have elapsed!, x,y
+		Return TimedDuration
+	}
+	Else
+		StartTimer2 := A_TickCount
 }
 
 HighlightAHK(Settings, ByRef Code)
@@ -1888,9 +1652,82 @@ Quote(String)
 
 
 
+/*   AutoSize/AutoXYWH: Out-Of-Scope for now
 
+	; Original: http://ahkscript.org/boards/viewtopic.php?t=1079
+	AutoSize(DimSize, cList*) {				; retrieved from https://www.autohotkey.com/boards/viewtopic.php?p=417609#p417609
+		Static cInfo := {}
+		Local
 
+		If (DimSize = "reset") {
+			Return cInfo := {}
+		}
+
+		For i, ctrl in cList {
+			ctrlID := A_Gui . ":" . ctrl
+			If (cInfo[ctrlID].x = "") {
+				GuiControlGet i, %A_Gui%: Pos, %ctrl%
+				MMD := InStr(DimSize, "*") ? "MoveDraw" : "Move"
+				fx := fy := fw := fh := 0
+				For i, dim in (a := StrSplit(RegExReplace(DimSize, "i)[^xywh]"))) {
+					If (!RegExMatch(DimSize, "i)" . dim . "\s*\K[\d.-]+", f%dim%)) {
+						f%dim% := 1
+					}
+				}
+
+				If (InStr(DimSize, "t")) {
+					GuiControlGet hWnd, %A_Gui%: hWnd, %ctrl%
+					hWndParent := DllCall("GetParent", "Ptr", hWnd, "Ptr")
+					VarSetCapacity(RECT, 16, 0)
+					DllCall("GetWindowRect", "Ptr", hWndParent, "Ptr", &RECT)
+					DllCall("MapWindowPoints", "Ptr", 0, "Ptr"
+					, DllCall("GetParent", "Ptr", hWndParent, "Ptr"), "Ptr", &RECT, "UInt", 1)
+					ix -= (NumGet(RECT, 0, "Int") * 96) // A_ScreenDPI
+					iy -= (NumGet(RECT, 4, "Int") * 96) // A_ScreenDPI
+				}
+
+				cInfo[ctrlID] := {x: ix, fx: fx, y: iy, fy: fy, w: iw, fw: fw, h: ih, fh: fh, gw: A_GuiWidth, gh: A_GuiHeight, a: a, m: MMD}
+
+			} Else If (cInfo[ctrlID].a.1) {
+				dgx := dgw := A_GuiWidth - cInfo[ctrlID].gw
+				dgy := dgh := A_GuiHeight - cInfo[ctrlID].gh
+
+				Options := ""
+				For i, dim in cInfo[ctrlID]["a"] {
+					Options .= dim . (dg%dim% * cInfo[ctrlID]["f" . dim] + cInfo[ctrlID][dim]) . A_Space
+				}
+
+				GuiControl, % A_Gui ":" cInfo[ctrlID].m, % ctrl, % Options
+			}
+		}
+	}
+	AutoXYWH(DimSize, cList*){       ; http://ahkscript.org/boards/viewtopic.php?t=1079
+		static cInfo := {}
+		
+		If (DimSize = "reset")
+			Return cInfo := {}
+		
+		For i, ctrl in cList {
+			ctrlID := A_Gui ":" ctrl
+			If ( cInfo[ctrlID].x = "" ){
+				GuiControlGet, i, %A_Gui%:Pos, %ctrl%
+				MMD := InStr(DimSize, "*") ? "MoveDraw" : "Move"
+				fx := fy := fw := fh := 0
+				For i, dim in (a := StrSplit(RegExReplace(DimSize, "i)[^xywh]")))
+					If !RegExMatch(DimSize, "i)" dim "\s*\K[\d.-]+", f%dim%)
+						f%dim% := 1
+				cInfo[ctrlID] := { x:ix, fx:fx, y:iy, fy:fy, w:iw, fw:fw, h:ih, fh:fh, gw:A_GuiWidth, gh:A_GuiHeight, a:a , m:MMD}
+			}Else If ( cInfo[ctrlID].a.1) {
+				dgx := dgw := A_GuiWidth  - cInfo[ctrlID].gw  , dgy := dgh := A_GuiHeight - cInfo[ctrlID].gh
+				For i, dim in cInfo[ctrlID]["a"]
+					Options .= dim (dg%dim% * cInfo[ctrlID]["f" dim] + cInfo[ctrlID][dim]) A_Space
+				GuiControl, % A_Gui ":" cInfo[ctrlID].m , % ctrl, % Options
+	} } }
+*/
 #Include <RichCode>
 ; #Include D:\Dokumente neu\AutoHotkey\Lib\ObjTree\Attach.ahk
 ; #Include D:\Dokumente neu\AutoHotkey\Lib\ObjTree\LV.ahk
 ; #Include D:\Dokumente neu\AutoHotkey\Lib\ObjTree\ObjTree.ahk
+
+
+

@@ -1,7 +1,12 @@
 # Changelog
+v.16.07.2022-1
+- started performance testing to check how viable a rewrite might be for reducing the amount of looping. 
+	- created a new branche, speed-Test() for... well speed testing.
+	- all library files together  now contain a baseline of 1000 scripts
+	- added matlab code for evaluating Code Performance, as well as evaluating code performance under different loading/storage mechanism
 v. 14.07.2022-1
 - added a bunch of performance changes to most loops
-- removed more redundand code.
+- removed more redundant code.
 - combined some loops to reduce overall bootup time
 v.13.07.2022-3
 - removed some irrelevant code
