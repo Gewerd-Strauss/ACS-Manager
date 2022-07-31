@@ -5,7 +5,7 @@ SetTitleMatchMode, 2
 SendMode Input
 
 ; some performance stuff
-; ListLines, Off
+ListLines, Off
 #KeyHistory, 0
 
 
@@ -14,14 +14,15 @@ SetWorkingDir, %A_ScriptDir%
 CurrentMode:="Instr"
 ; Add scriptObj-template and convert Code to use it - maybe, just a thought. Syntax of the Library-File is probably way too special for doing so, and there are no real configs to save anyways
 ; separate library-files and settings-files, take a peek at ahk-rare to see what they store in settings
-#Include <scriptObj>
+#Include <ScriptObj\scriptObj>	;
 FileGetTime, ModDate,%A_ScriptFullPath%,M
 FileGetTime, CrtDate,%A_ScriptFullPath%,C
 CrtDate:=SubStr(CrtDate,7,  2) "." SubStr(CrtDate,5,2) "." SubStr(CrtDate,1,4)
-ModDate:=SubStr(ModDate,7,  2) "." SubStr(ModDate,5,2) "." SubStr(ModDate,1,4)
-global script := {   base         : script
+, ModDate:=SubStr(ModDate,7,  2) "." SubStr(ModDate,5,2) "." SubStr(ModDate,1,4)
+, global script := {   base         : script
                     ,name         : regexreplace(A_ScriptName, "\.\w+")
                     ,version      : FileOpen(A_ScriptDir "\version.ini","r").Read()
+					,dbgLevel	  : 1
                     ,author       : "Gewerd Strauss"
 					,authorID	  : "Laptop-C"
 					,authorlink   : ""
@@ -41,31 +42,34 @@ global script := {   base         : script
                     ,donateLink	  : ""
                     ,resfolder    : A_ScriptDir "\res"
                     ,iconfile	  : A_ScriptDir "\res\sct.ico"
-					,rfile  	  : "https://github.com/Gewerd-Strauss/AHK-Code-Snippets/archive/refs/heads/Update()-Test.zip"
-					,vfile_raw	  : "https://raw.githubusercontent.com/Gewerd-Strauss/AHK-Code-Snippets/Update()-Test/version.ini" 
-					,vfile 		  : "https://raw.githubusercontent.com/Gewerd-Strauss/AHK-Code-Snippets/Update()-Test/version.ini" 
+					,rfile  	  : "https://github.com/Gewerd-Strauss/AHK-Code-Snippets/archive/refs/heads/Speed-Test.zip"
+					,vfile_raw	  : "https://raw.githubusercontent.com/Gewerd-Strauss/AHK-Code-Snippets/Speed-Test/version.ini" 
+					,vfile 		  : "https://raw.githubusercontent.com/Gewerd-Strauss/AHK-Code-Snippets/Speed-Test/version.ini" 
 					,vfile_local  : A_ScriptDir "\version.ini" 
-                    ,config:		[]
+                    ,ErrorCache	  :	[]
+                    ,config		  :	[]
 					,configfile   : A_ScriptDir "\INI-Files\" regexreplace(A_ScriptName, "\.\w+") ".ini"
                     ,configfolder : A_ScriptDir "\INI-Files"}
-script.Load()
-, script.Update(,,1) ;; DO NOT ACTIVATE THISLINE UNTIL YOU DUMBO HAS FIXED THE DAMN METHOD. God damn it.
-global Regex:={	 NewSnippet:"`r`n\\\\\\---NewSnippet---\\\\\\`r`n"
-				,IDSearch:"id\:(?<Ind>\d+)"
-				,SecSearch:"s\:(?<Ind>\d+)"
-				,SnippetInd:"SnippetInd\:(?<SearchedInd>\d+)"
-				,SectionInd:"Sec\:(?<SearchedInd>\d+)"
-				,DescriptionLong:"ims)\s*\/\*\s*description(\(s\))*(?:\S+)?\n.*?\*\/"
+global Regex:={ NewSnippet:"`r`n\\\\\\---NewSnippet---\\\\\\`r`n"
+				,IDSearch:"i)id\:(?<Ind>\d+)"
+				,SecSearch:"i)s\:(?<Ind>\d+)"
+				,HashSearch:"Hash_(?<Hash>\d+)"
+				,SnippetInd:"i)SnippetInd\:(?<SearchedInd>\d+)"
+				,SectionInd:"i)Sec\:(?<SearchedInd>\d+)"
 				,Example:"ims)\s*\/\*\s*example(\(s\))*(?:\S+)?\n.*?\*\/"
+				,DescriptionLong:"ims)\s*\/\*\s*description(\(s\))*(?:\S+)?\n.*?\*\/"
 				,StripFunctionName:"(\(.*\)\{*\s*)*\;*"
 				,SnippetFinder:"(\\\\\\---NewSnippet---\\\\\\\n)*((?<FunctionName>.*)(\((?<Parameters>.*)\))*(?<BraceOnNameLine>\{?)\s?\;?\|\|\|SnippetInd\:(?<SnippetInd>.*),Section:(?<Section>\d*(\.\d*)*)\,Description:(?<Description>.*))"}
-global Hashes:=[]
+, global Hashes:=[]
+script.Load()
+if script.config.config.CheckForUpdateOnBootup
+	script.Update(,,1,1) ;; DO NOT ACTIVATE THISLINE UNTIL YOU DUMBO HAS FIXED THE DAMN METHOD. God damn it.
 CodeTimer("Legacy Loading")
 if IsObject(script.config.libraries)
 {
 	for k,v in script.config.libraries ; expand relative paths of Snippet libraries to full paths. So far only tested for libraries located within A_ScriptDir
 	{
-		if Instr(script.config.libraries.k,"%A_ScriptDir%")
+		if InStr(script.config.libraries.k,"%A_ScriptDir%")
 			script.config.libraries[k]:=strreplace(script.config.libraries.v,"%A_ScriptDir%",A_ScriptDir)
 		Else
 			script.config.libraries[k]:=A_ScriptDir "\" v 
@@ -74,16 +78,17 @@ if IsObject(script.config.libraries)
 }
 else
 	Arr:=fLoadFiles(script.config.libraries,Identifier:="\\ Script-settings \\")
-; Clipboard:=Arr.4
-Arr.1:=Arr.1
-, oArr:=Arr.Clone()
 global SectionNames:=fCreateSectionNames(Arr.2) ;; contains SectionNames
-
-Arr:=fParseArr(Arr.1,Identifier,Arr.3)
+; Arr.1:=Arr.1
+, oArr:=Arr.Clone()
+, GUI_Mode:=1
+, bSwitchSize:=0
+, Arr:=fParseArr(Arr.1,Identifier,Arr.3)
 , Snippets:=Arr.1
 , GuiNameMain:="TotallyNotAHKRAre"
 , GuiNameIngestion:="Ingestion Helper"
 , RESettings2 :=
+
 ( LTrim Join Comments
 {
 	"TabSize": 4,
@@ -128,13 +133,15 @@ Arr:=fParseArr(Arr.1,Identifier,Arr.3)
 	}
 }
 )
-
+global MaxSnippetCount:=Arr.2.Count()
 gosub, lGUICreate_1New
 LegTime:=CodeTimer("Legacy Loading",,,1)
 ; FileAppend,% "`n" LegTime, % A_ScriptDir "\LegacyBenchmark.txt" ;; for benchmarking, repopulate "AHK_LibraryGUI.txt" with the contents stored in "AHK_LibraryGUI_Longbench.txt"
 ; gosub, SerDesBenchmark
 ; if !GetKeyState("Esc")
 ; 	reload
+, Clipboard:="Hash_1420113362"
+, d:=Snippets[]
 return
 
 lGuiCreate_2:
@@ -144,7 +151,6 @@ lGuiCreate_2:
 return
 lGuiShow_2:
 gui, 1: hide
-; hwndOT:=ObjTree(Snippets)
 ; gui, 2: show, w%vGuiWidth% h%vGuiHeight%, % GuiNameIngestion
 return
 
@@ -153,31 +159,31 @@ return
 	Start: 20:48
 	End:   21:48
 */
-Numpad2::
+; Numpad2::
 SerDesBenchmark:
-gui, 1: hide
-Snippets2:=[]
-NPaths:=[]
-ClipBoard:=SErDes(Snippets)
-; CodeTimer(-1)
-; CodeTimer("SerDes-Method")
-for k,v in script.config.libraries
-	NPaths.push(strreplace(v,".txt","_SerDes.txt"))
-for k,v in NPaths
-	for s,w in d:=SerDes(v)
-		Snippets2[s]:=w
-; FileAppend,% "`n" CodeTimer("SerDes-Loading",,,1), % A_ScriptDir "\SerDesBenchmark.txt"
-return
-Numpad3::
-Missing:=0
-for k,v in Snippets
-	if !Snippets2.HasKey(k)
-		Missing++
-m(Missing)
+; gui, 1: hide
+; Snippets2:=[]
+; NPaths:=[]
+; ClipBoard:=SErDes(Snippets)
+; ; CodeTimer(-1)
+; ; CodeTimer("SerDes-Method")
+; for k,v in script.config.libraries
+; 	NPaths.push(strreplace(v,".txt","_SerDes.txt"))
+; for k,v in NPaths
+; 	for s,w in d:=SerDes(v)
+; 		Snippets2[s]:=w
+; ; FileAppend,% "`n" CodeTimer("SerDes-Loading",,,1), % A_ScriptDir "\SerDesBenchmark.txt"
+; return
+; Numpad3::
+; Missing:=0
+; for k,v in Snippets
+; 	if !Snippets2.HasKey(k)
+; 		Missing++
+; m(Missing)
 return
 lGUICreate_1New: ;; Fully Parametric-form
 		gui, 1: destroy
-		gui, 1: new, +AlwaysOnTop -SysMenu -ToolWindow -caption +Border +labelgResizing +Resize ;+MinSize1000x		
+		gui, 1: new, +AlwaysOnTop -SysMenu -ToolWindow -caption +Border +labelgResizing -Resize ;+MinSize1000x		
 		gui, 1: default
 		gui, +hwndMainGUI
 		if vsdb || (A_DebuggerName="Visual Studio Code")
@@ -200,13 +206,12 @@ lGUICreate_1New: ;; Fully Parametric-form
 		, vLastCreationScreenWidth:=vGuiWidth
 		gui, font, s9 cWhite, Segoe UI
 		SysGet, Mon,MonitorWorkArea 
-		if (!vGUIWidth and !vGuiHeight) || (vGUIWidth!=(A_ScreenWidth-20)) || (vGuiHeight!=(A_ScreenHeight)) ; assign outer gui dimensions either if they don't exist or if the resolution of the active screen has changed - f.e. when undocking or docking to a higher resolution display. The lGuiCreate_1-subroutine is also invoked in total if the resolution changes, but this is the necessary inner check to reassign dimensions.
+		if (!vGUIWidth and !vGuiHeight) || (((vGUIWidth!=(A_ScreenWidth-20)) || (vGuiHeight!=(A_ScreenHeight))) && !bSwitchSize) ; assign outer gui dimensions either if they don't exist or if the resolution of the active screen has changed - f.e. when undocking or docking to a higher resolution display. The lGuiCreate_1-subroutine is also invoked in total if the resolution changes, but this is the necessary inner check to reassign dimensions.
 		{ 
 			vGUIWidth:=A_ScreenWidth*1.0 - 20  ;-910 ; 0.6@1440 starts clipping
 			, vGUIHeight:=MonBottom*1.0 - 20 
 		}
-		; vGuiHeight:=100
-		; vGuiWidth:=100
+		
 		gui, font, s7 cRed, Segoe UI
 		{
 					; checked values will be indented unto this level
@@ -217,7 +222,7 @@ lGUICreate_1New: ;; Fully Parametric-form
 
 			; Define Parameters - SearchBox:										
 				;; ratio's checked on 100%-model
-		xPos_Search_GroupBox:=vGuiWidth*0.47 
+		, xPos_Search_GroupBox:=vGuiWidth*0.47 
 		, yPos_Search_GroupBox:=vGuiHeight*0.01
 		, Height_Search_GroupBox:=vGuiHeight*0.08
 					, Width_Search_GroupBox:=vGuiWidth-(xPos_Search_GroupBox+WidthMargin_Global)
@@ -225,37 +230,44 @@ lGUICreate_1New: ;; Fully Parametric-form
 				
 			; Define Parameters - Text XX Snippets
 					xPos_Text_XXSnippetsLoaded:=xPos_Search_GroupBox											+WidthMargin_Global
-					, yPos_Text_XXSnippetsLoaded:=yPos_Search_GroupBox											+(HeightMargin_Global/2)
+					, yPos_Text_XXSnippetsLoaded:=yPos_Search_GroupBox											+(HeightMargin_Global/2)+2 ; add 2 to prevent clipping the groupbox control at the top
 		, Width_Text_XXSnippetsLoaded:=Width_Search_GroupBox*0.3
 		, Height_Text_XXSnippetsLoaded:=Height_Search_GroupBox*0.3
-					gui, font, s14 cRed, Segoe UI
+					gui, font, s11 cRed, Segoe UI
         			gui, add, text,x%xPos_Text_XXSnippetsLoaded%  y%yPos_Text_XXSnippetsLoaded% vvSearchFunctions, _____________________________________________
 
 			; Define Parameters - DDL Searchmode:
 					xPos_DDL_SearchMode:=xPos_Text_XXSnippetsLoaded
 					, yPos_DDL_SearchMode:=yPos_Text_XXSnippetsLoaded+Height_Text_XXSnippetsLoaded				+(HeightMargin_Global/2)
-				, Width_DDL_SearchMode:=Width_Text_XXSnippetsLoaded ;; note: this seems extensively too large
+					, Width_DDL_SearchMode:=100 ;; note: this seems extensively too large
 					, Height_DDL_SearchMode:=Height_Search_GroupBox-yPos_DDL_SearchMode							-(HeightMargin_Global/2)
 					gui, font, s11 cWhite, Segoe 
-        			gui, add, DDL,vSearchMethod x%xPos_DDL_SearchMode% y%yPos_DDL_SearchMode% h%Height_DDL_SearchMode% vCurrentMode glSetSearchMethod HwndCurrentModeHWND, Instr||RegEx
-					AddToolTip(CurrentModeHWND,"Select between Normal Instr()- and Regex-Search")
-			; Define Parameters: Edit Searchmode
-					xPos_Edit_SearchMode:=xPos_DDL_SearchMode+Width_DDL_SearchMode+WidthMargin_Global
-					, yPos_Edit_SearchMode:=yPos_DDL_SearchMode
-					, Width_Edit_SearchMode:=Width_Search_GroupBox-Width_DDL_SearchMode-3*WidthMargin_Global
-					, Height_Edit_SearchMode:=Height_DDL_SearchMode
+        			gui, add, DDL,vSearchMethod x%xPos_DDL_SearchMode% y%yPos_DDL_SearchMode% h%Height_DDL_SearchMode% w%Width_DDL_SearchMode% r2 vCurrentMode glSetSearchMethod HwndCurrentModeHWND, InStr||RegEx
+					AddToolTip(CurrentModeHWND,"Select between Normal InStr()- and Regex-Search")
+			; Define Parameters: Fuzzy-Search Checkbox
+					xPos_FuzzySearchCheckbox:=xPos_DDL_SearchMode + Width_DDL_SearchMode  +(WidthMargin_Global/2)
+					, yPos_FuzzySearchCheckbox:=yPos_DDL_SearchMode+5
+					, Width_FuzzySearchCheckbox:=144
 					gui, font, s11 cBlack, Segoe 
+					gui, add, CheckBox, x%xPos_FuzzySearchCheckbox% y%yPos_FuzzySearchCheckbox% w%Width_FuzzySearchCheckbox% vbUseFuzzySearch glSetFuzzySearchState HWNDFuzzySearchHWND,Use Fuzzy Search?
+					AddToolTip(FuzzySearchHWND,"Not active in Regex-Searchmode")
+			; Define Parameters: Edit Searchmode
+					xPos_Edit_SearchMode:=xPos_DDL_SearchMode+Width_DDL_SearchMode*3+WidthMargin_Global
+					, yPos_Edit_SearchMode:=yPos_DDL_SearchMode
+					, Width_Edit_SearchMode:=Width_Search_GroupBox-Width_DDL_SearchMode*3-3*WidthMargin_Global
+					, Height_Edit_SearchMode:=Height_DDL_SearchMode
         			gui, add, edit, x%xPos_Edit_SearchMode% y%yPos_Edit_SearchMode% w%Width_Edit_SearchMode% r1 cBlack glCheckStringForLVRestore vSearchString HwndSearchStringHWND,  ; Search here
 					AddToolTip(SearchStringHWND,"Enter search string. Use key 'ID:xx' to search by function ID, and key 's:xx' to search by section index")
 			; Define Parameters - ListView
 					xPos_ListView:=WidthMargin_Global
-	, yFraction_ListView:=0.1
-	, HeightFraction_ListView:=0.40
+		, yFraction_ListView:=0.1
+		, HeightFraction_ListView:=0.40
 					, yPos_ListView:=vGuiHeight*yFraction_ListView
 					, Width_ListView:=vGuiWidth-2*WidthMargin_Global
 					, Height_ListView:=vGuiHeight*HeightFraction_ListView
         			gui, font,s8
-					gui, add, Listview, x%xPos_ListView% y%yPos_ListView% w%Width_ListView% h%Height_ListView% +Report ReadOnly  -vScroll vLVvalue glLV_Callback, Section|Snippet Name|Short description|Hash|Libraryfile|Snippet Identifier
+					; gui, add, Listview, x%xPos_ListView% y%yPos_ListView% w%Width_ListView% h%Height_ListView% +Report ReadOnly  -vScroll vLVvalue glLV_Callback, Section|Snippet Name|Short description|Hash|Libraryfile|Snippet Identifier
+					 gui, add, Listview, x%xPos_ListView% y%yPos_ListView% w%Width_ListView% h%Height_ListView% +Report ReadOnly Count%MaxSnippetCount% -vScroll vLVvalue glLV_Callback, Section|Snippet Name|Short description|Hash|Libraryfile|Snippet Identifier
 					guicontrol, font, LVvalue
 			; Define Parameters - Description Box
 					xPos_DescriptionBox:=WidthMargin_Global
@@ -279,20 +291,24 @@ lGUICreate_1New: ;; Fully Parametric-form
 			; Define Parameters - Richfields
 			{		;; Definition set 1
 		xPos_RichCode:=xPos_Tab3+WidthMargin_Global*2
-		, yPos_RichCode:=yPos_Tab3+HeightMargin_Global*2
-				, Width_RichCode:=Width_Tab3-2*WidthMargin_Global
-				, Height_RichCode:=Height_Tab3-2*HeightMargin_Global
+				, yPos_RichCode:=yPos_Tab3+HeightMargin_Global*2 + 2
+				, Width_RichCode:=Width_Tab3-2*WidthMargin_Global - 2
+				, Height_RichCode:=Height_Tab3-2*HeightMargin_Global - 4
 			; RichField1
-			gui, tab, CODE
-			global RC:=new RichCode(RESettings2, "y" yPos_RichCode " x" xPos_RichCode  " w" Width_RichCode " h" Height_RichCode,"MainGui", HighlightBound=Func("HighlightAHK"))
-
+				gui, tab, CODE
+				global RC:=new RichCode(RESettings2, "y" yPos_RichCode " x" xPos_RichCode  " w" Width_RichCode " h" Height_RichCode,"MainGui", HighlightBound=Func("HighlightAHK"))
+				AddToolTip(RC,"Test")
 			}
-
         	RC.HighlightBound:=Func("HighlightAHK")
         	GuiControl, -Redraw, LVvalue
-        	fPopulateLV(Snippets,SectionNames)
-        	GuiControl, +Redraw, LVvalue
 			gosub, lGuiShow_1
+        	fPopulateLV(Snippets,SectionNames)
+			if strsplit(script.config.config.ShowRedraw,A_Space).1
+				GuiControl, +Redraw, LVvalue
+			f_RescaleLV()
+			if !strsplit(script.config.config.ShowRedraw,A_Space).1
+				GuiControl, +Redraw, LVvalue
+			; gosub, lGuiShow_1
 
 		}
 		
@@ -305,14 +321,20 @@ lGUICreate_1New: ;; Fully Parametric-form
         RC3.HighlightBound:=Func("HighlightAHK")
 		; gui, add, statusbar, -Theme vStatusBarMainWindow BackGround373b41 glCallBack_StatusBarMainWindow
         
-        SearchIsFocused:=Func("ControlIsFocused").Bind("Edit1")
+        , SearchIsFocused:=Func("ControlIsFocused").Bind("Edit1")
         , ListViewIsFocused:=Func("ControlIsFocused").Bind("SysListView321")
         ; , EditFieldIsClicked:=Func("ControlIsFocused").Bind("Edit3")
         , RCFieldIsClicked:=Func("ControlIsFocused").Bind("RICHEDIT50W1")
 		gui, tab
 
-		gui, add, statusbar, -Theme vStatusBarMainWindow BackGround373b41 glCallBack_StatusBarMainWindow ; finish up statusbar - settings, updating library/adding additional libraries
-		SB_SetParts()
+		gui, add, statusbar, -Theme vStatusBarMainWindow  glCallBack_StatusBarMainWindow ; finish up statusbar - settings, updating library/adding additional libraries
+
+		SB_SetParts(370,270,71)
+		; f_SB_Set()
+		SB_SetText("No Code from " script.name "on clipboard", 1)
+		script.Error:=""
+		SB_SetText("no Error",2)
+		SB_SetText("NE:Update Script",3)
 		gosub, lGuiShow_1
         Hotkey, IfWinActive, % "ahk_id " MainGUI
 		Hotkey, ^Tab,lTabThroughTabControl
@@ -329,19 +351,22 @@ lGUICreate_1New: ;; Fully Parametric-form
         Hotkey, if, % ListViewIsFocused
         Hotkey, ~Up, ListViewUp
         Hotkey, ~Down, ListViewDown
+        Hotkey, ~LButton, ListViewSelect
+
         
         hotkey, if, % RCFieldIsClicked
         Hotkey, ~RButton, lCopyScript
         Hotkey, ~LButton, lCopyScript
 		hotkey, if
-        ; hotkey, if, % EditFieldIsClicked
+        ; hotkey, if, % EditFi,eldIsClicked
         ; Hotkey, ~RButton, lCopyScript
         ; Hotkey, ~LButton, lCopyScript
 		; Gui, Color, 4f1f21, 432a2e
 		; gosub, lFocusListView
 		; sleep, 300
-		gosub, ListViewDown
+		gosub, SelectFirstLVEntry
 		LastScaledSize:=[vGUIWidth,vGUIHeight]
+		gosub, lCheckClipboardContents
 return
 Resizing:
 ResizeSub:
@@ -351,8 +376,9 @@ return
 lGuiHide_1:
 gui, 1: hide
 return
-lGuiShow_1:
+lGuiShow_1:	
 gui, 1: show, w%vGuiWidth% h%vGuiHeight%, % GuiNameMain
+Settimer, lResetSearchFunctionsString, -2300
 gosub, lFocusListView
 return
 
@@ -364,6 +390,8 @@ SendInput, ^+{Left}{Del}{ShiftUp}{CtrlUp}}
 return
 lClearSearchbar:
 guicontrol,,SearchString
+gosub, lFocusListView
+gosub, SelectFirstLVEntry
 return
 
 lTabThroughTabControl:
@@ -373,29 +401,106 @@ lFocusSearchBar:
 guicontrol, focus, SearchString
 return
 lCopyScript:
-SelectedLVEntry:=f_GetSelectedLVEntries()
-, res:=Snippets[SelectedLVEntry.1.1.Hash].Code
-, ClipBoard:=RegExReplace(res,Regex.NewSnippet)
-if (Clipboard==RegExReplace(res,Regex.NewSnippet))
-	ttip("Snippet " SelectedLVEntry.1.1.SelectedEntryName " copied")
+MouseGetPos,,,,mVC
+if (mVC="RICHEDIT50W1")	; little safety to remove copying when clicking the DescriptionBox
+{
+	SelectedLVEntry:=f_GetSelectedLVEntries()
+	, res:=Snippets[SelectedLVEntry.1.1.Hash].Code
+	, ClipBoard:=RegExReplace(res,Regex.NewSnippet) ";--uID:" SelectedLVEntry.1.1.Hash
+	if (Clipboard==AttemptedClipboard:=RegExReplace(res,Regex.NewSnippet)  ";--uID:" SelectedLVEntry.1.1.Hash)
+	{
+		ttip("Snippet " SelectedLVEntry.1.1.SelectedEntryName " copied")
+		SB_SetText(Snippets[SelectedLVEntry.1.1.Hash].Name "on clipboard", 1)
+		SB_SetText("no Error",2)
+		script.Error:=""
+	}
+	else
+	{
+		script.error:={	 Level		:2
+					,Label		:"lCopyScript"
+					,Message	:"Snippet could not be copied successfully. Clipboard might be occupied by another program."
+					,Error		:2
+					,Vars		:["`n------------------`nCLIPBOARD:`n`n",Clipboard,"`n-------------`nINTENDED CODE`n`n",AttemptedClipboard]
+					,AddInfo	:""}
+		script.Debug(script.error.Level,script.error.Label,script.error.Message,script.error.AddInfo,script.error.Vars)
+	}
+}
+return
+
+lSetFuzzySearchState:
+gui, submit, NoHide
+if ((CurrentMode="RegEx") && bUseFuzzySearch)
+	ttip("Fuzzy-Search is only active in normal search. Fuzzy-Search in regex not implemented due to inability to distinguish between actual regex needles and an additional fuzzy search terms.")
+Else
+	ttip("")
 return
 lSetSearchMethod: 
 lSetSearchMethod2: 
 gui, submit, NoHide
-return
+; if (A_ThisLabel="lSetFuzzySearchState")
+; {
 
+; }
+; else
+; 	return
+if ((CurrentMode="RegEx") && bUseFuzzySearch)
+	ttip("Fuzzy-Search is only active in normal search. Fuzzy-Search in regex not implemented due to inability to distinguish between actual regex needles and an additional fuzzy search terms.")
+Else
+	ttip("")
+return
 lCallBack_StatusBarMainWindow:
 ; not implemented yet
+gui, submit, NoHide
+if ((A_GuiEvent="DoubleClick") && (A_EventInfo=4)) ;; trigger Error
+	SB_SetText("Testing Error", 2)
+if ((A_GuiEvent="DoubleClick") && (A_EventInfo=2)) ;; print detailed Error
+{
+	StatusBarGetText, currText, 2, % GuiNameMain
+	if (currText!="no Error")
+		if script.error
+			script.Debug(script.error.Level,script.error.Label,script.error.Message,script.error.AddInfo,script.error.Vars)
+		; script.Debug(2,"lCopyScript","Snippet could not be copied successfully. Clipboard might be occupied by another program.","`n------------------`nCLIPBOARD:`n`n",Clipboard,"`n-------------`nINTENDED CODE`n`n",AttemptedClipboard)
+}
 return
 lLV_Callback:
 lLV_Callback2:
 gui, submit, Nohide
 if (A_GuiControlEvent="ColClick")
 	return
-SelectedLVEntry:=f_GetSelectedLVEntries()		
-f_FillFields(Snippets[d:=SelectedLVEntry.1.1.Hash])		;; using name as the identifier could be problematic when having multiple snippets  of same name
-return
+SelectedLVEntry:=f_GetSelectedLVEntries()
+, ErrorCount:=0
+if (SelectedLVEntry.1.1.Hash="") 
+{
+	ErrorCount++
+	, SelectedLVEntry.1.1.Code.="`nError while parsing snippet:" SelectedLVEntry.1.1.Hash ". Hash not found."
+}
+if Instr(SelectedLVEntry.1.1.SelectedEntrySelection,"-1 INVALIDSECTIONKEY")
+{
+	ErrorCount++
+	, SelectedLVEntry.1.1.Code.="`nError while parsing snippet:" SelectedLVEntry.1.1.SelectedEntrySelection ".Section Key not found."
+}
+if (SelectedLVEntry.1.1.SelectedEntryName="")
+{
+	ErrorCount++
+	, SelectedLVEntry.1.1.Code.="`nError while parsing snippet:" SelectedLVEntry.1.1.SelectedEntryName ". Snippet has no name."
+}
+if (SelectedLVEntry.1.1.SelectedEntrySnippetIdentifier="")
+{
+	ErrorCount++
+	, SelectedLVEntry.1.1.Code.="`nError while parsing snippet:" SelectedLVEntry.1.1.SelectedEntrySnippetIdentifier ". SnippetIdentifier not found."
+}
+if ErrorCount>0
+{
 
+	SelectedLVEntry.1.1.Code.="`n`nCritical Error while reading back snippet."
+	, f_FillFields(SelectedLVEntry.1.1)		;; using name as the identifier could be problematic when having multiple snippets  of same name
+}
+else
+	f_FillFields(Snippets[d:=SelectedLVEntry.1.1.Hash])		;; using name as the identifier could be problematic when having multiple snippets  of same name
+return
+lCheckClipboardContents:
+gui, 1: Submit, NoHide
+return
 lCheckStringForLVRestore: 
 lCheckStringForLVRestore2: 
 gosub, lSearchSnippets
@@ -404,87 +509,113 @@ if (SearchString!="")
     return
 GuiControl, -Redraw, LVvalue
 fPopulateLV(Snippets,SectionNames)
-GuiControl, +Redraw, LVvalue
+if strsplit(script.config.config.ShowRedraw,A_Space).1
+	GuiControl, +Redraw, LVvalue
+f_RescaleLV()
+if !strsplit(script.config.config.ShowRedraw,A_Space).1
+	GuiControl, +Redraw, LVvalue
 return
 
 lSearchSnippetsEnter:
 ; A_GuiControl A_ThisHotkey A_ThisFunc A_THisLabel A_GuiControlEvent A_GuiEvent | always useful having these here when checking annoying states
 lSearchSnippets:
-Gui, 1: Submit, NoHide
-if (A_ThisLabel="lSearchSnippetsEnter")
-{
-	guicontrol, focus, SysListView321
-	sleep, 1200
-	SendInput, {Down Down} 
-	Sleep, 100
-	SendInput, {Down Up} 
-}
-results:=[]				;; keep these empty every time the searchstring changes so that we don't get into weird feedback issues
-, prelimresults:=[]
-if Instr(SearchString,"s:") && Instr(SearchString,"id:") 			; search both sectionID and snippetID
-{																; TODO: find the bug resulting in weird 
-	if RegExMatch(SearchString,Regex.IDSearch,s)			
+	Gui, 1: Submit, NoHide
+	if (A_ThisLabel="lSearchSnippetsEnter")
 	{
-		prelimresults:=f_FindOccurences("SnippetInd:" sInd,Arr.1,CurrentMode) ;; first search for snippetID
-		if RegExMatch(SearchString,Regex.SecSearch,s)
-			results:=f_FindOccurences("Sec:"sInd,prelimresults,CurrentMode) ;; next search for sectionID
+		guicontrol, focus, SysListView321
+		sleep, 1200
+		SendInput, {Down Down} 
+		Sleep, 100
+		SendInput, {Down Up} 
 	}
-	if RegExMatch(SearchString,Regex.SecSearch,s)			
+	results:=[]				;; keep these empty every time the searchstring changes so that we don't get into weird feedback issues
+	, prelimresults:=[]
+	if RegexMatch(SearchString,Regex.HashSearch,s)
 	{
-		prelimresults:=f_FindOccurences("Sec:" sInd,Arr.1,CurrentMode) ;; first search for sectionID
-		if RegExMatch(SearchString,Regex.IDSearch,s)
-			results:=f_FindOccurences("SnippetInd:"sInd,prelimresults,CurrentMode) ;; next search for snippetID
-	}		
-}
-else if Instr(SearchString,"id:") && !Instr(SearchString,"s:") 		; search only snippetID
-{
-	if RegExMatch(SearchString,Regex.IDSearch,s)
-		prelimresults:=f_FindOccurences("SnippetInd:" sInd,Arr.1,CurrentMode) ;; search snippet code ||  MISSING: Find in Section
-}
-else if Instr(SearchString,"s:") && !Instr(SearchString,"id:") 		; search only sectionID
-{
+		prelimresults.1:=f_FindOccurences(SearchString, Arr.1, CurrentMode, bUseFuzzySearch)
+		, SearchString:=RegExReplace(SearchString, Regex.HashSearch, "")												;; remove search info
+		, bFoundByHash:=true
+	}
+	else
+	{
+		prelimresults:=Arr.1
+		, bFoundByHash:=false
+	}
+	/*
+		TODO: figure out how to fuzzy-approach s:[[SectionName]] searches, when you don't know the section's ID - maybe use a TT as done by Hotstrings.ahk by mslonik to display potential matches, and just have the hotstrings be converted from there?
+		alternatively: 
+		make a set of hotstrings (which are only active in the search box?), which will replace s:[[gui - menu]] with s:11 and uses a proximity alg to fuzzy-preview potential section names when typing.
+	*/
 	if RegExMatch(SearchString,Regex.SecSearch,s)
-		prelimresults:=f_FindOccurences("Sec:"sInd,Arr.1,CurrentMode) ;; search snippet code ||  MISSING: Find in Section
-}
-else																; search neither
-	prelimresults:=f_FindOccurences(SearchString,Arr.1,CurrentMode) ;; search snippet code ||  MISSING: Find in Section
+	{
+		prelimresults:=f_FindOccurences("Sec:" sInd,prelimresults, CurrentMode, bUseFuzzySearch) 					;; first search for sectionID
+		, SearchString:=RegExReplace(SearchString, Regex.SecSearch, "")												;; remove search info
+	}
+	if RegExMatch(SearchString,Regex.IDSearch,s)
+	{
+		prelimresults:=f_FindOccurences("SnippetInd:" sInd,prelimresults, CurrentMode, bUseFuzzySearch) 			;; next search for snippetID
+		, SearchString:=RegExReplace(SearchString, Regex.IDSearch, "")												;; remove search info
+	}
+	if (SearchString!="") ;; search neither a snippet nor a section id, but care about the results found previously
+		prelimresults:=f_FindOccurences(SearchString,prelimresults, CurrentMode, bUseFuzzySearch) 		;; search snippet code ||  MISSING: Find in Section
 
-/*
-TODO: figure out how to combine results from id/sec-search with actual string searches - need to decide on a syntax to strip away the s:/id: portion, and then continue on the found snippets with the remainder of the string.
-*/
-if (results.Length()=0)
-	results:=prelimresults.Clone()		;; make sure the right set is used 
-GuiControl, -Redraw, LVvalue
-fPopulateLV(results,SectionNames)
-rcount:=results.Count()
-str:=rcount " snippets found." 
-GuiControl,,vSearchFunctions,% str
-GuiControl, +Redraw, LVvalue
-Settimer, lResetSearchFunctionsString, -2300
+	/*
+	TODO: figure out how to combine results from id/sec-search with actual string searches - need to decide on a syntax to strip away the s:/id: portion, and then continue on the found snippets with the remainder of the string.
+	*/
+	if (results.Length()=0)
+		results:=prelimresults.Clone()		;; make sure the right set is used 
+	, rcount:=results.Count()
+	, str:=rcount " snippets found." 
+	GuiControl, -Redraw, LVvalue
+	fPopulateLV(results,SectionNames)
+	GuiControl,,vSearchFunctions,% str
+	if strsplit(script.config.config.ShowRedraw,A_Space).1
+		GuiControl, +Redraw, LVvalue
+	f_RescaleLV()
+	if !strsplit(script.config.config.ShowRedraw,A_Space).1
+		GuiControl, +Redraw, LVvalue
+
+	if bFoundByHash
+	{
+		gosub, lFocusListView
+		gosub, SelectFirstLVEntry
+	}
+	Settimer, lResetSearchFunctionsString, -2300
 return
 
 lResetSearchFunctionsString:
 GuiControlGet, ContentsSearchField,,SearchString
 if (ContentsSearchField="")
 	GuiControl,, vSearchFunctions,% "Search in " snippets.count() " snippets"
+
 return
 
 ::alib.s::
 Numpad0::
+GUI_Mode:=!GUI_Mode
 if WinActive(GuiNameMain)
     gosub, lGuiHide_1
 else
     gosub, lGuiShow_1
+if strsplit(script.config.config.ShowRedraw,A_Space).1
+	GuiControl, +Redraw, LVvalue
+f_RescaleLV()
+if !strsplit(script.config.config.ShowRedraw,A_Space).1
+	GuiControl, +Redraw, LVvalue
 return 
 
-ShowFunctionsOnUpDown:
+
+SelectFirstLVEntry:
 ListViewUp:
 ListViewDown:
-If Instr(A_ThisLabel, "ListViewUp")
-		Send, {Up}
-else
-		Send, {Down}
-; ttip("Pressing enter should immediately select the LV, then load the very first result and stay focused on it - not sure what's going on" Exception.Line())  ;; TODO - replace this by a tooltip attached to the LV-control
+sleep, 150
+If !InStr(A_ThisLabel, "ListViewUp") & !InStr(A_ThisLabel,"ListViewDown")
+	Send, {Up}
+if !InStr(A_ThisLabel, "ListViewUp") & !InStr(A_ThisLabel,"ListViewDown")
+	Send, {Down}
+ListViewSelect:	;; 
+if Instr(A_ThisLabel,"ListViewSelect")
+	SendInput, {LButton}
 selRow:= LV_GetNext("F")
 gosub, lLV_Callback
 return
@@ -493,6 +624,20 @@ return
 Esc::
 gui, 1: hide
 return
+Numpad9::
+bSwitchSize:=1
+if (vGuiHeight==(1080-20))
+{
+	vGUIWidth:=A_ScreenWidth*1.0 - 20  ;-910 ; 0.6@1440 starts clipping
+	, vGUIHeight:=MonBottom*1.0 - 20 
+}
+else
+{
+	vGuiHeight:=1080-20
+	, vGuiWidth:=1920-20
+}
+gosub, lGUICreate_1New
+return
 #if Winactive(GuiNameIngestion)
 Esc::
 gui, 2: destroy
@@ -500,41 +645,69 @@ gui, 1: show
 return
 #If (A_ComputerName=script.AuthorID?1:0) 
 !esc::
+SendInput, ^s  
 reload
 return ; yes I know this is not actually needed. I don't care.
 
-f_FindOccurences(String,Array,Mode=1)
+/*
+Not planned further right now.
+f_SB_Set(Text,PartNumber)
+{
+
+}
+
+*/
+
+
+
+f_FindOccurences(String,Array,Mode=1,bUseFuzzySearch=0)
 {	;; Find occurences of str <String> within Array.k.Code, either by direct InStr()- or Regex-Matching
 	if (String="") || !IsObject(Array)
 		return
 	SnippedOccurences:=[]
-	if RegexMatch(String, Regex.SnippetInd,s)
+	if RegexMatch(String,Regex.HashSearch,s)
+	{
+		SnippedOccurences.push(Array[s])
+	 		SnippedOccurences:=Array[s]		;; THIS IS WRONG!! ONLY USED FOR DEBUG PURP
+	}
+	else if RegexMatch(String, Regex.SnippetInd,s)
 	{	
 		for SnippetIndex, Snippet in Array
-		{
-			if (Instr(Snippet.Ind,sSearchedInd) || Instr(Snippet.Ind,Ltrim(sSearchedInd,0)))
+			if InStr(Snippet.LVInd,sSearchedInd) ;|| InStr(Snippet.LVInd,res:=Ltrim(sSearchedInd,0))
 				SnippedOccurences.push(Snippet)
-		}
 	}
 	else if RegexMatch(String, Regex.SectionInd,s)
 	{	
 		for SnippetIndex, Snippet in Array
-		{
-			if (Instr(Snippet.Section,sSearchedInd) || Instr(Snippet.Section,Ltrim(sSearchedInd,0)))
+			if InStr(Snippet.Section,sSearchedInd) ;|| InStr(Snippet.Section,Ltrim(sSearchedInd,0))
 				SnippedOccurences.push(Snippet)
-		}
 	}
 	else
 	{
-		if (Mode=1) || (Mode="Instr") ; normal
+ 		if (Mode=1) || (Mode="Instr") ; normal
 		{
-			for SnippetIndex, Snippet in Array
+			if (bUseFuzzySearch)
 			{
-				if (Snippet="")
-					continue
-				If instr(Snippet.Code,String)
-					SnippedOccurences.push(Snippet)
+				for SnippetIndex, Snippet in Array
+				{
+					if (Snippet="")
+						continue
+						If d:=FuzzySearch(Snippet.Code, Trim(String)) || e:=FuzzySearch(Snippet.Description, Trim(String)) || f:=FuzzySearch(Snippet.DescriptionLong, Trim(String)) || g:=FuzzySearch(Snippet.Example, Trim(String)) || h:=FuzzySearch(Snippet.LibraryName, Trim(String))
+							SnippedOccurences.push(Snippet)
+				}
 			}
+			else
+			{
+				for SnippetIndex, Snippet in Array
+				{
+					if (Snippet="")
+						continue
+					If InStr(Snippet.Code, Trim(String)) || InStr(Snippet.Description, Trim(String)) || InStr(Snippet.DescriptionLong, Trim(String)) || InStr(Snippet.Example, Trim(String)) || InStr(Snippet.LibraryName, Trim(String))
+						SnippedOccurences.push(Snippet)
+				}
+
+			}
+
 		}
 		else if (Mode=2) || (Mode="Regex") ; Regex
 		{
@@ -542,7 +715,7 @@ f_FindOccurences(String,Array,Mode=1)
 			{
 				if (Snippet="")
 					continue
-				If RegExMatch(Snippet.Code, String)
+				If RegexMatch(Snippet.Code, Trim(String)) || RegexMatch(Snippet.Description, LTrim(String)) || RegexMatch(Snippet.DescriptionLong, String) || RegexMatch(Snippet.Example, String) || RegexMatch(Snippet.LibraryName, String)
 					SnippedOccurences.push(Snippet)
 			}
 		}
@@ -582,63 +755,122 @@ f_GetSelectedLVEntries()
 
 fPopulateLV(Snippets,SectionNames)
 {
-	; CodeTimer("PopulateLV")
     LV_Delete()
-	, NewSnippetsSorted:=[]
-	, SectionIndexLength:=1
-	, SectionPad:=""
-	for k,v in Snippets	; TODO: figure out if I can incorporate this loop and the loop % sectionindexlength into the snippets-loob below, because I dunno if that could be done right now.
-		SectionIndexLength:=(StrLen(SectionNames.MaxIndex())>SectionIndexLength?StrLen(SectionNames.MaxIndex()):SectionIndexLength)
-	loop, % SectionIndexLength
-		SectionPad.="0"
-	;; new Snippet Indexing ensures that snippet identifiers across each section constitute a list from 1 → Section.Count(), instead of treating section and snippet identifier separately.
-	for SecInd,thisSec in SectionNames
+	global SectionPad:=(SectionPad!=""?SectionPad:"") ;; this is fucking painful that I can't just have a variable be _static_ so I only actually have to declare it once. _ugh_
+	NewSnippetsSorted:=[]
+	, ErrorIndex:=1
+	, SectionIndexLength:=(StrLen(SectionNames.MaxIndex())>SectionIndexLength?StrLen(SectionNames.MaxIndex()):SectionIndexLength)
+	, SectionNamesReversed:=[]
+	, SectionNamesRespectiveIndex:=[]
+	for k,v in SectionNames
 	{
-		SectionSpecificIndex:=1
-		for k,v in Snippets
-			if (v.Section==SecInd) ;; 
-			{
-				v.FileInd:=v.Ind
-				, v.Ind:=fPadIndex(SectionSpecificIndex++,Snippets.Count())	;; v.Ind is now section-specific, and this is the one being displayed
-			}
+		SectionNamesReversed[v]:=k
+		SectionNamesRespectiveIndex[v]:=1	;; create a double-sided map to get the respective section's ID immediately without the need for double-looping when assigning section-unique aligned IDs
 	}
-	for k,v in Snippets
+	; m(Obj2str(SectionNamesReversed), SectionNamesReversed["gui - icon"])
+	; for k,v  in Snippets	; TODO: figure out if I can incorporate this loop and the loop % sectionindexlength into the snippets-loob below, because I dunno if that could be done right now.
+	; {
+	; 	a:=v.HasKey("Ind")
+	; 	, b:=v.HasKey("Hash")
+	; 	, c:=v.HasKey("Code")
+	; 	if  (a="") || (b="")  || (c="")
+	; 	{	;; create error-message in v.Code that snippet formatting is wrong `:`: TODO: Incorporate into error message mechanics via script.debug, so that I don't have to deal with leveraging the RC-Field for error display.
+	; 		Addition:=[]
+	; 		, Addition.LVSection:=(fPadIndex(v.Section,SectionPad)) " - " (SectionNames[strsplit(v.Section,".").1]=""?"-1 INVALIDSECTIONKEY":SectionNames[strsplit(v.Section,".").1])
+	; 		, Addition.Name:=RegExReplace(v.Name,Regex.StripFunctionName)
+	; 		, Addition.Description:=v.Description
+	; 		, Addition.Hash:=v.Hash
+	; 		, Addition.LibraryName:=v.LibraryName
+	; 		, Addition.LVIdentifier:=ErrorIndex++
+	; 		, LV_Add("-E0x200",		Addition.LVSection,		Addition.Name,		Addition.Description,		Addition.Hash,		Addition.LibraryName,		Addition.LVIdentifier		)
+	; 	}
+		
+	; }
+	loop, % (SectionPad=""?SectionIndexLength:0)
+		SectionPad.="0"
+	
+	;; new Snippet Indexing ensures that snippet identifiers across each section constitute a list from 1 → Section.Count(), instead of treating section and snippet identifier separately.
+	if (1>0)
 	{
-		Addition:=[]
-		, Addition.Section:=(fPadIndex(v.Section,SectionPad)) " - " (SectionNames[strsplit(v.Section,".").1]=""?"-1 INVALIDSECTIONKEY":SectionNames[strsplit(v.Section,".").1])
-		, Addition.Name:=RegExReplace(v.Name,Regex.StripFunctionName)
-		, Addition.Description:=v.Description
-		, Addition.Hash:=v.Hash
-		, Addition.LibraryName:=v.LibraryName
-		, Addition.LVInd:=fPadIndex(v.Section,SectionPad)"." fPadIndex((Instr(A_ThisLabel,"lSearchSnippets")?v.FileInd:v.Ind),"00")
-		, LV_Add("-E0x200",		Addition.Section,		Addition.Name,		Addition.Description,		Addition.Hash,		Addition.LibraryName,		Addition.LVInd		)
-		; LV_Add("-E0x200",		(fPadIndex(v.Section,SectionPad)) " - " (SectionNames[strsplit(v.Section,".").1]=""?"-1 INVALIDSECTIONKEY":SectionNames[strsplit(v.Section,".").1]),		RegExReplace(v.Name,Regex.StripFunctionName),		v.Description,		v.Hash,		v.LibraryName,		fPadIndex(v.Section,SectionPad)"." fPadIndex((Instr(A_ThisLabel,"lSearchSnippets")?v.FileInd:v.Ind),"00")		)
-	}		;; direct: 719, indirect: 844
-	LV_ModifyCol(4,0) 
-	LV_ModifyCol(6,"Right")
-    LV_ModifyCol(3,"AutoHdr")
-    LV_ModifyCol(1,"AutoHdr")
-    LV_ModifyCol(4,"Right")
-	LV_ModifyCol(5,"AutoHdr")
-	LV_ModifyCol(6,"AutoHdr")
-    LV_ModifyCol(2,"AutoHDr")
-	LV_ModifyCol(6,"Sort")
-	guicontrol,,vSearchFunctions,% snippets.count() " snippets loaded" 
-	; CodeTimer("PopulateLV",,,1)Fi    return
+		for k,v in Snippets
+		{
+			if !InStr(A_ThisLabel,"lSearchSnippets")		;; this fucking line's nonexistence caused me so much pain and hurt so far.
+			{
+				v.Section:=fPadIndex(v.Section,SectionPad)	;; adjust Section padding.
+				v.FileInd:=v.Ind
+				v.LVInd:=fPadIndex(d:=SectionNamesRespectiveIndex[SectionNames[v.Section]]++,Snippets.Count())
+			}
+			Addition:=[]
+			Addition.LVSection:=(fPadIndex(v.Section,SectionPad)) " - " (SectionNames[strsplit(v.Section,".").1]=""?"-1 INVALIDSECTIONKEY":SectionNames[strsplit(v.Section,".").1])
+			, Addition.Name:=RegExReplace(v.Name,Regex.StripFunctionName)
+			, Addition.Description:=v.Description
+			, Addition.Hash:=v.Hash
+			, Addition.LibraryName:=v.LibraryName
+			, Addition.LVIdentifier:=fPadIndex(v.Section,SectionPad)"." fPadIndex((InStr(A_ThisLabel,"lSearchSnippets")?v.LVInd:v.LVInd),"00")
+			, LV_Add("-E0x200",		Addition.LVSection,		Addition.Name,		Addition.Description,		Addition.Hash,		Addition.LibraryName,		Addition.LVIdentifier		)
+		}
+	}
+	else
+	{	;; old method
+
+		
+		if !InStr(A_ThisLabel,"lSearchSnippets")		;; this fucking line's nonexistence caused me so much pain and hurt so far.
+		{
+			for SecInd,thisSec in SectionNames
+			{
+				SectionSpecificIndex:=1
+				for k,v in Snippets
+				{
+					if (v.Section==SecInd) ;; 
+					{
+						v.Section:=fPadIndex(v.Section,SectionPad)	;; adjust Section padding.
+						, v.FileInd:=v.Ind
+						, v.LVInd:=fPadIndex(SectionSpecificIndex++,Snippets.Count())	;; v.Ind is now section-specific, and this is the one being displayed
+					}
+					
+				}
+			}
+		} ;; can these two for loops over snippets be combined? In theory? Yea why not.
+		for k,v in Snippets
+		{
+			Addition:=[]
+			, Addition.LVSection:=(fPadIndex(v.Section,SectionPad)) " - " (SectionNames[strsplit(v.Section,".").1]=""?"-1 INVALIDSECTIONKEY":SectionNames[strsplit(v.Section,".").1])
+			, Addition.Name:=RegExReplace(v.Name,Regex.StripFunctionName)
+			, Addition.Description:=v.Description
+			, Addition.Hash:=v.Hash
+			, Addition.LibraryName:=v.LibraryName
+			, Addition.LVIdentifier:=fPadIndex(v.Section,SectionPad)"." fPadIndex((InStr(A_ThisLabel,"lSearchSnippets")?v.LVInd:v.LVInd),"00")
+			, LV_Add("-E0x200",		Addition.LVSection,		Addition.Name,		Addition.Description,		Addition.Hash,		Addition.LibraryName,		Addition.LVIdentifier		)
+		}
+	}
+	guicontrol,,vSearchFunctions,% snippets.count() " snippets loaded from "script.config.libraries.count() " libraries" 
+	return
 }
 
+f_RescaleLV()
+{
+	LV_ModifyCol(4,0) 
+	, LV_ModifyCol(6,"Right")
+    , LV_ModifyCol(3,"AutoHdr")
+    , LV_ModifyCol(1,"AutoHdr")
+    , LV_ModifyCol(4,"Right")
+	, LV_ModifyCol(5,"AutoHdr")
+	, LV_ModifyCol(6,"AutoHdr")
+    , LV_ModifyCol(2,"AutoHDr")
+	, LV_ModifyCol(6,"Sort")
+}
 f_FillFields(Data)
 {
 	RC.Settings.Highlighter := "HighlightAHK"
-	RC.Value := []
-	code:=RegExReplace(Data.code,Regex.NewSnippet)
-	code:=RegexReplace(code,Regex.DescriptionLong)
-	RC.Value:=RegexReplace(code,Regex.Example)
-	RC2.Value:=out:=LTrim(Data.HasKey("DescriptionLong")?Data.Example:"","`n`t")
-	RC3.Value:=LTrim(Data.HasKey("Example")?Data.DescriptionLong:"","`n`t")
-    Name:=RegExReplace(Data.Name,Regex.StripFunctionName)
-    SectionName:=f_FindSectionName(Data.Section)
-    MainSecDescription:=Data.Description
+	, RC.Value := []
+	, code:=RegExReplace(Data.code,Regex.NewSnippet)
+	, code:=RegexReplace(code,Regex.DescriptionLong)
+	, RC.Value:=RegexReplace(code,Regex.Example)
+	, RC2.Value:=out:=LTrim(Data.HasKey("DescriptionLong")?Data.Example:"","`n`t")
+	, RC3.Value:=LTrim(Data.HasKey("Example")?Data.DescriptionLong:"","`n`t")
+    , Name:=RegExReplace(Data.Name,Regex.StripFunctionName)
+    , SectionName:=f_FindSectionName(Data.Section)
+    , MainSecDescription:=Data.Description
     e=
     (LTrim
         FUNCTION:
@@ -662,7 +894,7 @@ f_FindSectionName(ThisSec)
 ControlIsFocused(ControlID)                                                                   	;-- true or false if specified gui control is active or not
 {
 	GuiControlGet, FControlID, 1:Focus
-	return (Instr(FControlID, ControlID)?true:false)
+	return (InStr(FControlID, ControlID)?true:false)
 	/*
 	TODO: fix this returning true when I _don't_ click on RC-fields, but f.e. on the disabled Description-Editfield or the bottom part of the LV-Control
 	*/
@@ -673,14 +905,23 @@ fLoadFiles(Files,Identifier)
  	if IsObject(Files)
 	{
 		Ret:=[]
+		; fo:=[]
 		for k,v in Files
 		{
-			FileRead, f, % v
-			; Clipboard:=f0:=f
-			if !Instr(f,Identifier)
-        		f_ThrowError(A_ThisFunc,"Settings for " script.name " could not be loaded. The string '" Identifier "'  is missing.",A_ThisFunc . "_" 1, Exception("",-1).Line)
+			FileRead, f, % v		;; F1: "`r`n(`t)", F2: "`n", F3: "`n", F4: "`r`n(`t)"
+			Clipboard:=f0:=f:=strreplace(f,"`r") ;; necessary fix because for some reason some files suddenly get read back with newlines consisting of "`r`n" instead of "`n", in which case _all_ regexes would fail later on. No clue why they are even read back differently, but they _are_. This stupid bug took four hours to hunt down.
+			if !InStr(f,Identifier)
+			{
+				script.Error:={	 Level		:2
+								,Label		:A_ThisFunc
+								,Message	:"Settings for " script.name " could not be loaded. The string '" Identifier "'  is missing."
+								,Error		:1
+								,Vars		:[Identifier,f]
+								,AddInfo	:""}
+				script.Debug(script.error.Level,script.error.Label,script.error.Message,script.error.AddInfo,script.error.Vars)
+			}
 			f:=strsplit(f,Identifier)
-    		Ret[k]:=[strsplit(f.1,"`n"),f.2,strsplit(f.1,"\\\---NewSnippet---\\\"),f0,v]
+    		, Ret[k]:=[strsplit(f.1,"`n"),f.2,strsplit(f.1,"\\\---NewSnippet---\\\"),f0,v]
 		}
  		if (Ret.count()>1)
 			return d:=fMergeFileData(Ret,Identifier)	
@@ -691,8 +932,16 @@ fLoadFiles(Files,Identifier)
 	{		;; single file only
 		FileRead, f, % File
 		f0:=f
-		if !Instr(f,Identifier)
-			f_ThrowError(A_ThisFunc,"Settings for A_ScriptNameNoExt could not be loaded. The string '" Identifier "'  is missing.",A_ThisFunc . "_" 1, Exception("",-1).Line)
+		if !InStr(f,Identifier)
+		{
+			script.Error:={	 Level		:2
+							,Label		:A_ThisFunc
+							,Message	:"Settings for " script.name " could not be loaded. The string '" Identifier "'  is missing."
+							,Error		:1
+							,Vars		:[Identifier,f]
+							,AddInfo	:""}
+			script.Debug(script.error.Level,script.error.Label,script.error.Message,script.error.AddInfo,script.error.Vars)
+		}
 		f:=strsplit(f,Identifier)
 		return [strsplit(f.1,"`n"),f.2,strsplit(f.1,"\\\---NewSnippet---\\\"),f0,File]
 	}
@@ -713,16 +962,16 @@ fMergeFileData(Files,Identifier)
 		}
 		SectionNames2:=strsplit(strsplit(v.2,":=").2,", ") ;; get the section names of the added file
 		for i,SName in SectionNames2
-			if !Instr(Main.2,SName)	;; combine Section Names
+			if !InStr(Main.2,SName)	;; combine Section Names
 			{
 				Main.2.=", " SName 
-				, EditSections.push(File " - " i "`:`:" Sname)			;; get a map of which section identifiers must be changed when indexing the scripts
+				, EditSections.push(File " - " i "`:`:" SName)			;; get a map of which section identifiers must be changed when indexing the scripts
 			}
 		AllSectionString:=Main.2
 		, AllSections:=(Strsplit(StrSplit(Main.2,":=").2,", "))
 	}
 	LastSnippetIndLine:=Main[3,Main[3].MaxIndex()]
-	LastSnippetInd:=strsplit(strsplit(LastSnippetIndLine,"|||SnippetInd:").2,",").1+0
+	, LastSnippetInd:=strsplit(strsplit(LastSnippetIndLine,"|||SnippetInd:").2,",").1+0
 	; SnippetIndex:=1
 	for k,v in EditSections
 	{	; update Section-Identifiers in added libraries to point at the right position in Main.2	
@@ -737,7 +986,7 @@ fMergeFileData(Files,Identifier)
 			, FileArrayToEdit:=Files[Map.1]		;; could be clarified to operate on Files[] directly I believe? There was a reason why I did this, but given I can't recall it can't have been a serious one.
 			for Index,StringToEdit in FileArrayToEdit[1]
 			{
-				if Instr(StringToEdit,",Section:" Map.2 ",")
+				if InStr(StringToEdit,",Section:" Map.2 ",")
 				{ ;; this step only works because FileArrayToEdit is just a map to Files. The two objects are linked, and thus altering one alters the other.
 					FileArrayToEdit[1,Index]:=d:=StrReplace(StringToEdit,",Section:" Map.2 ",",",Section:" NewInd ",") ; "|" Map.1
 					, FileArrayToEdit[4]:=StrReplace(FileArrayToEdit[4],",Section:" Map.2 ",",",Section:" NewInd ",")
@@ -761,11 +1010,11 @@ fMergeFileData(Files,Identifier)
 	Main.3 - insert all entries from Files.K
 	Main.4 - concatenate together
 	*/
-	Main:=[]
+	, Main:=[]
 	; m(Files)
-	vHashTime:=0
+	, vHashTime:=0
 				;; now find Which 
-	StartHash:=A_Now
+	, StartHash:=A_Now
 	for File,v in Files
 	{
 
@@ -776,7 +1025,6 @@ fMergeFileData(Files,Identifier)
 			Main:=v.Clone()
 			, Ind++
 			, Main.4:=strsplit(v.4,"\\ Script-settings \\").1 ; strip off Script-settings-section
-			; Clipboard:=Main.4
 			continue
 		}
 		Main.1:=ObjM(Main.1,v.1)
@@ -791,7 +1039,6 @@ fMergeFileData(Files,Identifier)
 
 f_AddHashedFilePath(File)
 {	; required to make every snippet unique, and thus distinguishable.
-	ret:=f_IncorporateHashAndFileName(File)
 	/* DEPRECATED
 
 		; OldF4:=ret.4		;; this removed section here accounted for ~85% of bootup time
@@ -802,37 +1049,35 @@ f_AddHashedFilePath(File)
 		; if (ret.4==OldF4)		;; TODO: This is no longer valid, the check must be changed to a St_Count Over every hash in Hashes to check if it appears more than once in the entire text of all files. FOr doing so, this must be moved outside of the loop which calls f_AddHashedFilePath... 
 		; 	f_ThrowError(A_ThisFunc,"Critical error while creating unique hashes for snippet-differentiation. A specific Hash has been incoprorated more than once. " )
 	*/
-	return ret.1
+	return f_IncorporateHashAndFileName(File).1
 }
 
 f_IncorporateHashAndFileName(File)
 {	; incorporate Hash into file struct, as well as FileName of the respective file.
 
 	Number:=1 ;; make each Hash Unique
-	File.4:=""
+	, File.4:=""
 	SplitPath, % File.5,	,	,	,FileName
 	for ind, line in File.1
 	{
 		if RegExMatch(Line,Regex.SnippetFinder,c)
 		{
 			Hashes.Push(Hash:=Object_HashmapHash(File.5 " - " Line "-" Number++)) ; generate Hash based upon Filepath and Runtime of script  as distinguisher ; || )
-			, File[1,ind]:=d:=ST_Insert("Hash_" Hash ",",oLine:=File[1,ind],Loc:=Instr(File[1,ind],",Description:")+StrLen(",Description:")) . ",LibName_" FileName
+			, File[1,ind]:=d:=ST_Insert("Hash_" Hash ",",oLine:=File[1,ind],Loc:=InStr(File[1,ind],",Description:")+StrLen(",Description:")) . ",LibName_" FileName
 			for k, val in File.3
 			{
-				if Instr(val,oLine)
+				if InStr(val,oLine)
 				{
-					CurrEdit:=ST_Insert("Hash_" Hash ",",oLine:=val,Loc:=Instr(val,",Description:")+StrLen(",Description:")) 
+					CurrEdit:=ST_Insert("Hash_" Hash ",",oLine:=val,Loc:=InStr(val,",Description:")+StrLen(",Description:")) 
 					, RegExMatch(CurrEdit,"\,Description\:(?<DescAlone>.*)`n",v) ;   vNewDesc NewDesc
 					, DescLength:=StrLen(d:=StrSplit(vDescAlone,"`n").1)+13
-					, File[3,k]:=LastLine:=ST_Insert(",LibName_" FileName ,CurrEdit,Loc:=Instr(CurrEdit,",Description:")+DescLength) ;. "LibName_" FileName
+					, File[3,k]:=LastLine:=ST_Insert(",LibName_" FileName ,CurrEdit,Loc:=InStr(CurrEdit,",Description:")+DescLength) ;. "LibName_" FileName
 				}
 			}
 		}
 	}
 	return File
 }
-
-
 
 Object_HashmapHash(Key)
 {		;; thank you to u/anonymous1184 for writing this for me for an old project, certainly helped a lot here.
@@ -871,14 +1116,14 @@ fParseArr(Arr,SettingsIdentifier,ArrSnippetStrings)
     , bFirstFunctionDefLine:=0
 	, LastSnippetInd:=0
 	, TotalSnippetInd:=0
-	; Clipboard:=ArrSnippetStrings.1
+	,
     loop, % Arr.MaxIndex()
     {   
-        snippet:={Name:"",Code:""}
-        , CurrentLine:=Arr[A_Index]
-        if (CurrentLine=SettingsIdentifier)
+        CurrentLine:=Arr[A_Index]
+        if (CurrentLine==SettingsIdentifier)
             break
-        LastSnippetInd:=(cSnippetInd=""?LastSnippetInd:cSnippetInd)
+        snippet:={Name:"",Code:""}
+        , LastSnippetInd:=(cSnippetInd=""?LastSnippetInd:cSnippetInd)
         , cFunctionName:=cParameters:=cSnippetInd:=cSection:=cSubSection:=cDescription:=cOpts:=""
 		, RegExMatch(CurrentLine,Regex.SnippetFinder,c)
         , sFirstCharCurrentLine:=SubStr(CurrentLine,1)
@@ -895,17 +1140,26 @@ fParseArr(Arr,SettingsIdentifier,ArrSnippetStrings)
 			/*
 			TODO: replace all these if statements with ternaries 
 			*/
-            if cParameters
-                snippet.Parameters:=(cParameters?cParameters:"")
+            ; if cParameters
             if cSnippetInd
                 snippet.Ind:=(cSnippetInd>TotalSnippetInd?cSnippetInd:TotalSnippetInd)
 			if (cSection>d:=SectionNames.Count())
- 				f_ThrowError(A_ThisFunc,"Section index of of snippet """ regexreplace(snippet.Name,Regex.StripFunctionName) """ does not correspond to any section. Please add section name at corresponding location into the csv at the bottom of the LibraryFile.`n`nSnippet begins at line " snippet.StartLine ".",A_ThisFunc . "_" 1, Exception("",-1).Line)
-            ; if cSection
-                snippet.Section:=(cSection?cSection:"")
-            ; if cDescription
-                snippet.Description:=cDescription?cDescription:""
-            aKeys.push(cFunctionName)
+			{
+				script.Error:={	 Level		:2
+								,Label		:A_ThisFunc
+								,Message	:"Section index of of snippet """ regexreplace(snippet.Name,Regex.StripFunctionName) """ does not correspond to any section. Please add section name at corresponding location into the csv at the bottom of the LibraryFile.`n`nSnippet begins at line " snippet.StartLine "."
+								,Error		:A_ThisFunc . "_" 1
+								,InvokeLoc  : script.Name "_" Exception("",-1).Line
+								,Vars		:[snippet,SectionNames]
+								,AddInfo	:""}
+				f_ThrowError(A_ThisFunc,"Section index of of snippet """ regexreplace(snippet.Name,Regex.StripFunctionName) """ does not correspond to any section. Please add section name at corresponding location into the csv at the bottom of the LibraryFile.`n`nSnippet begins at line " snippet.StartLine ".",A_ThisFunc . "_" 1, Exception("",-1).Line)
+				; script.Debug(script.error.Level,	script.error.Label,		script.error.Message,	script.error.AddInfo,	script.Error.InvokeLoc,	script.error.Vars)
+
+			}
+			snippet.Parameters:=(cParameters?cParameters:"")
+			, snippet.Section:=(cSection?cSection:"")
+			, snippet.Description:=cDescription?cDescription:""
+            , aKeys.push(cFunctionName)
             if (cFunctionName!="")
                 aKeys2.push(cFunctionName)
             if (aKeys[aKeys.MaxIndex()]!="")
@@ -915,20 +1169,8 @@ fParseArr(Arr,SettingsIdentifier,ArrSnippetStrings)
 			, snippet.Description:=strsplit(snippet.Description,",").2
             if (aKeys[A_Index]="")
             {
-				;; all this commented code is deprecated I believe, but I haven't completely tested yet.
-            ; (snippets[snippets.MaxIndex]!="") && (snippets[snippets.MaxIndex].name)
-
-                {
-            ; m("Script fundamentally broken: figure out how to create Code-String")
-                    ; if (snippet.Name!=sCurrentFunc) || (snippet.Name && sCurrentFunc="")
-                    ; {
-                    ;     ; sCurrentFunc:=snippet.Func
-                    ; }
-                    ; ; Snippets[sCurrentFunction].Code.=CurrentLine "`n"
-                    ; ; Snippets[sCurrentFunction].LastLine:=A_Index
- 					Snippets[LastHash].Code.=CurrentLine "`n"
-                    , Snippets[LastHash].LastLine:=A_Index
-                }
+				Snippets[LastHash].Code.=CurrentLine "`n"
+				, Snippets[LastHash].LastLine:=A_Index
             }
         }
         if snippet.Name
@@ -947,14 +1189,12 @@ fParseArr(Arr,SettingsIdentifier,ArrSnippetStrings)
 			LastSnippetInd:=snippet.ind
         }
 		if snippet.HasKey("Ind")
-			snippet:=fPadIndex(snippet,ArrSnippetStrings)
+			snippet:=fPadIndex(snippet,StrLen(ArrSnippetStrings))
     }
     for k,v in Snippets
     {	; assemble Defline onto .Code, then grab the description and Example sections for the respective RichCodes
 		f:=e:=""
-        DefLine:=snippets[k,Name] "(" ")"
         , Snippets[k].Code:=strsplit(Snippets[k].FullDefLine "`n" Snippets[k].Code,"\\\---NewSnippet---\\\").1
-		; Clipboard:=Snippets[k].Code
 		
 		; thank you to u/anonymous1184 on reddit for helping me with the needles for this section
 		if Regexmatch(v.Code,Regex.DescriptionLong,e) 
@@ -969,7 +1209,7 @@ fPadIndex(snippet,aSnippets)
 { ; pads snippet indeces to the maximum number of snippets loaded.
 	if IsObject(snippet)
 	{
-		global MaxLenNecessary:=StrLen(aSnippets.MaxIndex())
+		
 		StrLenDiff:=MaxLenNecessary-StrLen(snippet.Ind)
 		if (StrLenDiff>0)
 			snippet.Ind:=st_pad(snippet.Ind,"0","",StrLenDiff,0) +0
@@ -1022,7 +1262,7 @@ fCreateSectionNames(str)
 BracketCount(str, brackets:="{}")                                                       	;-- helps to find the last bracket of a function
 {
 	RegExReplace(str, SubStr(brackets, 1, 1), "", open)
-	RegExReplace(str, SubStr(brackets, 2, 1), "", closed)
+	, RegExReplace(str, SubStr(brackets, 2, 1), "", closed)
 	return open - closed
 }
 
@@ -1050,8 +1290,8 @@ st_pad(string, left="0", right="", LCount=1, RCount=1)
 ST_Insert(insert,input,pos=1)
 {
 	Length := StrLen(input)
-	((pos > 0) ? (pos2 := pos - 1) : (((pos = 0) ? (pos2 := StrLen(input),Length := 0) : (pos2 := pos))))
-	output := SubStr(input, 1, pos2) . insert . SubStr(input, pos, Length)
+	, ((pos > 0) ? (pos2 := pos - 1) : (((pos = 0) ? (pos2 := StrLen(input),Length := 0) : (pos2 := pos))))
+	, output := SubStr(input, 1, pos2) . insert . SubStr(input, pos, Length)
 	If (StrLen(output) > StrLen(input) + StrLen(insert))
 		((Abs(pos) <= StrLen(input)/2) ? (output := SubStr(output, 1, pos2 - 1) . SubStr(output, pos + 1, StrLen(input))) : (output := SubStr(output, 1, pos2 - StrLen(insert) - 2) . SubStr(output, pos - StrLen(insert), StrLen(input))))
 	return, output
@@ -1340,7 +1580,7 @@ AddToolTip(_CtrlHwnd, _TipText, _Modify = 0) 			;-- very easy to use function to
 	Return
 }
 
-CodeTimer(Description,x:=500,y:=500,ClipboardFlag:=0)
+CodeTimer(Description,x:=500,y:=500,ClipboardFlag:=0,RemoveTT:=1)
 { ; adapted from https://www.autohotkey.com/boards/viewtopic.php?t=45263
 	
 	Global StartTimer
@@ -1353,17 +1593,20 @@ CodeTimer(Description,x:=500,y:=500,ClipboardFlag:=0)
 	If (StartTimer != "")
 	{
 		FinishTimer := A_TickCount
-		TimedDuration := FinishTimer - StartTimer
-		StartTimer := ""
+		, TimedDuration := FinishTimer - StartTimer
+		, StartTimer := ""
 		If (ClipboardFlag=1)
-		{
 			Clipboard:=TimedDuration
-		}
 		tooltip, Timer %Description%`n%TimedDuration% ms have elapsed!, x,y
+		Settimer, CodeTimer_RemoveTT, 2500
 		Return TimedDuration
 	}
 	Else
 		StartTimer := A_TickCount
+	return
+	CodeTimer_RemoveTT:
+	tooltip,
+	return
 }
 CodeTimer2(Description,x:=500,y:=500,ClipboardFlag:=0)
 { ; adapted from https://www.autohotkey.com/boards/viewtopic.php?t=45263
@@ -1378,17 +1621,19 @@ CodeTimer2(Description,x:=500,y:=500,ClipboardFlag:=0)
 	If (StartTimer != "")
 	{
 		FinishTimer := A_TickCount
-		TimedDuration := FinishTimer - StartTimer2
-		StartTimer2 := ""
+		, TimedDuration := FinishTimer - StartTimer2
+		, StartTimer2 := ""
 		If (ClipboardFlag=1)
-		{
 			Clipboard:=TimedDuration
-		}
+		Settimer, CodeTimer_RemoveTT2, 2500
 		tooltip, Timer %Description%`n%TimedDuration% ms have elapsed!, x,y
 		Return TimedDuration
 	}
 	Else
 		StartTimer2 := A_TickCount
+	CodeTimer_RemoveTT2:
+	tooltip,
+	return
 }
 
 HighlightAHK(Settings, ByRef Code)
@@ -1461,7 +1706,7 @@ HighlightAHK(Settings, ByRef Code)
 			RTF .= "\cf" Map.Plain
 
 		RTF .= " " EscapeRTF(Match.Value())
-		Pos := FoundPos + Match.Len()
+		, Pos := FoundPos + Match.Len()
 	}
 
 	return Settings.Cache.RTFHeader . RTF . "\cf" Map.Plain " " EscapeRTF(SubStr(Code, Pos)) "\`n}"
@@ -1503,8 +1748,8 @@ GenHighlighterCache(Settings)
 	for Name, Color in Cache.Colors
 	{
 		RTF .= "\red"    	Color>>16	& 0xFF
-		RTF .= "\green"	Color>>8 	& 0xFF
-		RTF .= "\blue"  	Color        	& 0xFF ";"
+		, RTF .= "\green"	Color>>8 	& 0xFF
+		, RTF .= "\blue"  	Color        	& 0xFF ";"
 	}
 	RTF .= "}"
 
@@ -1512,9 +1757,9 @@ GenHighlighterCache(Settings)
 	if Settings.Font
 	{
 		FontTable .= "{\fonttbl{\f0\fmodern\fcharset0 "
-		FontTable .= Settings.Font.Typeface
-		FontTable .= ";}}"
-		RTF .= "\fs" Settings.Font.Size * 2 ; Font size (half-points)
+		,FontTable .= Settings.Font.Typeface
+		,FontTable .= ";}}"
+		,RTF .= "\fs" Settings.Font.Size * 2 ; Font size (half-points)
 		if Settings.Font.Bold
 			RTF .= "\b"
 	}
@@ -1579,18 +1824,18 @@ EscapeRTF(Code)
 FuzzySearch(string1, string2)
 {
 	lenl := StrLen(string1)
-	lens := StrLen(string2)
+	, lens := StrLen(string2)
 	if(lenl > lens)
 	{
 		shorter := string2
-		longer := string1
+		, longer := string1
 	}
 	else if(lens > lenl)
 	{
 		shorter := string1
-		longer := string2
-		lens := lenl
-		lenl := StrLen(string2)
+		, longer := string2
+		, lens := lenl
+		, lenl := StrLen(string2)
 	}
 	else
 		return StringDifference(string1, string2)

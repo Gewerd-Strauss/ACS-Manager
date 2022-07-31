@@ -1,4 +1,35 @@
 # Changelog
+v. 07.31.1
+- found bug not rendering the first snippet of the first library loaded not being cut correctly → "Examples"- and "Description"-Blocks are not cut for the very first snippet of whatever library is loaded at first
+	- [x] regex.Description and Regex.Example does not seem to work uniformly.
+		- specifically: any description or example fields in the first-to-be-loaded file will not be found and treated properly. For unknown-to-me reasons, the fields are only correctly found and removed/ingested from file2 onwards) - 
+		- #important fixed by force-converting "\`r\`n" to "\`n" immediately after `FileRead()`. I have no clue why these identical files are being read back with different newline formatting, but they are. Might be some include changing formatting behaviour of ahk?? Check up on that idea.
+Additions:
+- [x] add warning when combining fuzzy and regex search as the fuzzy search is ignored in that case.
+- [x] Attach tooltips to various controls
+
+
+
+- [x] Small performance increases by small changes - preallocating total row number to LV-Creation and other small tidbids. 
+- [x] implement regex-search
+- [x] search by snippetID and secID and Instr()/Regex()-searches combined
+	- [x] make the search-keys `s:` and `ID:` case-agnostic
+
+
+Fixes: 
+- [x] Fix: Slightly reduced number of loops required by combining two operations in fPopulateLV
+- [x] Fix: Clicking the Descriptionbox will copy the currently selected Snippet
+- [x] Fix: Single-clicking an item in the LV will not populate the DescriptionBox/RC-Fields, double-clicking was required
+- [x] Fix: made snippet search regexes for ID:/s: caseinsensitive
+- [x] Fix: Figure out how the fuck the tab3 is supposed to work - because clearly enough it does not work at all.
+- [x] Fix: bars here not wrapping properly, as well as the text somehow not wrapping properly ![[Documentation/Pasted image 20220711090346.png]]
+- [x] Fix: figure out why the description text of snippet 2 is cut off although there is still space left.
+- [x] Fix: figure out why the description text of snippet 2 is cut off although there is still space left.
+- [x] at 1080 screen sizing the textfield of the red "xx snippets loaded" will cut over the boundary of the groupbox control
+- [x] at 1080 screen sizing the richEdit-fields will cut over the boundary of the tab control
+	- Numpad9 acts as a toggle to switch between 1080p-size and the size autoscaled from current monitor's res.
+- [x] slightly reduced looping time in fPopulateLV by combining several loops over `Snippets`.
+
 v.16.07.2022-1
 - started performance testing to check how viable a rewrite might be for reducing the amount of looping. 
 	- created a new branche, speed-Test() for... well speed testing.
@@ -21,7 +52,8 @@ v.13.07.2022-3
 ---
 v.13.07.2022-2
 - removed various instances of clipboard overwriting for testing reasons. Still left in code for possible debug later on, but right now disabled.
-- added Library-Name to the Listview. Might make it hidable because the information it gives is limited, and only really relevant when you need to figure out where a snippet is located. For that however I could just as well straight out output the snippet-object or just have the file open automatically.
+- [x] Incorporate Library-Name into Snippet Info during fParseSnippet, then populate the LV field respectively. 
+	- added Library-Name to the Listview. Might make it hidable because the information it gives is limited, and only really relevant when you need to figure out where a snippet is located. For that however I could just as well straight out output the snippet-object or just have the file open automatically.
 - [x] fixed bug introduced in v.13.07.2022-1 which made a regex-needle unusable.
 ---
 v.13.07.2022-1
@@ -48,6 +80,8 @@ Fixes
 v.11.07.2022-3
 - fixed GUI not autofocussing on LV when reopening.
 - fixed snippets with identical names overwriting each other by creating unique hashes as identifying keys instead of snippet-name
+	- [x]		Seems completed, needs to be tested.			 URGENT: Fix the Structure of Snippets[] to not use the snippet name alone as Key → multiple snippets with identical name (but. f.e. different descriptions) will overwrite each other. 
+		- Suggestion: make a hash-key out of the library-file 
 - removed unnecessary code
 - fixed searching by ID working properly, but feeding the wrong ID into the listview when displaying the result
 
