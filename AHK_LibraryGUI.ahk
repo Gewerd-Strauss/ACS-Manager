@@ -19,13 +19,13 @@ CrtDate:=SubStr(CrtDate,7,  2) "." SubStr(CrtDate,5,2) "." SubStr(CrtDate,1,4)
 , global script := {   base         : script
                     ,name         : regexreplace(A_ScriptName, "\.\w+")
                     ,version      : FileOpen(A_ScriptDir "\version.ini","r").Read()
-					,dbgLevel	  : 1
+                    ,dbgLevel	  : 1
                     ,author       : "Gewerd Strauss"
-					,authorID	  : "Laptop-C"
-					,authorlink   : ""
+          					,authorID	  : "Laptop-C"
+					          ,authorlink   : ""
                     ,email        : ""
                     ,credits      : "Ixiko"
-					,creditslink  : "https://github.com/Ixiko/AHK-Rare"
+					          ,creditslink  : "https://github.com/Ixiko/AHK-Rare"
                     ,crtdate      : CrtDate
                     ,moddate      : ModDate
                     ,homepagetext : ""
@@ -1972,6 +1972,3 @@ Quote(String)
 ; #Include D:\Dokumente neu\AutoHotkey\Lib\ObjTree\Attach.ahk
 ; #Include D:\Dokumente neu\AutoHotkey\Lib\ObjTree\LV.ahk
 ; #Include D:\Dokumente neu\AutoHotkey\Lib\ObjTree\ObjTree.ahk
-
-
-
