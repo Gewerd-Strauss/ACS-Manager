@@ -3,42 +3,17 @@ Function1() ;|||SnippetInd:1,Section:1,Description:This is a very long descripti
 {
 	
 	/*    	DESCRIPTION
-        	-------------------------------------------------------------------------------------------------------------------
-			Description  	:	extract icon from a resource file
-			Link              	:	https://autohotkey.com/board/topic/20338-transparent-background-problem-with-images/#entry133445
-			Author         	:	Lexikos
-			Date             	:
-			AHK-Version	:
-			License         	:
-			Parameter(s)	:
-			Return value	:	hIcon - handle
-			Remark(s)    	:	function is copied from my (Lexikos') Menu Icons script
-			Dependencies	:
-			KeyWords    	:	icon, hIcon, load resources, extract
-        	-------------------------------------------------------------------------------------------------------------------
+    
+        File    -   Snippet -   Example
+        1   	-	01		-   1
 	*/
 
 
 	/*    	EXAMPLE(s)
 
-	 		loremLorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna
-			 aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis
-			  aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
-			   cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-	 		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
-			Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure 
-			dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-			 proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-	 		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
-			Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure
-			 dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non 
-			 proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-	 		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
-			Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure 
-			dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non 
-			proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-
-
+        File    -   Snippet -   Example
+		1   	-	01		-   1
+        
 	*/
 	1	yc:=A_ScreenHeight-200
 			xc:=A_ScreenWidth-300
@@ -54,7 +29,19 @@ Function1() ;|||SnippetInd:1,Section:1,Description:This is a very long descripti
 \\\---NewSnippet---\\\
 Function2(Width,Height) ;|||SnippetInd:2,Section:2,Description:This is 1 This is 2This is 3 This is 4 This is 5 This is 6 This is 7 This is 8 This is 9 This is 10 This is 11 This is 12 This is 13 This is 14 This is 15 This is 16 This is 17 This is 18 This is 19 This is 20 This is 21 This is 22 This is 23 This is 24 This is 25 This is 26 This is 27 This is 28 This is 29 This is 30 This is 31 This is 32 This is 33 This is 34 This is 35 This is 36 This is 37
 {
-	UniqueString_01_2
+	/*    	DESCRIPTION
+    
+        File    -   Snippet -   Example
+        1   	-	02		-   1
+	*/
+
+
+	/*    	EXAMPLE(s)
+
+        File    -   Snippet -   Example
+		1   	-	02		-   1
+        
+	*/
 	2	yc:=A_ScreenHeight-200
 			xc:=A_ScreenWidth-300
 	Gui, cQ: show,autosize  x%xc% y%yc%, CQ%A_ThisLabel%
@@ -69,7 +56,19 @@ Function2(Width,Height) ;|||SnippetInd:2,Section:2,Description:This is 1 This is
 \\\---NewSnippet---\\\
 Function3(Width,Height) ;|||SnippetInd:3,Section:2,Description:This is a very long description and requires a st_wrap to compile in the end. 
 {
-	UniqueString_01_3
+	/*    	DESCRIPTION
+    
+        File    -   Snippet -   Example
+        1   	-	03		-   1
+	*/
+
+
+	/*    	EXAMPLE(s)
+
+        File    -   Snippet -   Example
+		1   	-	03		-   1
+        
+	*/
 	2	yc:=A_ScreenHeight-200
 			xc:=A_ScreenWidth-300
 	Gui, cQ: show,autosize  x%xc% y%yc%, CQ%A_ThisLabel%
@@ -83,7 +82,19 @@ Function3(Width,Height) ;|||SnippetInd:3,Section:2,Description:This is a very lo
 }
 \\\---NewSnippet---\\\
 Function4(){ ;|||SnippetInd:4,Section:3,Description:This is a very long description and requires a st_wrap to compile in the end. 
-UniqueString_01_4
+	/*    	DESCRIPTION
+    
+        File    -   Snippet -   Example
+        1   	-	04		-   1
+	*/
+
+
+	/*    	EXAMPLE(s)
+
+        File    -   Snippet -   Example
+		1   	-	04		-   1
+        
+	*/
 	3	yc:=A_ScreenHeight-200
 fClip()
 			xc:=A_ScreenWidth-300
@@ -99,7 +110,19 @@ fClip()
 \\\---NewSnippet---\\\
 Function5() ;|||SnippetInd:5,Section:4,Description:This is a very long description and requires a st_wrap to compile in the end. 
 {
-	UniqueString_01_5
+	/*    	DESCRIPTION
+    
+        File    -   Snippet -   Example
+        1   	-	05		-   1
+	*/
+
+
+	/*    	EXAMPLE(s)
+
+        File    -   Snippet -   Example
+		1   	-	05		-   1
+        
+	*/
 	4	yc:=A_ScreenHeight-200
 		lip()	xc:=A_ScreenWidth-300
 	Gui, cQ: show,autosize  x%xc% y%yc%, CQ%A_ThisLabel%
@@ -114,7 +137,19 @@ Function5() ;|||SnippetInd:5,Section:4,Description:This is a very long descripti
 \\\---NewSnippet---\\\
 Function6() ;|||SnippetInd:6,Section:5,Description:This is a very long description and requires a st_wrap to compile in the end. 
 {
-	UniqueString_01_6
+	/*    	DESCRIPTION
+    
+        File    -   Snippet -   Example
+        1   	-	06		-   1
+	*/
+
+
+	/*    	EXAMPLE(s)
+
+        File    -   Snippet -   Example
+		1   	-	06		-   1
+        
+	*/
 	5	yc:=A_ScreenHeight-200
 	ip()		xc:=A_ScreenWidth-300
 	Gui, cQ: show,autosize  x%xc% y%yc%, CQ%A_ThisLabel%
@@ -127,8 +162,20 @@ Function6() ;|||SnippetInd:6,Section:5,Description:This is a very long descripti
 	return answer
 }
 \\\---NewSnippet---\\\
-KillAnything ;|||SnippetInd:7,Section:2,Description:A snippet which is not a function
-UniqueString_01_7
+Function7 ;|||SnippetInd:7,Section:2,Description:A snippet which is not a function
+	/*    	DESCRIPTION
+    
+        File    -   Snippet -   Example
+        2   	-	07		-   1
+	*/
+
+
+	/*    	EXAMPLE(s)
+
+        File    -   Snippet -   Example
+		2   	-	07		-   1
+        
+	*/
 5	yc:=A_ScreenHeight-200
 	ip()		xc:=A_ScreenWidth-300
 	Gui, cQ: show,autosize  x%xc% y%yc%, CQ%A_ThisLabel%
