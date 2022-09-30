@@ -3,6 +3,9 @@
 
 ;; Notes:
 
+How to increase speed: 
+
+
 Regex for library conversion
 TODO: Write conversion script to capture <DESCRIPTION> and <;-- Description> to convert into new syntax.
 

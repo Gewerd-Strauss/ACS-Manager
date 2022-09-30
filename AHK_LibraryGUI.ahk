@@ -7,9 +7,6 @@ SendMode Input
 ; some performance stuff
 ListLines, Off
 #KeyHistory, 0
-
-
-
 SetWorkingDir, %A_ScriptDir%
 CurrentMode:="Instr"
 ; Add scriptObj-template and convert Code to use it - maybe, just a thought. Syntax of the Library-File is probably way too special for doing so, and there are no real configs to save anyways
@@ -62,6 +59,8 @@ global Regex:={ NewSnippet:"`r`n\\\\\\---NewSnippet---\\\\\\`r`n"
 				,SnippetFinder:"(\\\\\\---NewSnippet---\\\\\\\n)*((?<FunctionName>.*)(\((?<Parameters>.*)\))*(?<BraceOnNameLine>\{?)\s?\;?\|\|\|SnippetInd\:(?<SnippetInd>.*),Section:(?<Section>\d*(\.\d*)*)\,Description:(?<Description>.*))"}
 , global Hashes:=[]
 script.Load()
+if !(script.config.Count()>0)
+	
 if script.config.config.CheckForUpdateOnBootup
 	script.Update(,,1,1) ;; DO NOT ACTIVATE THISLINE UNTIL YOU DUMBO HAS FIXED THE DAMN METHOD. God damn it.
 CodeTimer("Legacy Loading")

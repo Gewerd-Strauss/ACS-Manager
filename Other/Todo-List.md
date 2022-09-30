@@ -11,6 +11,9 @@ List-version 31.07.2022 21:18:35
 			- after that, you should only be able to add new snippets by AdditionGui/GUI2, which will incorporate the respective input into the chosen file's Object, then save the respective string to file again. 
 		- consider splitting code and metadata (but why, if we're already using serdes?)
 	- [ ] Consider instead using the approach outlined by anonymous1184, which will result in a massive increase of files (~k_Snippets\*3), but reduce loadup times because I no longer require parsing or any regexes - just read the files set by set and populate LV accordingly (CodeFile and MetadataFile must both be read per snippet for the LV, and ExampleLong/DescriptionLong must only be read when selecting a file)
+		- additionally, this can be sped up by storing all snippets in library FOLDERS, with structure
+			[Library]→[SnippetHash]→[snippet.ahk,snippet.meta.ini,snippet.desk.ini]
+		- this keeps the ability to quickly copy an entire library (which might be contextually related), while still largely reducing looping and formatting time.
 		- not sure if I still would populate an array to store the data, or not. 
 	
 - [ ] Figure out how to drastically reduce the amount of loops required to do this. 
