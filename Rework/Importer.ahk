@@ -8,6 +8,7 @@ Numpad1::f_GuiShow_1(vGUIWidth,vGUIHeight)
 
 /*
 TODO: change  the functions fWriteIni to convert "Desc"- and "Ex"-key'd values to quoteds
+TODO: make this GUI screen-relative in width
 */
 
 
@@ -18,9 +19,9 @@ Importer(Text)
     static Snippet
     static Desc
     static Ex
-
+            ; Ahk Code Snippet Importer
             gui, ACSI: destroy
-            gui, ACSI: new, +AlwaysOnTop -SysMenu -ToolWindow -caption +Border +labelgResizing -Resize ;+MinSize1000x		
+            gui, ACSI: new, +AlwaysOnTop -SysMenu -ToolWindow -caption +Border +labelACSI -Resize ;+MinSize1000x		
             gui, ACSI: default
             gui, +hwndACSIGUI
             if vsdb || (A_DebuggerName="Visual Studio Code")
@@ -43,33 +44,68 @@ Importer(Text)
             , vLastCreationScreenWidth:=vGuiWidth
             gui, font, s9 cRed, Segoe UI
             SysGet, Mon,MonitorWorkArea 
+            Height:=MonBottom
             if (!vGUIWidth and !vGuiHeight) || (((vGUIWidth!=(A_ScreenWidth-20)) || (vGuiHeight!=(A_ScreenHeight))) && !bSwitchSize) ; assign outer gui dimensions either if they don't exist or if the resolution of the active screen has changed - f.e. when undocking or docking to a higher resolution display. The lGuiCreate_1-subroutine is also invoked in total if the resolution changes, but this is the necessary inner check to reassign dimensions.
             { 
                 vGUIWidth:=A_ScreenWidth*1.0 - 20  ;-910 ; 0.6@1440 starts clipping
+                vGUIWidth:=1920-20
                 , vGUIHeight:=MonBottom*1.0 - 20 
+                vGUIHeight:=MonBottom-5
             }
-            EditWidth:=vGUIWidth-2*30
-            , EditHeight:=vGUIHeight*0.25+30
+            EditWidth:=vGUIWidth-2*15
+            , EditHeight:=(vGUIHeight>1100)?vGUIHeight*0.25+30 : vGUIHeight*0.225+30
             , SmallFieldsStart:=EditHeight*3+25
+            , SmallFieldsHeight:=(vGUIHeight-EditHeight*3)/9
+            , LicenseFieldsHeight:=(vGUIHeight-EditHeight*3+20)/9
             gui, add, edit, w%EditWidth% h%EditHeight% vvSnippet,% "[[Insert Snippet]]"
             gui, add, edit, w%EditWidth% h%EditHeight% vvDesc, % "[[Insert Description]]"
             gui, add, edit, w%EditWidth% h%EditHeight% vvEx, % "[[Insert Example]]"
             gui, add, text, y%SmallFieldsStart% xp, Name
-            gui, add, edit, yp xp+100 w120 h15 vvName, % "Object_HashmapHash"
-            gui, add, text, yp+15 xp, Author
-            gui, add, edit, yp xp+100 w120 h15 vvAuthor, % "Gewerd"
-            gui, add, text, yp+15 xp-100, version, 
-            gui, add, edit, yp xp+100 w120 h15 vvVersion, % "1.1.1"
-            gui, add, text, yp+15 xp-100, Date
-            gui, add, edit, yp xp+100 w120 h15 vvDate, % "30.09.2022"
-            gui, add, text, yp+15 xp-100, License
-            gui, add, edit, yp xp+100 w120 h15 vvLicense, % "MIT"
-            gui, add, text, yp+15 xp-100, URL
-            gui, add, edit, yp xp+100 w120 h15 vvURL, % "www.google.com"
-            gui, add, text, yp+15 xp-100, Library
-            gui, add, ComboBox, yp xp+100 w120  vvLibrary,% "Library1|A|B|C"
-            gui, add, button, yp+15 xp-100 gfSubmit, Ingest
-
+            gui, add, edit, yp xp+100 w120 h%SmallFieldsHeight% vvName, % "F1"
+            gui, add, text, yp+%SmallFieldsHeight%+5 xp-100, Author
+            gui, add, edit, yp xp+100 w120 h%SmallFieldsHeight% vvAuthor, % "Gewerd"
+            gui, add, text, yp+%SmallFieldsHeight%+5 xp-100, version
+            gui, add, edit, yp xp+100 w120 h%SmallFieldsHeight% vvVersion, % "1.1.1"
+            gui, add, text, yp+%SmallFieldsHeight%+5 xp-100, Date
+            gui, add, edit, yp disabled xp+100 w120 h%SmallFieldsHeight% vvDate, % A_YYYY A_MM A_DD
+            gui, add, text, yp+24 xp-100, License
+            gui, add, ComboBox, yp xp+100 w120 r5 h%SmallFieldsHeight% vvLicense, % "MIT|BSD3|Unlicense|WTFPL||none|paste"
+            gui, add, text, yp+%SmallFieldsHeight%+5 xp-100, Section
+            gui, add, ComboBox, yp xp+100 w120 r5 h%SmallFieldsHeight% vvSection, % "Clipboard||Command CommandLine|Date or Time|Varius get|graphic|gui - customise|gui - to change|gui - control type|gui - get informations|gui - interacting|gui - menu|gui - icon|FileSystem|Font things|Hooks/Messaging|Internet/Network|Math/Converting|Objects|String/Array/Text|Keys/Hotkeys/Hotstrings|Tooltips|System functions/Binary Handling|System/User/Hardware|UIAutomation|ACC (MSAA)|Internet Explorer/Chrome/FireFox/HTML|Variables|Other languages/MCode|Other|"
+            gui, add, text, yp+%SmallFieldsHeight%+5 xp-100, URL
+            gui, add, edit, yp xp+100 w120 h%SmallFieldsHeight% vvURL, % "www.google.com"
+            gui, add, text, yp+%SmallFieldsHeight%+5 xp-100, Library
+            ; gui, add, text, y%SmallFieldsStart% xp, Name
+            ; gui, add, edit, yp xp+100 w120 h20 vvName, % "F1"
+            ; gui, add, text, yp+23 xp-100, Author
+            ; gui, add, edit, yp xp+100 w120 h20 vvAuthor, % "Gewerd"
+            ; gui, add, text, yp+23 xp-100, version
+            ; gui, add, edit, yp xp+100 w120 h20 vvVersion, % "1.1.1"
+            ; gui, add, text, yp+23 xp-100, Date
+            ; gui, add, edit, yp disabled xp+100 w120 h20 vvDate, % A_YYYY A_MM A_DD
+            ; gui, add, text, yp+23 xp-100, License
+            ; gui, add, ComboBox, yp xp+100 w120 r5 h20 vvLicense, % "MIT|BSD3|Unlicense|WTFPL||none|paste"
+            ; gui, add, text, yp+23 xp-100, Section
+            ; gui, add, ComboBox, yp xp+100 w120 r5 h20 vvSection, % "Clipboard||Command CommandLine|Date or Time|Varius get|graphic|gui - customise|gui - to change|gui - control type|gui - get informations|gui - interacting|gui - menu|gui - icon|FileSystem|Font things|Hooks/Messaging|Internet/Network|Math/Converting|Objects|String/Array/Text|Keys/Hotkeys/Hotstrings|Tooltips|System functions/Binary Handling|System/User/Hardware|UIAutomation|ACC (MSAA)|Internet Explorer/Chrome/FireFox/HTML|Variables|Other languages/MCode|Other|"
+            ; gui, add, text, yp+25 xp-100, URL
+            ; gui, add, edit, yp xp+100 w120 h20 vvURL, % "www.google.com"
+            ; gui, add, text, yp+25 xp-100, Library
+            Ind:=0
+            loop, files, % A_ScriptDir "\Sources\*.*", D
+            {
+                Ind++
+                ;; todo: make this load from a path in script.settings.path, including scriptObj
+                SplitPath,% A_LoopFileFullPath,OutName, OutDir
+                OutName:=strsplit(OutName,"\")[strsplit(OutName,"\").MaxIndex()]
+                str.=OutName "|" 
+                if (Ind=1)
+                    str.="|"
+            }
+            gui, add, ComboBox, yp xp+100 w120 h%SmallFieldsHeight% R100 vvLibrary,% str
+        EditWidth2:=EditWidth-220-110
+            gui, add, text, yp-195 xp+150, License
+            gui, add, button, yp+20 xp h%SmallFieldsHeight% gfSubmit, Ingest
+            gui, add, edit, y%SmallFieldsStart% xp+80 w%EditWidth2% h%LicenseFieldsHeight% r12  vvLicenseInsert, % "[[Insert License]]"
 
                                     ; gui, add, text, yp+20 xp, Author vSnippet
                                     ; gui, add, edit, yp xp+35 w30 h15 vAuthor
@@ -125,18 +161,31 @@ f_GuiShow_1(Width,Height)
     return
 }
 fSubmit()
-{
-    global
-    /*
-    vDesc
-    */
+{ ;; submits inputs
+    global ;; how do I make this function not must-be-global??
     gui, ACSI: submit, nohide
-    Hash:=Object_HashmapHash(vLibrary " " vName " " ) ; Issue: What to include in the hashed snippet name?
-    ; Obj:={Name:vName,Author:vAuthor,Date:vDate,Desc:vDesc,License:vLicense,URL:vURL,Library:vLibrary,Version:vVersion,Hash:Hash}
-    , Obj:={Name:vName,Author:vAuthor,Date:vDate,Desc:vDesc,Ex:vEx,License:vLicense,URL:vURL,Version:vVersion,Hash:Hash} ;; decide if we actually want to 
-    MsgBox, % "Figure out how to write a multiline string to obj-generated ini properly"
-    Ini:=fWriteIni({Info:Obj},A_ScriptDir "\Sources\" vLibrary "\" Hash ".ini")
-    , Code:=fWriteCode(vSnippet,A_ScriptDir "\Sources\" vLibrary "\" Hash ".ahk")
+    ttip(vName,vLibra)
+    Key:=vName  vLibrary
+    , Hash:=Object_HashmapHash(Key) ; Issue: What to include in the hashed snippet name?
+    , Obj:={Name:vName,Author:vAuthor,Date:vDate,License:vLicense,URL:vURL,Section:vSection,Version:vVersion,Hash:Hash} ;; decide if we actually want to     if (Code="")  ;; do not write to disc
+    if (vLibrary="")
+    {
+        MsgBox, % "TODO: throw error1"
+        ; return
+    }
+    if !(Obj.Count()>0) ;; do not write to disc if no metadata has been found
+    {
+        MsgBox, % "TODO: throw error2"
+        return
+    }
+    ; if (Hash=351425664)
+    ;     return
+    Code:=fWriteTextToFile(vSnippet,A_ScriptDir "\Sources\" vLibrary "\" Hash ".ahk")
+    Metadata:=fWriteIni({Info:Obj},A_ScriptDir "\Sources\" vLibrary "\" Hash ".ini")
+    if (vEx!="")
+        success_Example:=fWriteTextToFile(vEx,A_ScriptDir "\Sources\" vLibrary "\" Hash ".example")
+    if (vDesc!="")
+        success_Description:=fWriteTextToFile(vDesc,A_ScriptDir "\Sources\" vLibrary "\" Hash ".description")
     return
 }
 Object_HashmapHash(Key)
@@ -155,11 +204,11 @@ Object_HashmapHash(Key)
 		, "Int",StrLen(Key) * 2
 		, "UInt")
 }
-fWriteCode(Code,Path)
-{ ; write code to file
-    FileDelete, % Path
-    FileAppend, % Code, % Path
-    return
+fWriteTextToFile(Text,Path)
+{ ;; writes string to file, replacing the current file
+    FileDelete, % Path      ;; is this smarter than wiping file contents via .fileopen(,w) → .fileclose() ??
+    FileAppend, % Text, % Path
+    return FileExist(Path)?1:0
 }
 
 fWriteINI(ByRef Array2D, INI_File)  ; write 2D-array to INI-file

@@ -78,6 +78,9 @@ if IsObject(script.config.libraries)
 else
 	Arr:=fLoadFiles(script.config.libraries,Identifier:="\\ Script-settings \\")
 global SectionNames:=fCreateSectionNames(Arr.2) ;; contains SectionNames
+; Clipboard:=""
+; for k,v in SectionNames
+; Clipboard.=v "|"
 ; Arr.1:=Arr.1
 , oArr:=Arr.Clone()
 , GUI_Mode:=1
@@ -132,7 +135,7 @@ global SectionNames:=fCreateSectionNames(Arr.2) ;; contains SectionNames
 	}
 }
 )
-global MaxSnippetCount:=Arr.2.Count()
+MaxSnippetCount:=Arr.2.Count()
 gosub, lGUICreate_1New
 LegTime:=CodeTimer("Legacy Loading",,,1)
 ; FileAppend,% "`n" LegTime, % A_ScriptDir "\LegacyBenchmark.txt" ;; for benchmarking, repopulate "AHK_LibraryGUI.txt" with the contents stored in "AHK_LibraryGUI_Longbench.txt"
@@ -389,8 +392,8 @@ SendInput, ^+{Left}{Del}{ShiftUp}{CtrlUp}}
 return
 lClearSearchbar:
 guicontrol,,SearchString
-gosub, lFocusListView
-gosub, SelectFirstLVEntry
+; gosub, lFocusListView
+; gosub, SelectFirstLVEntry
 return
 
 lTabThroughTabControl:
@@ -755,7 +758,7 @@ f_GetSelectedLVEntries()
 fPopulateLV(Snippets,SectionNames)
 {
     LV_Delete()
-	global SectionPad:=(SectionPad!=""?SectionPad:"") ;; this is fucking painful that I can't just have a variable be _static_ so I only actually have to declare it once. _ugh_
+	SectionPad:=(SectionPad!=""?SectionPad:"") ;; this is fucking painful that I can't just have a variable be _static_ so I only actually have to declare it once. _ugh_
 	NewSnippetsSorted:=[]
 	, ErrorIndex:=1
 	, SectionIndexLength:=(StrLen(SectionNames.MaxIndex())>SectionIndexLength?StrLen(SectionNames.MaxIndex()):SectionIndexLength)
