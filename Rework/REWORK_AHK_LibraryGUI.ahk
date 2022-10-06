@@ -90,29 +90,30 @@ global Regex:={ NewSnippet:"`r`n\\\\\\---NewSnippet---\\\\\\`r`n"
 				; ,StripFunctionName:"(\(.*\)\{*\s*)*\;*"
 				; ,SnippetFinder:"(\\\\\\---NewSnippet---\\\\\\\n)*((?<FunctionName>.*)(\((?<Parameters>.*)\))*(?<BraceOnNameLine>\{?)\s?\;?\|\|\|SnippetInd\:(?<SnippetInd>.*),Section:(?<Section>\d*(\.\d*)*)\,Description:(?<Description>.*))"}
 , global Hashes:=[]
-FileDelete, % script.configfile ;; for testing purposes
+FileDelete, % script.configfile ;; for testing purposes and keeping the settings updated when adding/changing keys
 if !script.Load(,1) 
 { ;; default settings
-	script.config:={Settings:{Search_Code: false " " ";TTIp"
+	script.config:={Settings:{Search_Code: false ;" " ";Check if you want to search code of snippets as well. Adds substantial overhead at bootup."
 	, Search_Description:false
 	, Search_Examples:false
 	, Search_InString_MetaFields:false
 	, DateFormat:"dd.MM.yyyy"
 	, CopyDescriptionToOutput:true
 	, CopyExampleToOutput:true
-	, LibraryRelativeSI:false}
-   ,Search_Descriptions:{Search_Code:"Check if you want to search code of snippets as well. Adds substantial overhead at bootup."
-	,  Search_Examples:"Check if you want to search examples of snippets as well. Adds substantial overhead at bootup."
-	,  DateFormat:"Set the format with which to display dates."
-	, CopyDescriptionToOutput:"Decide if you want to include the documentation when copying a snippet"
-	, CopyExampleToOutput:"Decide if you want to include the example when copying a snippet"
-	, LibraryRelativeSI:"Set SnippetIdentifier relative to its own library"
-	,  Search_InString_MetaFields:"Check if you want to search via In-String-matching in Metadata, instead of only allowing exact matches"}}
-	; 	, Search_Metafields:true ;; should always be true
+	, LibraryRelativeSI:false
+	, Max_InDepth_Searchable:200}
+   ,Search_Descriptions:{Search_Code:";Check if you want to search code of snippets as well. Adds substantial overhead at bootup."
+    , Search_Description:";Check if you want to search descriptions of snippets as well. Adds substantial overhead at bootup."
+	, Search_Examples:";Check if you want to search examples of snippets as well. Adds substantial overhead at bootup."
+	, Search_InString_MetaFields:";Check if you want to search via In-String-matching in Metadata, instead of only allowing exact matches"
+	, DateFormat:";Set the format with which to display dates."
+	, CopyDescriptionToOutput:";Decide if you want to include the documentation when copying a snippet"
+	, CopyExampleToOutput:";Decide if you want to include the example when copying a snippet"
+	, LibraryRelativeSI:";Set SnippetIdentifier relative to its own library"
+	, Max_InDepth_Searchable:";Set the maximum number of snippets for which the script will also search all previously loaded Codes, Descriptions and Examples.`nFor more snippets, these searches will not be performed to not reduce performance too much."}}
 	script.Save()
 }
 ; script.Version:=script.config.Settings.ScriptVersion
-; IniSettingsEditor(script.name,script.configfile,0,0,0) ;; most likely discarded
 SnippetsStructure:=fLoadFolderLibraries()
 oArr:=SnippetsStructure.Clone()
 
@@ -623,7 +624,7 @@ fLoadFillDetails(SnippetsStructure,DirectoryPath)
 	Section: %SectionInd% - %Section%
 	)
 	guicontrol,1:, Edit2,% InfoText
-	Clipboard:=InfoText
+	; Clipboard:=1InfoText
 	;; once loaded, push to SnippetsStructure[1,Indexj].Code/Examples/..., then only load from file if those are =""
  	; if (SelectedLVEntry.1.1.Hash="") 
 	; {
@@ -727,12 +728,12 @@ lSearchSnippets:
 		alternatively: 
 		make a set of hotstrings (which are only active in the search box?), which will replace s:[[gui - menu]] with s:11 and uses a proximity alg to fuzzy-preview potential section names when typing.
 	*/
-	ContainingSections:=f_CollectPotentialSections(SnippetsStructure[1],SearchString) ;; for sections, because we need to load every single snippet's metadata anyways, we might just as well preprocess into various lists?
-	if (ContainingSections!=-1) ;|| RegExMatch(SearchString,Regex.SecSearch,s) 
+	ContainingSections:=f_CollectMatches(SnippetsStructure[1],SearchString) ;; for sections, because we need to load every single snippet's metadata anyways, we might just as well preprocess into various lists?
+	if (ContainingSections!=-1)  && IsObject(ContainingSections) ;; DEPRECATED: || RegExMatch(SearchString,Regex.SecSearch,s) 
 	{
-		SectionsToSearch:=f_CollectPotentialSections(SnippetsStructure[2],SearchString)
-		prelimresults:=f_FindOccurences("Sec:" sInd,prelimresults, CurrentMode, bUseFuzzySearch) 					;; first search for sectionID
-		, SearchString:=RegExReplace(SearchString, Regex.SecSearch, "")												;; remove search info
+		SectionsToSearch:=f_CollectMatches(SnippetsStructure[2],SearchString)
+		; prelimresults:=f_FindOccurences("Sec:" sInd,prelimresults, CurrentMode, bUseFuzzySearch) 					;; first search for sectionID
+		; , SearchString:=RegExReplace(SearchString, Regex.SecSearch, "")												;; remove search info
 	}
 	if RegExMatch(SearchString,Regex.IDSearch,s)
 	{
@@ -839,12 +840,53 @@ f_SB_Set(Text,PartNumber)
 }
 
 */
-f_CollectPotentialSections(Array,String)
-{ ;; finds all fields of Array whose value contain 'String'
+f_CollectMatches(Array,String)
+{ ;; finds all fields of Array whose value contain 'String', and if any exist return the snippet's Object
+;; TODO: this function can probably be improved :P
 	out:=[]
 	for k,v in Array
-		if InStr(v,String)
-			out.push(v)
+	{
+		if script.config.settings.Search_InString_MetaFields
+		{
+			if InStr(v.Metadata.name,String)
+			{
+				out.push(v)
+				continue
+			}
+		}
+		else
+			if (v.Metadata.name=String)
+			{
+				out.push(v)
+				continue
+			}
+		if (Array.Count()>script.config.settings.Max_InDepth_Searchable) ;; restrict the search to only metadata in case of too many snippets
+			continue
+		if script.config.settings.Search_Code && (v.Code!="")
+		{
+			if Instr(v.Code,String)
+			{
+				out.push(v)
+				Continue
+			}
+		}
+		if script.config.settings.Search_Description && (v.Description!="")
+		{
+			if Instr(v.Description,String)
+			{
+				out.push(v)
+				Continue
+			}
+		}
+		if script.config.settings.Search_Examples && (v.Example!="")
+		{
+			if Instr(v.Example,String)
+			{
+				out.push(v)
+				Continue
+			}
+		}
+	}
 	return (out.Count()>0 && out.Count()!="")?out:-1
 }
 
