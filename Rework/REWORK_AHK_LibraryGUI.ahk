@@ -242,8 +242,8 @@ lGUICreate_1New: ;; Fully Parametric-form
 					xPos_DDL_SearchMode2:=xPos_Text_XXSnippetsLoaded+Width_DDL_SearchMode+WidthMargin_Global
 					gui, font, s8
         			; gui, add, DDL,vSearchMethod x%xPos_DDL_SearchMode% y%yPos_DDL_SearchMode% h%Height_DDL_SearchMode% w%Width_DDL_SearchMode% r2 vCurrentMode glSetSearchMethod HwndCurrentModeHWND, InStr||RegEx	
-					gui, add, button, x%xPos_DDL_SearchMode% y%yPos_DDL_SearchMode% h%Height_DDL_SearchMode2%  w%Width_DDL_SearchMode% vvExtraButton gfExtraButton HwndExtraButtonHWND,%  "NE:Ingest Snippet"
-					gui, add, button, x%xPos_DDL_SearchMode2% y%yPos_DDL_SearchMode% h%Height_DDL_SearchMode2%  w%Width_DDL_SearchMode% vvExtraButton2 gfExtraButton2 HwndExtraButton2HWND,%  "NE:Edit Snippet"
+					gui, add, button, x%xPos_DDL_SearchMode% y%yPos_DDL_SearchMode% h%Height_DDL_SearchMode2%  w%Width_DDL_SearchMode% vvExtraButton gfExtraButton HwndExtraButtonHWND,%  "NE:&Ingest Snippet"
+					gui, add, button, x%xPos_DDL_SearchMode2% y%yPos_DDL_SearchMode% h%Height_DDL_SearchMode2%  w%Width_DDL_SearchMode% vvExtraButton2 gfExtraButton2 HwndExtraButton2HWND,%  "NE:&Edit Snippet"
 					gui, font, s11 cWhite, Segoe 
 					Map2:={AU:"Author" ;; For fetching data from 'Matches', the presorted object
 	,DA:"Date"
@@ -430,7 +430,6 @@ fDeleteWordFromSearchBar()
 }
 fResetListView(SnippetObj:="")
 {
-	; global
 	fClearSearchBar()
 	fPrePopulateLV(SnippetObj)
 	fSelectFirstLVEntry_Searches()
@@ -593,7 +592,7 @@ fLoadFillDetails(SnippetsStructure,DirectoryPath)
 			FileRead, Code, % Path ".ahk"
 		else
 		{
-			if FileExist(strreplace(Path,Data["Metadata","Hash"],Data["Metadata","Name"]) ".ahk")  ;; in case the file does not exist, try with the name set within the metadata.
+			if FileExist(str:=strreplace(Path,Data["Metadata","Hash"],Data["Metadata","Name"]) ".ahk")  ;; in case the file does not exist, try with the name set within the metadata.
 			{
 				Path:=strreplace(Path,Data["Metadata","Hash"],Data["Metadata","Name"])
 				FileRead, Code, % Path ".ahk"
@@ -2138,6 +2137,152 @@ ALG_StringDifference(string1, string2, maxOffset=1) {    ;returns a float: betwe
 Quote(String)
 { ; u/anonymous1184 | fetched from https://www.reddit.com/r/AutoHotkey/comments/p2z9co/comment/h8oq1av/?utm_source=share&utm_medium=web2x&context=3
 	return """" String """"
+}
+ttip(text:="TTIP: Test",mode:=1,to:=4000,xp:="NaN",yp:="NaN",CoordMode:=-1,to2:=1750,Times:=20,currTip:=20)
+{
+	/*
+		v.0.2.1
+		Date: 24 Juli 2021 19:40:56: 
+		
+		Modes:  
+		1: remove tt after "to" milliseconds 
+		2: remove tt after "to" milliseconds, but show again after "to2" milliseconds. Then repeat 
+		3: not sure anymore what the plan was lol - remove 
+		4: shows tooltip slightly offset from current mouse, does not repeat
+		5: keep that tt until the function is called again  
+
+		CoordMode:
+		-1: Default: currently set behaviour
+		1: Screen
+		2: Window
+
+		to: 
+		Timeout in milliseconds
+		
+		xp/yp: 
+		xPosition and yPosition of tooltip. 
+		"NaN": offset by +50/+50 relative to mouse
+		IF mode=4, 
+		----  Function uses tooltip 20 by default, use parameter
+		"currTip" to select a tooltip between 1 and 20. Tooltips are removed and handled
+		separately from each other, hence a removal of ttip20 will not remove tt14 
+
+		---
+		v.0.2.1
+		- added Obj2Str-Conversion via "ttip_Obj2Str()"
+		v.0.1.1 
+		- Initial build, 	no changelog yet
+	
+	*/
+	
+	;if (text="TTIP: Test")
+		;m(to)
+		cCoordModeTT:=A_CoordModeToolTip
+	if (text="") || (text=-1)
+		gosub, lRemovettip
+	if IsObject(text)
+		text:=ttip_Obj2Str(text)
+	static ttip_text
+	static lastcall_tip
+	static currTip2
+	global ttOnOff
+	currTip2:=currTip
+	cMode:=(CoordMode=1?"Screen":(CoordMode=2?"Window":cCoordModeTT))
+	CoordMode, % cMode
+	tooltip,
+
+	
+	ttip_text:=text
+	lUnevenTimers:=false 
+	MouseGetPos,xp1,yp1
+	if (mode=4) ; set text offset from cursor
+	{
+		yp:=yp1+15
+		xp:=xp1
+	}	
+	else
+	{
+		if (xp="NaN")
+			xp:=xp1 + 50
+		if (yp="NaN")
+			yp:=yp1 + 50
+	}
+	tooltip, % ttip_text,xp,yp,% currTip
+	if (mode=1) ; remove after given time
+	{
+		SetTimer, lRemovettip, % "-" to
+	}
+	else if (mode=2) ; remove, but repeatedly show every "to"
+	{
+		; gosub,  A
+		global to_1:=to
+		global to2_1:=to2
+		global tTimes:=Times
+		Settimer,lSwitchOnOff,-100
+	}
+	else if (mode=3)
+	{
+		lUnevenTimers:=true
+		SetTimer, lRepeatedshow, %  to
+	}
+	else if (mode=5) ; keep until function called again
+	{
+		
+	}
+	CoordMode, % cCoordModeTT
+	return
+	lSwitchOnOff:
+	ttOnOff++
+	if mod(ttOnOff,2)	
+	{
+		gosub, lRemovettip
+		sleep, % to_1
+	}
+	else
+	{
+		tooltip, % ttip_text,xp,yp,% currTip
+		sleep, % to2_1
+	}
+	if (ttOnOff>=ttimes)
+	{
+		Settimer, lSwitchOnOff, off
+		gosub, lRemovettip
+		return
+	}
+	Settimer, lSwitchOnOff, -100
+	return
+
+	lRepeatedshow:
+	ToolTip, % ttip_text,,, % currTip2
+	if lUnevenTimers
+		sleep, % to2
+	Else
+		sleep, % to
+	return
+	lRemovettip:
+	ToolTip,,,,currTip2
+	return
+}
+
+ttip_Obj2Str(Obj,FullPath:=1,BottomBlank:=0)
+{
+	static String,Blank
+	if(FullPath=1)
+		String:=FullPath:=Blank:=""
+	if(IsObject(Obj)){
+		for a,b in Obj{
+			if(IsObject(b))
+				ttip_Obj2Str(b,FullPath "." a,BottomBlank)
+			else{
+				if(BottomBlank=0)
+					String.=FullPath "." a " = " b "`n"
+				else if(b!="")
+					String.=FullPath "." a " = " b "`n"
+				else
+					Blank.=FullPath "." a " =`n"
+			}
+	}}
+	return String Blank
 }
 
 DateParse(str) 
