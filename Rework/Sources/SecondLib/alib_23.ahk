@@ -1,1 +1,0 @@
-alib is life

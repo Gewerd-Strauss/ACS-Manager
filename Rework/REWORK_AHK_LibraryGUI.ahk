@@ -242,17 +242,17 @@ lGUICreate_1New: ;; Fully Parametric-form
 					xPos_DDL_SearchMode2:=xPos_Text_XXSnippetsLoaded+Width_DDL_SearchMode+WidthMargin_Global
 					gui, font, s8
         			; gui, add, DDL,vSearchMethod x%xPos_DDL_SearchMode% y%yPos_DDL_SearchMode% h%Height_DDL_SearchMode% w%Width_DDL_SearchMode% r2 vCurrentMode glSetSearchMethod HwndCurrentModeHWND, InStr||RegEx	
-					gui, add, button, x%xPos_DDL_SearchMode% y%yPos_DDL_SearchMode% h%Height_DDL_SearchMode2%  w%Width_DDL_SearchMode% vvExtraButton gfExtraButton HwndExtraButtonHWND,%  "NE:&Ingest Snippet"
-					gui, add, button, x%xPos_DDL_SearchMode2% y%yPos_DDL_SearchMode% h%Height_DDL_SearchMode2%  w%Width_DDL_SearchMode% vvExtraButton2 gfExtraButton2 HwndExtraButton2HWND,%  "NE:&Edit Snippet"
+					gui, add, button, x%xPos_DDL_SearchMode% y%yPos_DDL_SearchMode% h%Height_DDL_SearchMode2%  w%Width_DDL_SearchMode% vvExtraButton glIngestSnippet HwndExtraButtonHWND,%  "&Ingest Snippet"
+					gui, add, button, x%xPos_DDL_SearchMode2% y%yPos_DDL_SearchMode% h%Height_DDL_SearchMode2%  w%Width_DDL_SearchMode% vvExtraButton2 glEditSnippet HwndExtraButton2HWND,%  "&Edit Snippet"
 					gui, font, s11 cWhite, Segoe 
 					Map2:={AU:"Author" ;; For fetching data from 'Matches', the presorted object
-	,DA:"Date"
-	,Fi:"Library"
-	,Li:"License"
-	,Na:"Name"
-	,Se:"Section"
-	,Url:"URL"
-	,Ver:"Version"}
+					,DA:"Date"
+					,Fi:"Library"
+					,Li:"License"
+					,Na:"Name"
+					,Se:"Section"
+					,Url:"URL"
+					,Ver:"Version"}
 					str:=Obj2Str(Map2)
 					AddToolTip(ExtraButtonHWND,"Press Enter to Search.`n" str)
 			; Define Parameters: Fuzzy-Search Checkbox
@@ -355,6 +355,8 @@ lGUICreate_1New: ;; Fully Parametric-form
         Hotkey, ^c, fCopyScript
 		; Hotkey, ^r, lGuiCreate_2
 		
+			Obj_ExtraButton2:=Func("fEditSnippet").Bind(SnippetsStructure,matches)
+			Hotkey, !e, % Obj_ExtraButton2
 				Obj_ResetListView:=Func("fResetListView").Bind(SnippetsStructure)
 				Hotkey, Del, % Obj_ResetListView
 
@@ -440,7 +442,9 @@ fResetListView(SnippetObj:="")
 
 fClearSearchBar()
 {
-	guicontrol,,SearchString
+	GuiControlGet, currentSearch, , SearchString
+	if (currentSearch!="")
+		guicontrol,,SearchString
 	return
 }
 
@@ -500,34 +504,26 @@ FileCount(filter, mode) {																					                                  
    return Count
 
 } ;</07.01.000017>
-
-
-fExtraButton2()
+lIngestSnippet:
+gui,1: submit, NoHide
+EditorImporter("Ingestion",SnippetsStructure)
+return
+lEditSnippet: ;; I have no idea how to bind a function to a gui-button itself.
+fEditSnippet(SnippetsStructure)
+return
+fEditSnippet(SnippetsStructure:="",matcges:="")
 {
-	gui, submit, NoHide
+	global
+	gui,1: submit, NoHide
 	ttip("Congrats, this does absolutely nothing as well")
+	SelectedLVEntry:=f_GetSelectedLVEntries()
+	if (Matches.Count()!="") && (Matches.Count()>0)
+		EditorImporter(Matches[1,SelectedLVEntry.3] ,Matches)
+	Else
+		EditorImporter(SnippetsStructure[1,SelectedLVEntry.3] ,SnippetsStructure)
 	return
 }
-fExtraButton()
-{
-	gui, submit, NoHide
-	ttip("Congrats, this does absolutely nothing")
-	return
-}
-; lSetSearchMethod: 
-; lSetSearchMethod2: 
-; gui, submit, NoHide
-; ; if (A_ThisLabel="lSetFuzzySearchState")
-; ; {
 
-; ; }
-; ; else
-; ; 	return
-; if ((CurrentMode="RegEx") && bUseFuzzySearch)
-; 	ttip("Fuzzy-Search is only active in normal search. Fuzzy-Search in regex not implemented due to inability to distinguish between actual regex needles and an additional fuzzy search terms.")
-; Else
-; 	ttip("")
-; return
 fCallBack_StatusBarMainWindow()
 {
 ; not implemented yet
@@ -761,7 +757,7 @@ lSearchSnippets:
 	; 	; Sleep, 100
 	; 	; SendInput, {Down Up} 
 	; }
-	Matches:=f_CollectMatches(SnippetsStructure[1],SearchString,References,SnippetsStructure[2]) ;; for sections, because we need to load every single snippet's metadata anyways, we might just as well preprocess into various lists?
+	global Matches:=f_CollectMatches(SnippetsStructure[1],SearchString,References,SnippetsStructure[2]) ;; for sections, because we need to load every single snippet's metadata anyways, we might just as well preprocess into various lists?
 	if (Matches!=-1)  && IsObject(Matches) ;; is this even necessary? ;; DEPRECATED: || RegExMatch(SearchString,Regex.SecSearch,s) 
 	{
 		global bSearchSnippets:=true ;; fuck I can't be bothered anymore
@@ -884,63 +880,63 @@ reload
 return ; yes I know this is not actually needed. I don't care.
 
 /*
-Not planned further right now.
-f_SB_Set(Text,PartNumber)
-{
-
-}
-
-CollectMatchesAcrossObject(Object,String)
-{
-
-	out:={}
-	KeyVals:={}
-	pos := 1
-	String:=TRIM(strreplace(String,"AU:","`nAU:"))
-	String:=TRIM(strreplace(String,"LI:","`nLI:"))
-	String:=TRIM(strreplace(String,"SE:","`nSE:"))
-	StringO:=String
-	; ; String=
-	; (LTRIM
-	; AU:Gew
-	; SE:clipboard and 
-	; Li:wtf v312
-	; )
-	regex:="(LI|AU|SE):(.+?)`n"
-	while RegExMatch(String "`n", "im)" regex, match, pos)
+	Not planned further right now.
+	f_SB_Set(Text,PartNumber)
 	{
-		KeyVals[match1]:=Trim(match2)
-		pos+=strlen(match)
+
 	}
 
-	;; now we have keyvals: contains which author/section/license to search for
-
-
-
-
-	for k,v in Object
+	CollectMatchesAcrossObject(Object,String)
 	{
-		if script.config.settings.Search_InString_MetaFields
+
+		out:={}
+		KeyVals:={}
+		pos := 1
+		String:=TRIM(strreplace(String,"AU:","`nAU:"))
+		String:=TRIM(strreplace(String,"LI:","`nLI:"))
+		String:=TRIM(strreplace(String,"SE:","`nSE:"))
+		StringO:=String
+		; ; String=
+		; (LTRIM
+		; AU:Gew
+		; SE:clipboard and 
+		; Li:wtf v312
+		; )
+		regex:="(LI|AU|SE):(.+?)`n"
+		while RegExMatch(String "`n", "im)" regex, match, pos)
 		{
-			if InStr(k,String)
-			{
-				Str:=(SubStr(v,0)=",")?SubStr(v,1,StrLen(v)-1):v
-				for s,w in strsplit(Str,",")
-					out.push(w)
-			}
-		}
-		else 
-		{
-			if (k=String)
-			{
-				Str:=(SubStr(v,0)=",")?SubStr(v,1,StrLen(v)-1):v
-				out.push(strsplit(Str,","))
-			}
+			KeyVals[match1]:=Trim(match2)
+			pos+=strlen(match)
 		}
 
+		;; now we have keyvals: contains which author/section/license to search for
+
+
+
+
+		for k,v in Object
+		{
+			if script.config.settings.Search_InString_MetaFields
+			{
+				if InStr(k,String)
+				{
+					Str:=(SubStr(v,0)=",")?SubStr(v,1,StrLen(v)-1):v
+					for s,w in strsplit(Str,",")
+						out.push(w)
+				}
+			}
+			else 
+			{
+				if (k=String)
+				{
+					Str:=(SubStr(v,0)=",")?SubStr(v,1,StrLen(v)-1):v
+					out.push(strsplit(Str,","))
+				}
+			}
+
+		}
+		return out
 	}
-	return out
-}
 */
 f_CollectMatches(Array,String,References,AllSections)
 { ;; finds all fields of Array whose value contain 'String', and if any exist return the snippet's Object
@@ -1379,6 +1375,7 @@ ControlIsFocused(ControlID)                                                     
 	TODO: fix this returning true when I _don't_ click on RC-fields, but f.e. on the disabled Description-Editfield or the bottom part of the LV-Control
 	*/
 }
+
 floadFolderLibraries()
 {	;; new method of loading snippets by separating data and 
 	global DirectoryPath:= A_ScriptDir "\Sources\*" ;; this is the path that contains all libraries which will be read.
@@ -1524,8 +1521,6 @@ Object_HashmapHash(Key)
 		, "UInt")
 }
 
-
-
 fPadIndex(snippet,aSnippets)
 { ; pads snippet indeces to the maximum number of snippets loaded.
 	if IsObject(snippet)
@@ -1539,39 +1534,6 @@ fPadIndex(snippet,aSnippets)
 		return ALG_st_pad(snippet,"0","",(StrLen(aSnippets)-StrLen(snippet))) ; + 0
 }
 
-/*
-f_ThrowError(Source,Message,ErrorCode:=0,ReferencePlace:="S")
-{ ; throws an error-message, possibly with further postprocessing
-	if (ReferencePlace="D")
-		Reference:="Documentation"
-	else 
-		Reference:="Source Code: Function called on line " ReferencePlace "`nError invoked in function body on line " Exception("", -1).Line
-	if (ErrorCode!=0)
-	{
-		str=
-	(LTRIM
-	Function: %Source%
-	Errorcode: "%ErrorCode%" - Refer to %Reference%
-
-	Error: 
-	%Message%
-	)
-	}
-	else
-	{
-		str=
-	(LTRIM
-	Function: %Source%	
-	Errorcode: Refer to %Reference%
-
-	Error: 
-	%Message%
-	)
-	}
-	MsgBox, % str
-	return
-}
-*/
 
 ALG_st_split(string, delim="`n", exclude="`r")
 {
@@ -2134,6 +2096,87 @@ ALG_StringDifference(string1, string2, maxOffset=1) {    ;returns a float: betwe
   Return ((n0 + m0)/2 - lcs) / (n0 > m0 ? n0 : m0) 
 }
 
+; fWriteINI(ByRef Array2D, INI_File)  ; write 2D-array to INI-file
+; {
+;     SplitPath, INI_File, INI_File_File, INI_File_Dir, INI_File_Ext, INI_File_NNE, INI_File_Drive
+; 		if (d_fWriteINI_st_count(INI_File,".ini")>0)
+; 		{
+; 			INI_File:=d_fWriteINI_st_removeDuplicates(INI_File,".ini") ;. ".ini" ; reduce number of ".ini"-patterns to 1
+; 			if (d_fWriteINI_st_count(INI_File,".ini")>0)
+; 				INI_File:=SubStr(INI_File,1,StrLen(INI_File)-4) ; and remove the last instance
+; 		}
+; 	if !FileExist(INI_File_Dir) ; check for ini-files directory
+; 	{
+; 		MsgBox, Creating "INI-Files"-directory at Location`n"%A_ScriptDir%", containing an ini-file named "%INI_File%.ini"
+; 		FileCreateDir, % INI_File_Dir
+; 	}
+; 	OrigWorkDir:=A_WorkingDir
+; 	SetWorkingDir, % INI_File_Dir
+; 	for SectionName, Entry in Array2D 
+; 	{
+; 		Pairs := ""
+; 		for Key, Value in Entry
+;         {
+;             ; if (Instr(Key,"Desc") || InStr(Key,"Ex"))
+;             ;     Value:=Quote(Value)
+; 			Pairs .= Key "=" Value "`n"
+;         }
+; 		IniWrite, %Pairs%, % Instr(INI_File,".ini")?INI_File:INI_File . ".ini", %SectionName%
+; 	}
+; 	if A_WorkingDir!=OrigWorkDir
+; 		SetWorkingDir, %OrigWorkDir%
+;     return
+; 	/* Original File from https://www.autohotkey.com/boards/viewtopic.php?p=256714#p256714
+		
+; 	;-------------------------------------------------------------------------------
+; 		WriteINI(ByRef Array2D, INI_File) { ; write 2D-array to INI-file
+; 	;-------------------------------------------------------------------------------
+; 			for SectionName, Entry in Array2D {
+; 				Pairs := ""
+; 				for Key, Value in Entry
+; 					Pairs .= Key "=" Value "`n"
+; 				IniWrite, %Pairs%, %INI_File%, %SectionName%
+; 			}
+; 		}
+; 	*/
+; }
+; d_fWriteINI_st_removeDuplicates(string, delim="`n")
+; { ; remove all but the first instance of 'delim' in 'string'
+; 	; from StringThings-library by tidbit, Version 2.6 (Fri May 30, 2014)
+; 	/*
+; 		RemoveDuplicates
+; 		Remove any and all consecutive lines. A "line" can be determined by
+; 		the delimiter parameter. Not necessarily just a `r or `n. But perhaps
+; 		you want a | as your "line".
+
+; 		string = The text or symbols you want to search for and remove.
+; 		delim  = The string which defines a "line".
+
+; 		example: st_removeDuplicates("aaa|bbb|||ccc||ddd", "|")
+; 		output:  aaa|bbb|ccc|ddd
+; 	*/
+; 	delim:=RegExReplace(delim, "([\\.*?+\[\{|\()^$])", "\$1")
+; 	Return RegExReplace(string, "(" delim ")+", "$1")
+; }
+; d_fWriteINI_st_count(string, searchFor="`n")
+; { ; count number of occurences of 'searchFor' in 'string'
+; 	; copy of the normal function to avoid conflicts.
+; 	; from StringThings-library by tidbit, Version 2.6 (Fri May 30, 2014)
+; 	/*
+; 		Count
+; 		Counts the number of times a tolken exists in the specified string.
+
+; 		string    = The string which contains the content you want to count.
+; 		searchFor = What you want to search for and count.
+
+; 		note: If you're counting lines, you may need to add 1 to the results.
+
+; 		example: st_count("aaa`nbbb`nccc`nddd", "`n")+1 ; add one to count the last line
+; 		output:  4
+; 	*/
+; 	StringReplace, string, string, %searchFor%, %searchFor%, UseErrorLevel
+; 	return ErrorLevel
+; }
 Quote(String)
 { ; u/anonymous1184 | fetched from https://www.reddit.com/r/AutoHotkey/comments/p2z9co/comment/h8oq1av/?utm_source=share&utm_medium=web2x&context=3
 	return """" String """"
@@ -2400,3 +2443,4 @@ DateParse(str)
 ; #Include D:\Dokumente neu\AutoHotkey\Lib\ObjTree\Attach.ahk
 ; #Include D:\Dokumente neu\AutoHotkey\Lib\ObjTree\LV.ahk
 ; #Include D:\Dokumente neu\AutoHotkey\Lib\ObjTree\ObjTree.ahk
+#Include %A_ScriptDir%\Editor\Editor.ahk

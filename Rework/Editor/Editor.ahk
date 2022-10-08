@@ -1,7 +1,13 @@
-
-
-Editor(Object:="")
+EditorImporter(Snippet:="",SnippetsStructure:="")
 {
+    gui, ACSI: destroy
+    gui, ACSI: new, +AlwaysOnTop -SysMenu -ToolWindow -caption +Border +labelACSI -Resize ;+Owner1 ;+MinSize1000x		
+    gui, ACSI: default
+    gui, +hwndACSIGUI
+    if WinExist("ahk_exe code.exe") || (A_DebuggerName="Visual Studio Code")
+        gui, ACSI: -AlwaysOnTop
+    gui_control_options := "xm w220 " . cForeground . " -E0x200"  ; remove border around edit field
+    , gui_control_options2 :=  cForeground . " -E0x200"
 
     global ;; what is the point of wrapping a GUI into a 
     static Snippet
@@ -90,107 +96,128 @@ Editor(Object:="")
                     str.="|"
             }
             gui, add, ComboBox, yp xp+100 w120 h%SmallFieldsHeight% R100 vvLibrary,% str
-        EditWidth2:=EditWidth-220-110
-            gui, add, text, yp-195 xp+150, License
-            gui, add, button, yp+20 xp h%SmallFieldsHeight% gfSubmit, Ingest
-            gui, add, edit, y%SmallFieldsStart% xp+80 w%EditWidth2% h%LicenseFieldsHeight% r12  vvLicenseInsert, % "[[Insert License]]"
-
-                                    ; gui, add, text, yp+20 xp, Author vSnippet
-                                    ; gui, add, edit, yp xp+35 w30 h15 vAuthor
-                                    ; gui, add, text, yp+40 xp, Author
-                                    ; gui, add, edit, yp+20 xp+35 w30 h15 Date
-                                    ; gui, add, edit, yp+20 xp+70 w30 h15 vLicense
-                                    ; gui, add, edit, yp+20 xp+105 w30 h15 vURL
-                                    ; gui, add, edit, yp+20 xp+140 w30 h15 vVersion
-                                    ; gui, add, edit, yp+20 xp+175 w30 h15 v
-            gui, font, s9 cWhite, Segoe UI
-            f_GuiShow_1(vGUIWidth,vGUIHeight)
-            Hotkey, IfWinActive, % "ahk_id " ACSIGUI
-            Hotkey, Esc, f_GuiHide_1
-            ; Hotkey, ^Tab,lTabThroughTabControl
-            ; Hotkey, ^f, lFocusSearchBar
-            ; Hotkey, ^s, lFocusSearchBar
-            ; Hotkey, ^k, lFocusListView
-            ; Hotkey, ^r, lGuiCreate_2
-            ; Hotkey, if, % SearchIsFocused
-            ; HotKey, ^BS, lDeleteWordFromSearchBar
-            ; Hotkey, ^k, lFocusListView
-            ; Hotkey, ~Enter, lSearchSnippetsEnter
-            ; Hotkey, Del, lClearSearchbar
-
-            ; Hotkey, if, % ListViewIsFocused
-            ; Hotkey, ~Up, ListViewUp
-            ; Hotkey, ~Down, ListViewDown
-            ; Hotkey, ~LButton, ListViewSelect
-
-            
-            ; hotkey, if, % RCFieldIsClicked
-            ; Hotkey, ~RButton, lCopyScript
-            ; Hotkey, ~LButton, lCopyScript
-            hotkey, if
-            ; hotkey, if, % EditFieldIsClicked
-            ; Hotkey, ~RButton, lCopyScript
-            ; Hotkey, ~LButton, lCopyScript
-            ; Gui, Color, 4f1f21, 432a2e
-            ; gosub, lFocusListView
-            ; sleep, 300
-            LastScaledSize:=[vGUIWidth,vGUIHeight]
+        ; Gui +OwnDialogs
+        MsgBox 0x40030, `% script.name " - Snippet Editor", The contents fed to be edited do not resemble a valid snippet object.`n`nPlease check for errors in the data structure`, as well as the source code.`n`nReturning to Main GUI
+        return
+    }
+    bIsEditing:=(IsObject(Snippet)?true:false)
+    FormatTime, Date,% Data.Metadata.Date, % script.config.Settings.DateFormat
+    ImporterSections:=""
+    for k,v in SnippetsStructure[2]
+        ImporterSections.="|" v
+    gui, add, edit, w%EditWidth% h%EditHeight% vvSnippet_Importer,% Snippet.Code
+    gui, add, edit, w%EditWidth% h%EditHeight% vvDesc_Importer, % Snippet.Description
+    gui, add, edit, w%EditWidth% h%EditHeight% vvEx_Importer, % Snippet.Example
+    gui, add, text, y%SmallFieldsStart% xp, Name
+    gui, add, edit, yp xp+100 w120 h%SmallFieldsHeight% vvName_Importer, % snippet.metadata.name
+    gui, add, text, yp+%SmallFieldsHeight%+5 xp-100, Author
+    gui, add, edit, yp xp+100 w120 h%SmallFieldsHeight% vvAuthor_Importer, % snippet.metadata.author
+    gui, add, text, yp+%SmallFieldsHeight%+5 xp-100, version
+    gui, add, edit, yp xp+100 w120 h%SmallFieldsHeight% vvVersion_Importer, % snippet.metadata.version
+    gui, add, text, yp+%SmallFieldsHeight%+5 xp-100, Date
+    gui, add, edit, yp xp+100 w120 h%SmallFieldsHeight% vvDate_Importer, % Date
+    gui, add, text, yp+24 xp-100, License
+    gui, add, ComboBox, yp xp+100 w120 r5 h%SmallFieldsHeight% vvLicense_Importer, % strreplace("MIT|BSD3|Unlicense|WTFPL|none|paste",snippet.metadata.License,snippet.metadata.License "|")
+    gui, add, text, yp+%SmallFieldsHeight%+5 xp-100, Section
+    gui, add, ComboBox, yp xp+100 w120 r5 h%SmallFieldsHeight% vvSection_Importer, % strreplace(ImporterSections,snippet.metadata.Section,snippet.metadata.Section "|")
+    gui, add, text, yp+%SmallFieldsHeight%+5 xp-100, URL
+    gui, add, edit, yp xp+100 w120 h%SmallFieldsHeight% vvURL_Importer, % snippet.metadata.URL
+    gui, add, text, yp+%SmallFieldsHeight%+5 xp-100, Library
+    Ind:=0
+    loop, files, % A_ScriptDir "\Sources\*.*", D
+    {
+        Ind++
+        ;; todo: make this load from a path in script.settings.path, including scriptObj
+        SplitPath,% A_LoopFileFullPath,OutName, OutDir
+        OutName:=strsplit(OutName,"\")[strsplit(OutName,"\").MaxIndex()]
+        str.=OutName "|" 
+        if (Ind=1)
+            str.="|"
+    }
+    libstr:=strreplace(strreplace(str,"||","|"),snippet.metadata.Library,snippet.metadata.Library "|")
+    gui, add, ComboBox, yp xp+100 w120 h%SmallFieldsHeight% R100 vvLibrary_Importer,% libstr
+    EditWidth2:=EditWidth-220-110
+    gui, add, text, yp-195 xp+150, % ""
+    ; Obj_SubmitImporter:=Func("fSubmitImporter").Bind(Desc, Ex, vSnippet_Importer, vDesc_Importer, vEx_Importer, vName_Importer, vAuthor_Importer, vVersion_Importer, vDate_Importer, vLicense_Importer, vSection_Importer, vURL_Importer, vLibrary_Importer, vLicense_ImporterInsert)
+    
+    gui, add, button, yp+20 xp h%SmallFieldsHeight% glSubmitImporter, % bIsEditing?"Edit":"Ingest"
+    gui, add, button, yp+30 xp h%SmallFieldsHeight% glOpenSnippetInFolder, % "Open in folder"
+    ; gui, add, edit, y%SmallFieldsStart% xp+80 w%EditWidth2% h%LicenseFieldsHeight% r12  vvLicense_ImporterInsert, %  bIsEditing?"[[Insert License if not found in DDL]]":"[[Insert License if not found in DDL]]"
+    gui, font, s9 cWhite, Segoe UI
+    fGuiShow_2(vGUIWidth2,vGuiHeight2)
+    Hotkey, IfWinActive, % "ahk_id " ACSIGUI
+    Hotkey, ^Enter,lSubmitImporter
+    Hotkey, Esc, fGuiHide_2
+    SnippetClone:=Snippet.Clone()
     return
 }
-f_GuiHide_1()
+fGuiHide_2()
 {
+    global
     gui, ACSI: hide
+    gui, 1: -Disabled
+    fGuiShow_1(vGUIWidth,vGUIHeight,GuiNameMain)
     return
 }
 
-f_GuiShow_1(Width,Height)
+fGuiShow_2(Width,Height)
 {
+    gui, 1: +Disabled
     gui, ACSI: show, w%Width% h%Height%, % GuiNameMain
     return
 }
-fSubmit()
+lOpenSnippetInFolder:
+gui, ACSI: submit, 
+return
+lSubmitImporter: ;; fucking hell I cannot bind it, I _must_ use a label here cuz I cannot bind to the button itself?
+gui, ACSI: submit, 
+; SnippetClone
+fSubmitImporter(vSnippet_Importer, vDesc_Importer, vEx_Importer, vName_Importer, vAuthor_Importer, vVersion_Importer, vDate_Importer, vLicense_Importer, vSection_Importer, vURL_Importer, vLibrary_Importer,SnippetClone,bIsEditing)
+return
+; ACSISubmit:
+; return
+fSubmitImporter(vSnippet_Importer, vDesc_Importer, vEx_Importer, vName_Importer, vAuthor_Importer, vVersion_Importer, vDate_Importer, vLicense_Importer, vSection_Importer, vURL_Importer, vLibrary_Importer, Snippet,bIsEditing)
 { ;; submits inputs
-    global ;; how do I make this function not must-be-global??
-    gui, ACSI: submit, nohide
-    ttip(vName,vLibra)
-    Key:=vName  vLibrary
-    , Hash:=Object_HashmapHash(Key) ; Issue: What to include in the hashed snippet name?
-    , Obj:={Name:vName,Author:vAuthor,Date:vDate,License:vLicense,URL:vURL,Section:vSection,Version:vVersion,Hash:Hash} ;; decide if we actually want to     if (Code="")  ;; do not write to disc
-    if (vLibrary="")
+
+    gui, ACSI: submit, 
+    Submission:=[vSnippet_Importer, vDesc_Importer, vEx_Importer, vName_Importer, vAuthor_Importer, vVersion_Importer, vDate_Importer, vLicense_Importer, vSection_Importer, vURL_Importer, vLibrary_Importer, Snippet,bIsEditing]
+    if ((vSnippet_Importer="") || (vDesc_Importer="") || (vEx_Importer="") || (vName_Importer="") || (vAuthor_Importer="") || (vVersion_Importer="") || (vDate_Importer="") || (vLicense_Importer="") || (vSection_Importer="") || (vURL_Importer="") || (vLibrary_Importer="")) 
     {
-        MsgBox, % "TODO: throw error1"
-        ; return
-    }
-    if !(Obj.Count()>0) ;; do not write to disc if no metadata has been found
-    {
-        MsgBox, % "TODO: throw error2"
+        missingStr:=""
+        for k,v in Submissions
+            if (v="")
+                missingStr.=v (mod(3,k)?",`n":", ")
+
+        MsgBox 0x40030, `% script.name " - Snippet Editor", "The contents fed to be edited do not resemble a valid snippet object.`n`nPlease check for errors in the data structure`, as well as the source code.`nFaulty Values:`n" missingStr "`nReturning to Main GUI"
         return
     }
-    ; if (Hash=351425664)
-    ;     return
-    Code:=fWriteTextToFile(vSnippet,A_ScriptDir "\Sources\" vLibrary "\" Hash ".ahk")
-    Metadata:=fWriteIni({Info:Obj},A_ScriptDir "\Sources\" vLibrary "\" Hash ".ini")
-    if (vEx!="")
-        success_Example:=fWriteTextToFile(vEx,A_ScriptDir "\Sources\" vLibrary "\" Hash ".example")
-    if (vDesc!="")
-        success_Description:=fWriteTextToFile(vDesc,A_ScriptDir "\Sources\" vLibrary "\" Hash ".description")
+    OldHash:=Snippet.Metadata.Hash
+    OldLib:=Snippet.Metadata.Library
+    ttip(vName_Importer,vLibrary_Importer)
+    Key:=vName_Importer . vLibrary_Importer
+    Hash:=Object_HashmapHash(Key) ; Issue: What to include in the hashed snippet name?
+    , Obj:={Name:vName_Importer,Author:vAuthor_Importer,Date:vDate_Importer,License:vLicense_Importer,URL:vURL_Importer,Section:vSection_Importer,Version:vVersion_Importer,Hash:Hash} ;; decide if we actually want to     if (Code="")  ;; do not write to disc
+    if bIsEditing && (Hash!=OldHash) ;; Hash has changed while editing → remove old file
+    {
+        loops:=[".ahk",".ini",".example",".description"]
+        for k,v in loops
+        {
+            if FileExist(A_ScriptDir "\Sources\" OldLib "\" OldHash v)
+                FileDelete,% A_ScriptDir "\Sources\" OldLib "\" OldHash v
+            if FileExist(A_ScriptDir "\Sources\" OldLib "\" snippet.Metadata.name v)
+                FileDelete,% A_ScriptDir "\Sources\" OldLib "\" snippet.Metadata.Name v
+        }
+    } 
+    if (Obj.Count()>0) && (Obj.Count()!="")
+        ACSI_fWriteIni({Info:Obj},A_ScriptDir "\Sources\" vLibrary_Importer "\" Hash ".ini")
+    if (vSnippet_Importe!="")
+        fWriteTextToFile(vSnippet_Importer,A_ScriptDir "\Sources\" vLibrary_Importer "\" Hash ".ahk")
+    if (vEx_Importer!="")
+        fWriteTextToFile(vEx_Importer,A_ScriptDir "\Sources\" vLibrary_Importer "\" Hash ".example")
+    if (vDesc_Importer!="")
+        fWriteTextToFile(vDesc_Importer,A_ScriptDir "\Sources\" vLibrary_Importer "\" Hash ".description")
+    reload
     return
-}
-Object_HashmapHash(Key)
-{		;; thank you to u/anonymous1184 for writing this for me for an old project, certainly helped a lot here.
-	if !StrLen(Key)
-		throw Exception("No key provided", -2)
-	if IsObject(Key)
-		return key
-	if Key is integer
-		Key:=Format("{:d}", Key)
-	else if Key is float
-		Key:=Format("{:f}", Key)
-	return DllCall("Ntdll\RtlComputeCrc32"
-		, "Ptr",0
-		, "WStr",Key
-		, "Int",StrLen(Key) * 2
-		, "UInt")
 }
 fWriteTextToFile(Text,Path)
 { ;; writes string to file, replacing the current file
@@ -198,14 +225,13 @@ fWriteTextToFile(Text,Path)
     FileAppend, % Text, % Path
     return FileExist(Path)?1:0
 }
-
-fWriteINI(ByRef Array2D, INI_File)  ; write 2D-array to INI-file
+ACSI_fWriteIni(ByRef Array2D, INI_File)  ; write 2D-array to INI-file
 {
     SplitPath, INI_File, INI_File_File, INI_File_Dir, INI_File_Ext, INI_File_NNE, INI_File_Drive
-		if (d_fWriteINI_st_count(INI_File,".ini")>0)
+		if (d_ACSI_fWriteIni_st_count(INI_File,".ini")>0)
 		{
-			INI_File:=d_fWriteINI_st_removeDuplicates(INI_File,".ini") ;. ".ini" ; reduce number of ".ini"-patterns to 1
-			if (d_fWriteINI_st_count(INI_File,".ini")>0)
+			INI_File:=d_ACSI_fWriteIni_st_removeDuplicates(INI_File,".ini") ;. ".ini" ; reduce number of ".ini"-patterns to 1
+			if (d_ACSI_fWriteIni_st_count(INI_File,".ini")>0)
 				INI_File:=SubStr(INI_File,1,StrLen(INI_File)-4) ; and remove the last instance
 		}
 	if !FileExist(INI_File_Dir) ; check for ini-files directory
@@ -243,7 +269,7 @@ fWriteINI(ByRef Array2D, INI_File)  ; write 2D-array to INI-file
 		}
 	*/
 }
-d_fWriteINI_st_removeDuplicates(string, delim="`n")
+d_ACSI_fWriteIni_st_removeDuplicates(string, delim="`n")
 { ; remove all but the first instance of 'delim' in 'string'
 	; from StringThings-library by tidbit, Version 2.6 (Fri May 30, 2014)
 	/*
@@ -261,7 +287,7 @@ d_fWriteINI_st_removeDuplicates(string, delim="`n")
 	delim:=RegExReplace(delim, "([\\.*?+\[\{|\()^$])", "\$1")
 	Return RegExReplace(string, "(" delim ")+", "$1")
 }
-d_fWriteINI_st_count(string, searchFor="`n")
+d_ACSI_fWriteIni_st_count(string, searchFor="`n")
 { ; count number of occurences of 'searchFor' in 'string'
 	; copy of the normal function to avoid conflicts.
 	; from StringThings-library by tidbit, Version 2.6 (Fri May 30, 2014)
@@ -279,8 +305,4 @@ d_fWriteINI_st_count(string, searchFor="`n")
 	*/
 	StringReplace, string, string, %searchFor%, %searchFor%, UseErrorLevel
 	return ErrorLevel
-}
-Quote(String)
-{ ; u/anonymous1184 | fetched from https://www.reddit.com/r/AutoHotkey/comments/p2z9co/comment/h8oq1av/?utm_source=share&utm_medium=web2x&context=3
-    return """" String """"
 }
