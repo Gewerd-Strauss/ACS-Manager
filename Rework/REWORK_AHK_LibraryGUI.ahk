@@ -178,7 +178,7 @@ return
 
 
 
-lGUICreate_1New: ;; Fully Parametric-form
+lGUICreate_1New: ;; Fully Parametric-form, TODO: functionalise this thing
 		gui, 1: destroy
 		gui, 1: new, +AlwaysOnTop -SysMenu -ToolWindow -caption +Border +labelALG -Resize ;+MinSize1000x		
 		gui, 1: default
@@ -548,7 +548,6 @@ fCallBack_StatusBarMainWindow()
 fLV_Callback()
 {
 	global ;; there is certainly a way to avoid this global here, but for me it is far too complicated.
-	; ttip(DirectoryPath)  ; A_GuiEvent A_GuiControlEvent A_Thisfunc A_Thislabel 
 	str:=fGetSearchFunctionsString()
 	if (str="") ;; search-box is empty, thus we ingest the default Object
 		func := Func("fLoadFillDetails").Bind(SnippetsStructure,DirectoryPath) ;; need to remember how to do this
@@ -690,16 +689,16 @@ f_CreateTrayMenu()
 	Menu, tray, add, Miscellaneous, :Misc
 	menu, tray, add,
 	return
+	lOpenScriptFolder:
+	run, % A_ScriptDir
+	return
+	lReload: 
+	reload
+	return
+	Label_AboutFile:
+	script.about()
+	return
 }
-lOpenScriptFolder:
-run, % A_ScriptDir
-return
-lReload: 
-reload
-return
-Label_AboutFile:
-script.about()
-return
 
 lCheckClipboardContents()
 {
