@@ -8,94 +8,36 @@ EditorImporter(Snippet:="",SnippetsStructure:="")
         gui, ACSI: -AlwaysOnTop
     gui_control_options := "xm w220 " . cForeground . " -E0x200"  ; remove border around edit field
     , gui_control_options2 :=  cForeground . " -E0x200"
+    , cBackground := "c" . "1d1f21"
+    , cCurrentLine := "c" . "282a2e"
+    , cSelection := "c" . "373b41"
+    , cForeground := "c" . "c5c8c6"
+    , cComment := "c" . "969896"
+    , cRed := "c" . "cc6666"
+    , cOrange := "c" . "de935f"
+    , cYellow := "c" . "f0c674"
+    , cGreen := "c" . "b5bd68"
+    , cAqua := "c" . "8abeb7"
+    , cBlue := "c" . "81a2be"
+    , cPurple := "c" . "b294bb"
+    , vLastCreationScreenHeight:=vGuiHeight2  
+    , vLastCreationScreenWidth:=vGUIWidth2
+    gui, font, s9 cRed, Segoe UI
+    SysGet, Mon,MonitorWorkArea 
+    Height:=MonBottom
+    if (!vGUIWidth2 and !vGuiHeight2) || (((vGUIWidth2!=(A_ScreenWidth-20)) || (vGuiHeight2!=(A_ScreenHeight))) && !bSwitchSize) ; assign outer gui dimensions either if they don't exist or if the resolution of the active screen has changed - f.e. when undocking or docking to a higher resolution display. The lGuiCreate_1-subroutine is also invoked in total if the resolution changes, but this is the necessary inner check to reassign dimensions.
+    { 
+        vGUIWidth2:=A_ScreenWidth*1.0 - 20  ;-910 ; 0.6@1440 starts clipping
+        , vGuiHeight2:=MonBottom*1.0 - 20 
+    }
+    EditWidth:=vGUIWidth2-2*15
+    , EditHeight:=(vGuiHeight2>1100)?vGuiHeight2*0.25+30 : vGuiHeight2*0.225+30
+    , SmallFieldsStart:=EditHeight*3+25
+    , SmallFieldsHeight:=(vGuiHeight2-EditHeight*3)/9
+    , LicenseFieldsHeight:=(vGuiHeight2-EditHeight*3+20)/9
+    if !IsObject(Snippet) && (Snippet!="Ingestion")
+    {
 
-    global ;; what is the point of wrapping a GUI into a 
-    static Snippet
-    static Desc
-    static Ex
-            ; Ahk Code Snippet Importer
-            gui, ACSI: destroy
-            gui, ACSI: new, +AlwaysOnTop -SysMenu -ToolWindow -caption +Border +labelACSI -Resize ;+MinSize1000x		
-            gui, ACSI: default
-            gui, +hwndACSIGUI
-            if vsdb || (A_DebuggerName="Visual Studio Code")
-                gui, ACSI: -AlwaysOnTop
-            gui_control_options := "xm w220 " . cForeground . " -E0x200"  ; remove border around edit field
-            , gui_control_options2 :=  cForeground . " -E0x200"
-            , cBackground := "c" . "1d1f21"
-            , cCurrentLine := "c" . "282a2e"
-            , cSelection := "c" . "373b41"
-            , cForeground := "c" . "c5c8c6"
-            , cComment := "c" . "969896"
-            , cRed := "c" . "cc6666"
-            , cOrange := "c" . "de935f"
-            , cYellow := "c" . "f0c674"
-            , cGreen := "c" . "b5bd68"
-            , cAqua := "c" . "8abeb7"
-            , cBlue := "c" . "81a2be"
-            , cPurple := "c" . "b294bb"
-            , vLastCreationScreenHeight:=vGuiHeight  
-            , vLastCreationScreenWidth:=vGuiWidth
-            gui, font, s9 cRed, Segoe UI
-            SysGet, Mon,MonitorWorkArea 
-            Height:=MonBottom
-            if (!vGUIWidth and !vGuiHeight) || (((vGUIWidth!=(A_ScreenWidth-20)) || (vGuiHeight!=(A_ScreenHeight))) && !bSwitchSize) ; assign outer gui dimensions either if they don't exist or if the resolution of the active screen has changed - f.e. when undocking or docking to a higher resolution display. The lGuiCreate_1-subroutine is also invoked in total if the resolution changes, but this is the necessary inner check to reassign dimensions.
-            { 
-                vGUIWidth:=A_ScreenWidth*1.0 - 20  ;-910 ; 0.6@1440 starts clipping
-                vGUIWidth:=1920-20
-                , vGUIHeight:=MonBottom*1.0 - 20 
-                vGUIHeight:=MonBottom-5
-            }
-            EditWidth:=vGUIWidth-2*15
-            , EditHeight:=(vGUIHeight>1100)?vGUIHeight*0.25+30 : vGUIHeight*0.225+30
-            , SmallFieldsStart:=EditHeight*3+25
-            , SmallFieldsHeight:=(vGUIHeight-EditHeight*3)/9
-            , LicenseFieldsHeight:=(vGUIHeight-EditHeight*3+20)/9
-            gui, add, edit, w%EditWidth% h%EditHeight% vvSnippet,% "[[Insert Snippet]]"
-            gui, add, edit, w%EditWidth% h%EditHeight% vvDesc, % "[[Insert Description]]"
-            gui, add, edit, w%EditWidth% h%EditHeight% vvEx, % "[[Insert Example]]"
-            gui, add, text, y%SmallFieldsStart% xp, Name
-            gui, add, edit, yp xp+100 w120 h%SmallFieldsHeight% vvName, % "F1"
-            gui, add, text, yp+%SmallFieldsHeight%+5 xp-100, Author
-            gui, add, edit, yp xp+100 w120 h%SmallFieldsHeight% vvAuthor, % "Gewerd"
-            gui, add, text, yp+%SmallFieldsHeight%+5 xp-100, version
-            gui, add, edit, yp xp+100 w120 h%SmallFieldsHeight% vvVersion, % "1.1.1"
-            gui, add, text, yp+%SmallFieldsHeight%+5 xp-100, Date
-            gui, add, edit, yp disabled xp+100 w120 h%SmallFieldsHeight% vvDate, % A_YYYY A_MM A_DD
-            gui, add, text, yp+24 xp-100, License
-            gui, add, ComboBox, yp xp+100 w120 r5 h%SmallFieldsHeight% vvLicense, % "MIT|BSD3|Unlicense|WTFPL||none|paste"
-            gui, add, text, yp+%SmallFieldsHeight%+5 xp-100, Section
-            gui, add, ComboBox, yp xp+100 w120 r5 h%SmallFieldsHeight% vvSection, % "Clipboard||Command CommandLine|Date or Time|Varius get|graphic|gui - customise|gui - to change|gui - control type|gui - get informations|gui - interacting|gui - menu|gui - icon|FileSystem|Font things|Hooks/Messaging|Internet/Network|Math/Converting|Objects|String/Array/Text|Keys/Hotkeys/Hotstrings|Tooltips|System functions/Binary Handling|System/User/Hardware|UIAutomation|ACC (MSAA)|Internet Explorer/Chrome/FireFox/HTML|Variables|Other languages/MCode|Other|"
-            gui, add, text, yp+%SmallFieldsHeight%+5 xp-100, URL
-            gui, add, edit, yp xp+100 w120 h%SmallFieldsHeight% vvURL, % "www.google.com"
-            gui, add, text, yp+%SmallFieldsHeight%+5 xp-100, Library
-            ; gui, add, text, y%SmallFieldsStart% xp, Name
-            ; gui, add, edit, yp xp+100 w120 h20 vvName, % "F1"
-            ; gui, add, text, yp+23 xp-100, Author
-            ; gui, add, edit, yp xp+100 w120 h20 vvAuthor, % "Gewerd"
-            ; gui, add, text, yp+23 xp-100, version
-            ; gui, add, edit, yp xp+100 w120 h20 vvVersion, % "1.1.1"
-            ; gui, add, text, yp+23 xp-100, Date
-            ; gui, add, edit, yp disabled xp+100 w120 h20 vvDate, % A_YYYY A_MM A_DD
-            ; gui, add, text, yp+23 xp-100, License
-            ; gui, add, ComboBox, yp xp+100 w120 r5 h20 vvLicense, % "MIT|BSD3|Unlicense|WTFPL||none|paste"
-            ; gui, add, text, yp+23 xp-100, Section
-            ; gui, add, ComboBox, yp xp+100 w120 r5 h20 vvSection, % "Clipboard||Command CommandLine|Date or Time|Varius get|graphic|gui - customise|gui - to change|gui - control type|gui - get informations|gui - interacting|gui - menu|gui - icon|FileSystem|Font things|Hooks/Messaging|Internet/Network|Math/Converting|Objects|String/Array/Text|Keys/Hotkeys/Hotstrings|Tooltips|System functions/Binary Handling|System/User/Hardware|UIAutomation|ACC (MSAA)|Internet Explorer/Chrome/FireFox/HTML|Variables|Other languages/MCode|Other|"
-            ; gui, add, text, yp+25 xp-100, URL
-            ; gui, add, edit, yp xp+100 w120 h20 vvURL, % "www.google.com"
-            ; gui, add, text, yp+25 xp-100, Library
-            Ind:=0
-            loop, files, % A_ScriptDir "\Sources\*.*", D
-            {
-                Ind++
-                ;; todo: make this load from a path in script.settings.path, including scriptObj
-                SplitPath,% A_LoopFileFullPath,OutName, OutDir
-                OutName:=strsplit(OutName,"\")[strsplit(OutName,"\").MaxIndex()]
-                str.=OutName "|" 
-                if (Ind=1)
-                    str.="|"
-            }
-            gui, add, ComboBox, yp xp+100 w120 h%SmallFieldsHeight% R100 vvLibrary,% str
         ; Gui +OwnDialogs
         MsgBox 0x40030, `% script.name " - Snippet Editor", The contents fed to be edited do not resemble a valid snippet object.`n`nPlease check for errors in the data structure`, as well as the source code.`n`nReturning to Main GUI
         return

@@ -1,5 +1,5 @@
 /*
-TODO:::: ADD NAMESPACED VERSIONS OF FUNCTIONS FROM stringthings.ahk AND TF.AHK to this script
+	TODO:::: ADD NAMESPACED VERSIONS OF FUNCTIONS FROM stringthings.ahk AND TF.AHK to this script
 */
 #SingleInstance, Force
 #Warn,,Off 
@@ -385,9 +385,9 @@ lGUICreate_1New: ;; Fully Parametric-form
 					; Gui, Color, 4f1f21, 432a2e
 					; fFocusListView()
 					; sleep, 300
-		gosub, lSelectFirstLVEntry
+		fSelectFirstLVEntry()
 		LastScaledSize:=[vGUIWidth,vGUIHeight]
-		gosub, lCheckClipboardContents
+		lCheckClipboardContents()
 return
 Func1(Param1)
 {
@@ -497,7 +497,8 @@ PrependTextBeforeString(Text,StringToInsert)
 	return StringToInsert "`n`n" Text
 }
 
-FileCount(filter, mode) {																					                                                                    	;-- count matching files in the working directory
+FileCount(filter, mode)
+{ ;-- count matching files in the working directory
 
    loop,files,% filter,% mode
      Count := A_Index
@@ -505,11 +506,15 @@ FileCount(filter, mode) {																					                                  
 
 } ;</07.01.000017>
 lIngestSnippet:
-gui,1: submit, NoHide
-EditorImporter("Ingestion",SnippetsStructure)
+{
+	gui,1: submit, NoHide
+	EditorImporter("Ingestion",SnippetsStructure)
+}
 return
 lEditSnippet: ;; I have no idea how to bind a function to a gui-button itself.
-fEditSnippet(SnippetsStructure)
+{
+	fEditSnippet(SnippetsStructure)
+}
 return
 fEditSnippet(SnippetsStructure:="",matcges:="")
 {
@@ -723,9 +728,11 @@ Label_AboutFile:
 script.about()
 return
 
-lCheckClipboardContents:
-gui, 1: Submit, NoHide
-return
+lCheckClipboardContents()
+{
+	gui, 1: Submit, NoHide
+	return
+}
 /*
 
 					lCheckStringForLVRestore:  ;; will hopefully be decommissioned
@@ -826,10 +833,13 @@ MoveOnListView(Direction:=1)
 
 
 
-lSelectFirstLVEntry:
-fSelectFirstLVEntry_Searches()
-fLV_Callback()
-return
+fSelectFirstLVEntry()
+{
+
+	fSelectFirstLVEntry_Searches()
+	fLV_Callback()
+	return
+}
 ; ListViewUp:
 ; ListViewDown:
 ; sleep, 150
