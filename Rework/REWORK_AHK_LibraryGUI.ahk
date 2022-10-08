@@ -638,42 +638,15 @@ fLoadFillDetails(SnippetsStructure,DirectoryPath)
 		; else
 		SnippetsStructure[1,SelectedLVEntry[3]].Example:=Example
 	}
-	if bSearchSnippets
-	{
-		; Name:=Data.Name
-		; Version:=Data.Version
-		; Author:=Data.Author
-		; Library:=Data.Library
-		; Section:=Data.Section
-		; SectionInd:=Data.SectionInd
-		; URL:=Data.URL
-		; ; Date:=SubStr(Data..Date, 7, 2) "." SubStr(Data..Date, 5, 2) "." SubStr(Data..Date, 1, 4)
-		; FormatTime, Date,% Data.Date, % script.config.Settings.DateFormat
-		; License:=Data.License
-
-		Name:=Data.Metadata.Name
-		, Version:=Data.Metadata.Version
-		, Author:=Data.Metadata.Author
-		, Library:=Data.Metadata.Library
-		, Section:=Data.Metadata.Section
-		, SectionInd:=Data.Metadata.SectionInd
-		, URL:=Data.Metadata.URL
-		, License:=Data.Metadata.License
-		FormatTime, Date,% Data.Metadata.Date, % script.config.Settings.DateFormat
-
-	}
-	else
-	{
-		Name:=Data.Metadata.Name
-		, Version:=Data.Metadata.Version
-		, Author:=Data.Metadata.Author
-		, Library:=Data.Metadata.Library
-		, Section:=Data.Metadata.Section
-		, SectionInd:=Data.Metadata.SectionInd
-		, URL:=Data.Metadata.URL
-		, License:=Data.Metadata.License
-		FormatTime, Date,% Data.Metadata.Date, % script.config.Settings.DateFormat
-	}
+	Name:=Data.Metadata.Name
+	, Version:=Data.Metadata.Version
+	, Author:=Data.Metadata.Author
+	, Library:=Data.Metadata.Library
+	, Section:=Data.Metadata.Section
+	, SectionInd:=Data.Metadata.SectionInd
+	, URL:=Data.Metadata.URL
+	, License:=Data.Metadata.License
+	FormatTime, Date,% Data.Metadata.Date, % script.config.Settings.DateFormat
 		; missing: 
 		; 						name
 		; 						version
@@ -733,22 +706,6 @@ lCheckClipboardContents()
 	gui, 1: Submit, NoHide
 	return
 }
-/*
-
-					lCheckStringForLVRestore:  ;; will hopefully be decommissioned
-					Gui, 1: Submit, NoHide
-					if (SearchString!="")
-						return
-					gosub, lSearchSnippets
-					; GuiControl, -Redraw, LVvalue
-					; References:=fPopulateLVNew(SnippetsStructure[1],SnippetsStructure[2],SnippetsStructure[3])
-					; if strsplit(script.config.settings.ShowRedraw,A_Space).1
-					; 	GuiControl, +Redraw, LVvalue
-					; f_RescaleLV()
-					; if !strsplit(script.config.settings.ShowRedraw,A_Space).1
-					; 	GuiControl, +Redraw, LVvalue
-					return
-*/
 
 lSearchSnippetsEnter:
 ; A_GuiControl A_ThisHotkey A_ThisFunc A_THisLabel A_GuiControlEvent A_GuiEvent | always useful having these here when checking annoying states
@@ -756,14 +713,6 @@ lSearchSnippets:
 	Settimer, % func, Off
 	Gui, 1: Submit, NoHide
 	Matches:=[] ;; create Obj
-	; if (A_ThisLabel="lSearchSnippetsEnter")
-	; {
-	; 	; guicontrol, focus, SysListView321
-	; 	; sleep, 1200
-	; 	; SendInput, {Down Down} 
-	; 	; Sleep, 100
-	; 	; SendInput, {Down Up} 
-	; }
 	global Matches:=f_CollectMatches(SnippetsStructure[1],SearchString,References,SnippetsStructure[2]) ;; for sections, because we need to load every single snippet's metadata anyways, we might just as well preprocess into various lists?
 	if (Matches!=-1)  && IsObject(Matches) ;; is this even necessary? ;; DEPRECATED: || RegExMatch(SearchString,Regex.SecSearch,s) 
 	{
@@ -786,23 +735,32 @@ lSearchSnippets:
 		SendInput, % "{Up}"
 	}
 return
-/*
 
-fResetSearchFunctionsString()
-{ ; Snippets LibraryCount A_ThisLabel A_THisfunc
-	global ;; I cannot feed SnippetsStructure to this function for unknown-to-me reasons
-	GuiControlGet, ContentsSearchField,,SearchString
-	; if (ContentsSearchField="")
-		GuiControl,, vSearchFunctions,% "Search in " Snippets.count() " snippets from" LibraryCount " libraries."
-	return	
-}
-*/
 fGetSearchFunctionsString(Str:="")
 {
 	GuiControlGet, ContentsSearchField,,SearchString
 	return ContentsSearchField
 }
 
+fSelectFirstLVEntry_Searches()
+{
+	SendInput, {Down}{Up}
+	return
+}
+
+MoveOnListView(Direction:=1)
+{
+	sleep, 150
+	SendInput, % str:="{" ((Direction==1)?"Down":"Up") "}"
+	return
+}
+
+fSelectFirstLVEntry()
+{
+	fSelectFirstLVEntry_Searches()
+	fLV_Callback()
+	return
+}
 ::alib.s::
 Numpad0::
 GUI_Mode:=!GUI_Mode
@@ -816,50 +774,6 @@ f_RescaleLV()
 if !strsplit(script.config.settings.ShowRedraw,A_Space).1
 	GuiControl, +Redraw, LVvalue
 return 
-
-fSelectFirstLVEntry_Searches()
-{
-	SendInput, {Down}{Up}
-}
-
-MoveOnListView(Direction:=1)
-{
-	sleep, 150
-	SendInput, % str:="{" ((Direction==1)?"Down":"Up") "}"
-	
-	; fLV_Callback()
-	return
-}
-
-
-
-fSelectFirstLVEntry()
-{
-
-	fSelectFirstLVEntry_Searches()
-	fLV_Callback()
-	return
-}
-; ListViewUp:
-; ListViewDown:
-; sleep, 150
-; If !InStr(A_ThisLabel, "ListViewUp") & !InStr(A_ThisLabel,"ListViewDown")
-; 	Send, {Up}
-; if !InStr(A_ThisLabel, "ListViewUp") & !InStr(A_ThisLabel,"ListViewDown")
-; 	Send, {Down}
-ListViewSelect:	;; 
-
-	if Instr(A_ThisLabel,"ListViewSelect")
-	SendInput, {LButton}
-; selRow:= LV_GetNext("F")
-if Instr(A_ThisLabel,"fSelectFirstLVEntry_Searches")
-{
-	
-}
-else
-	fLV_Callback()
-return
-
 #If WinActive(GuiNameMain)
 Esc::
 gui, 1: hide
@@ -889,65 +803,6 @@ SendInput, ^s
 reload
 return ; yes I know this is not actually needed. I don't care.
 
-/*
-	Not planned further right now.
-	f_SB_Set(Text,PartNumber)
-	{
-
-	}
-
-	CollectMatchesAcrossObject(Object,String)
-	{
-
-		out:={}
-		KeyVals:={}
-		pos := 1
-		String:=TRIM(strreplace(String,"AU:","`nAU:"))
-		String:=TRIM(strreplace(String,"LI:","`nLI:"))
-		String:=TRIM(strreplace(String,"SE:","`nSE:"))
-		StringO:=String
-		; ; String=
-		; (LTRIM
-		; AU:Gew
-		; SE:clipboard and 
-		; Li:wtf v312
-		; )
-		regex:="(LI|AU|SE):(.+?)`n"
-		while RegExMatch(String "`n", "im)" regex, match, pos)
-		{
-			KeyVals[match1]:=Trim(match2)
-			pos+=strlen(match)
-		}
-
-		;; now we have keyvals: contains which author/section/license to search for
-
-
-
-
-		for k,v in Object
-		{
-			if script.config.settings.Search_InString_MetaFields
-			{
-				if InStr(k,String)
-				{
-					Str:=(SubStr(v,0)=",")?SubStr(v,1,StrLen(v)-1):v
-					for s,w in strsplit(Str,",")
-						out.push(w)
-				}
-			}
-			else 
-			{
-				if (k=String)
-				{
-					Str:=(SubStr(v,0)=",")?SubStr(v,1,StrLen(v)-1):v
-					out.push(strsplit(Str,","))
-				}
-			}
-
-		}
-		return out
-	}
-*/
 f_CollectMatches(Array,String,References,AllSections)
 { ;; finds all fields of Array whose value contain 'String', and if any exist return the snippet's Object
 	;; TODO: this function can probably be improved :P
@@ -1042,61 +897,61 @@ f_CollectMatches(Array,String,References,AllSections)
 			continue
 		Matches.push(Array[k])
 	}
-/*
+	/*
 
-		; 		if KeyVals.AU=""
-		; 		{
-		; /*
-		; str = the dog went for a run with another dog
-		; match = dog
+			; 		if KeyVals.AU=""
+			; 		{
+			; /*
+			; str = the dog went for a run with another dog
+			; match = dog
 
-		; msgbox % "Found " ( count, regexReplace( str
-		; 		 , "(" match ")", match, count ))
-		; 		 . " instance" ( count!=1 ? "s" : "" )
-		; 		 . " of " match "."
-		; */
-		; 		}
-		; 		if e:=RegExMatch(String, "i)(AU\:)(?<Author>.*)(\s|\:)*",v)
-		; 		{
-		; 			Result:=CollectMatchesAcrossObject(References[1],String)
-		; 			; Result:=CollectMatchesAcrossObject(References[1],vAuthor)
-		; 			for k,v in Result ;strsplit(References[1,vAuthor],",")  ;; this only allows for exact author-matches, but not for an approx-/instr match
-		; 			{
-		; 				if InStr(Added,Array[v].Metadata.Hash)
-		; 					continue ;; skip if the snippet is already added
-		; 				out.push(Array[v])
-		; 				Added.=Array[v].Metadata.Hash ", " ;; used for quick lookup on what we can skip further down the road
-		; 			}
-		; 		}
-		; 		;;2.
-		; 		; ttip("Figure out what the (\+)-capturing group in these two regexes was for :P")
-		; 		if RegExMatch(String, "i)(SE\:)(?<Section>.*)(\+)",v)
-		; 		{
-		; 			Result:=CollectMatchesAcrossObject(References[2],vSection)
-		; 			; d:=strsplit(References[2,vSection],",")
-		; 			for k,v in Result[1]
-		; 			{
-		; 				if InStr(Added,Array[v].Metadata.Hash)
-		; 					continue ;; skip if the snippet is already added
-		; 				out.push(Array[v])
-		; 				Added.=Array[v].Metadata.Hash ", "
+			; msgbox % "Found " ( count, regexReplace( str
+			; 		 , "(" match ")", match, count ))
+			; 		 . " instance" ( count!=1 ? "s" : "" )
+			; 		 . " of " match "."
+			; */
+			; 		}
+			; 		if e:=RegExMatch(String, "i)(AU\:)(?<Author>.*)(\s|\:)*",v)
+			; 		{
+			; 			Result:=CollectMatchesAcrossObject(References[1],String)
+			; 			; Result:=CollectMatchesAcrossObject(References[1],vAuthor)
+			; 			for k,v in Result ;strsplit(References[1,vAuthor],",")  ;; this only allows for exact author-matches, but not for an approx-/instr match
+			; 			{
+			; 				if InStr(Added,Array[v].Metadata.Hash)
+			; 					continue ;; skip if the snippet is already added
+			; 				out.push(Array[v])
+			; 				Added.=Array[v].Metadata.Hash ", " ;; used for quick lookup on what we can skip further down the road
+			; 			}
+			; 		}
+			; 		;;2.
+			; 		; ttip("Figure out what the (\+)-capturing group in these two regexes was for :P")
+			; 		if RegExMatch(String, "i)(SE\:)(?<Section>.*)(\+)",v)
+			; 		{
+			; 			Result:=CollectMatchesAcrossObject(References[2],vSection)
+			; 			; d:=strsplit(References[2,vSection],",")
+			; 			for k,v in Result[1]
+			; 			{
+			; 				if InStr(Added,Array[v].Metadata.Hash)
+			; 					continue ;; skip if the snippet is already added
+			; 				out.push(Array[v])
+			; 				Added.=Array[v].Metadata.Hash ", "
 
-		; 			}
-		; 		}
-		; 		if RegExMatch(String, "i)(LI\:)(?<License>.+)",v)
-		; 		{
-		; 			Result:=CollectMatchesAcrossObject(References[3],vLicense)
-		; 			; d:=strsplit(References[2,vLicense],",")
-		; 			for k,v in Result[1]
-		; 			{
-		; 				if InStr(Added,Array[v].Metadata.Hash)
-		; 					continue ;; skip if the snippet is already added
-		; 				out.push(Array[v])
-		; 				Added.=Array[v].Metadata.Hash ", "
+			; 			}
+			; 		}
+			; 		if RegExMatch(String, "i)(LI\:)(?<License>.+)",v)
+			; 		{
+			; 			Result:=CollectMatchesAcrossObject(References[3],vLicense)
+			; 			; d:=strsplit(References[2,vLicense],",")
+			; 			for k,v in Result[1]
+			; 			{
+			; 				if InStr(Added,Array[v].Metadata.Hash)
+			; 					continue ;; skip if the snippet is already added
+			; 				out.push(Array[v])
+			; 				Added.=Array[v].Metadata.Hash ", "
 
-		; 			}
-		; 		}
-*/		
+			; 			}
+			; 		}
+	*/		
 	; ttip(";; this entire sectio	n is painful bs. #important#todo: figure out how to remove so that 'Fi:Libr AU:ano' will net 0 results in the current configuration","the issue is that the smarter solution above doesn't work flawlessly, and that","this is a flawed implementation of a fix")
 	if (Matches.Count()=0)
 		Matches:=Array.Clone()
@@ -1194,7 +1049,6 @@ f_CollectMatches(Array,String,References,AllSections)
  	return (Matches2.Count()>0 && Matches2.Count()!="")?[Matches2,AllSections,MatchedLibraries.Count()]:-1 ;; throw a -1 if something went wrong.
 }
 
-
 HasVal(haystack, needle) 
 {	; code from jNizM on the ahk forums: https://www.autohotkey.com/boards/viewtopic.php?p=109173&sid=e530e129dcf21e26636fec1865e3ee30#p109173
 	if !(IsObject(haystack)) || (haystack.Length() = 0)
@@ -1206,7 +1060,7 @@ HasVal(haystack, needle)
 }
 
 f_GetSelectedLVEntries(Number:="")
-{ ; Get Values from selected row in LV A_DefaultListView
+{ ; Get Values from selected row in LV A_DefaultListView ;TODO: this can probably be condensed
     vRowNum:=0
 	, sel:=[]
 	if (Number="")
@@ -1237,8 +1091,6 @@ f_GetSelectedLVEntries(Number:="")
 			,License:sCurrText7
 			,Version:sCurrText8
 			,Author:sCurrText9}
-			; sel[A_Index]:={SelectedEntrySection:sCurrText1,SelectedEntryName:sCurrText2,Hash:sCurrText3,Library:sCurrText4,SelectedEntrySnippetIdentifier:sCurrText5,AdditionIndex:sCurrText6}
-					; LV_GetText(sCurrText6,vRowNum,6)
 			return [sel,vRowNum,sCurrText6]
 		}
 	}
@@ -1278,7 +1130,7 @@ fPopulateLVNew(Snippets,SectionNames,LibraryCount)
 {
     LV_Delete()
 	SectionPad:=(SectionPad!=""?SectionPad:"") ;; this is fucking painful that I can't just have a variable be _static_ so I only actually have to declare it once. _ugh_
-	NewSnippetsSorted:=[]
+	, NewSnippetsSorted:=[]
 	, ErrorIndex:=1
 	, SectionIndexLength:=(StrLen(SectionNames.MaxIndex())>SectionIndexLength?StrLen(SectionNames.MaxIndex()):SectionIndexLength)
 	, SectionNamesReversed:=[]
@@ -1333,27 +1185,27 @@ fPopulateLVNew(Snippets,SectionNames,LibraryCount)
 
 f_RescaleLV()
 { ;; makes sure the ListView is correctly scaled. ;;TODO: change the order/settings here to hide 
-	if (!(script.computername==script.authorID)) && !script.config.settings.bDebugSwitch
+	if ((!(script.computername==script.authorID)) && !script.config.settings.bDebugSwitch)
 	{
-		LV_ModifyCol(3,0)
 		LV_ModifyCol(5,0)
-		LV_ModifyCol(6,0) 
-		LV_ModifyCol(7,0) 
-		LV_ModifyCol(8,0) 
-		LV_ModifyCol(9,0) 
+		, LV_ModifyCol(3,0)
+		, LV_ModifyCol(6,0) 
+		, LV_ModifyCol(7,0) 
+		, LV_ModifyCol(8,0) 
+		, LV_ModifyCol(9,0) 
 	}
 	else if ((script.computername==script.authorID) || (!(script.computername==script.authorID) && script.config.settings.bDebugSwitch))
 	{
 		LV_ModifyCol(5,0)
-		LV_ModifyCol(3,"AutoHdr") 
-		LV_ModifyCol(6,"AutoHdr") 
-		LV_ModifyCol(7,"AutoHdr") 
-		LV_ModifyCol(8,"AutoHdr") 
-		LV_ModifyCol(9,"AutoHdr") 
+		, LV_ModifyCol(3,"AutoHdr") 
+		, LV_ModifyCol(6,"AutoHdr") 
+		, LV_ModifyCol(7,"AutoHdr") 
+		, LV_ModifyCol(8,"AutoHdr") 
+		, LV_ModifyCol(9,"AutoHdr") 
 
 	}
+	; , LV_ModifyCol(3,"AutoHdr")
 	LV_ModifyCol(4,"Right")
-    ; , LV_ModifyCol(3,"AutoHdr")
     , LV_ModifyCol(1,"AutoHdr")
 	, LV_ModifyCol(4,"AutoHdr")
     , LV_ModifyCol(2,"AutoHDr")
@@ -1513,7 +1365,6 @@ fReadINI(INI_File,bIsVar=0) ; return 2D-array from INI-file, or alternatively fr
 	*/
 }
 
-
 Object_HashmapHash(Key)
 {		;; thank you to u/anonymous1184 for writing this for me for an old project, certainly helped a lot here.
 	if !StrLen(Key)
@@ -1555,23 +1406,23 @@ ALG_st_split(string, delim="`n", exclude="`r")
 
 ALG_st_pad(string, left="0", right="", LCount=1, RCount=1)
 {
-   if (LCount>0)
-   {
-      if (LCount>1)
-         loop, %LCount%
-            Lout.=left
-      Else
-         Lout:=left
-   }
-   if (RCount>0)
-   {
-      if (RCount>1)
-         loop, %RCount%
-            Rout.=right
-      Else
-         Rout.=right
-   }
-   Return Lout string Rout
+	if (LCount>0)
+	{
+		if (LCount>1)
+			loop, %LCount%
+		Lout.=left
+		Else
+			Lout:=left
+	}
+   	if (RCount>0)
+   	{
+    	if (RCount>1)
+			loop, %RCount%
+				Rout.=right
+		Else
+			Rout.=right
+	}
+	Return Lout string Rout
 }
 
 ALG_st_Insert(insert,input,pos=1)
@@ -2106,87 +1957,6 @@ ALG_StringDifference(string1, string2, maxOffset=1) {    ;returns a float: betwe
   Return ((n0 + m0)/2 - lcs) / (n0 > m0 ? n0 : m0) 
 }
 
-; fWriteINI(ByRef Array2D, INI_File)  ; write 2D-array to INI-file
-; {
-;     SplitPath, INI_File, INI_File_File, INI_File_Dir, INI_File_Ext, INI_File_NNE, INI_File_Drive
-; 		if (d_fWriteINI_st_count(INI_File,".ini")>0)
-; 		{
-; 			INI_File:=d_fWriteINI_st_removeDuplicates(INI_File,".ini") ;. ".ini" ; reduce number of ".ini"-patterns to 1
-; 			if (d_fWriteINI_st_count(INI_File,".ini")>0)
-; 				INI_File:=SubStr(INI_File,1,StrLen(INI_File)-4) ; and remove the last instance
-; 		}
-; 	if !FileExist(INI_File_Dir) ; check for ini-files directory
-; 	{
-; 		MsgBox, Creating "INI-Files"-directory at Location`n"%A_ScriptDir%", containing an ini-file named "%INI_File%.ini"
-; 		FileCreateDir, % INI_File_Dir
-; 	}
-; 	OrigWorkDir:=A_WorkingDir
-; 	SetWorkingDir, % INI_File_Dir
-; 	for SectionName, Entry in Array2D 
-; 	{
-; 		Pairs := ""
-; 		for Key, Value in Entry
-;         {
-;             ; if (Instr(Key,"Desc") || InStr(Key,"Ex"))
-;             ;     Value:=Quote(Value)
-; 			Pairs .= Key "=" Value "`n"
-;         }
-; 		IniWrite, %Pairs%, % Instr(INI_File,".ini")?INI_File:INI_File . ".ini", %SectionName%
-; 	}
-; 	if A_WorkingDir!=OrigWorkDir
-; 		SetWorkingDir, %OrigWorkDir%
-;     return
-; 	/* Original File from https://www.autohotkey.com/boards/viewtopic.php?p=256714#p256714
-		
-; 	;-------------------------------------------------------------------------------
-; 		WriteINI(ByRef Array2D, INI_File) { ; write 2D-array to INI-file
-; 	;-------------------------------------------------------------------------------
-; 			for SectionName, Entry in Array2D {
-; 				Pairs := ""
-; 				for Key, Value in Entry
-; 					Pairs .= Key "=" Value "`n"
-; 				IniWrite, %Pairs%, %INI_File%, %SectionName%
-; 			}
-; 		}
-; 	*/
-; }
-; d_fWriteINI_st_removeDuplicates(string, delim="`n")
-; { ; remove all but the first instance of 'delim' in 'string'
-; 	; from StringThings-library by tidbit, Version 2.6 (Fri May 30, 2014)
-; 	/*
-; 		RemoveDuplicates
-; 		Remove any and all consecutive lines. A "line" can be determined by
-; 		the delimiter parameter. Not necessarily just a `r or `n. But perhaps
-; 		you want a | as your "line".
-
-; 		string = The text or symbols you want to search for and remove.
-; 		delim  = The string which defines a "line".
-
-; 		example: st_removeDuplicates("aaa|bbb|||ccc||ddd", "|")
-; 		output:  aaa|bbb|ccc|ddd
-; 	*/
-; 	delim:=RegExReplace(delim, "([\\.*?+\[\{|\()^$])", "\$1")
-; 	Return RegExReplace(string, "(" delim ")+", "$1")
-; }
-; d_fWriteINI_st_count(string, searchFor="`n")
-; { ; count number of occurences of 'searchFor' in 'string'
-; 	; copy of the normal function to avoid conflicts.
-; 	; from StringThings-library by tidbit, Version 2.6 (Fri May 30, 2014)
-; 	/*
-; 		Count
-; 		Counts the number of times a tolken exists in the specified string.
-
-; 		string    = The string which contains the content you want to count.
-; 		searchFor = What you want to search for and count.
-
-; 		note: If you're counting lines, you may need to add 1 to the results.
-
-; 		example: st_count("aaa`nbbb`nccc`nddd", "`n")+1 ; add one to count the last line
-; 		output:  4
-; 	*/
-; 	StringReplace, string, string, %searchFor%, %searchFor%, UseErrorLevel
-; 	return ErrorLevel
-; }
 Quote(String)
 { ; u/anonymous1184 | fetched from https://www.reddit.com/r/AutoHotkey/comments/p2z9co/comment/h8oq1av/?utm_source=share&utm_medium=web2x&context=3
 	return """" String """"
@@ -2376,81 +2146,5 @@ DateParse(str)
 	Return, d
 }
 
-/*   AutoSize/AutoXYWH: Out-Of-Scope for now
-
-	; Original: http://ahkscript.org/boards/viewtopic.php?t=1079
-	AutoSize(DimSize, cList*) {				; retrieved from https://www.autohotkey.com/boards/viewtopic.php?p=417609#p417609
-		Static cInfo := {}
-		Local
-
-		If (DimSize = "reset") {
-			Return cInfo := {}
-		}
-
-		For i, ctrl in cList {
-			ctrlID := A_Gui . ":" . ctrl
-			If (cInfo[ctrlID].x = "") {
-				GuiControlGet i, %A_Gui%: Pos, %ctrl%
-				MMD := InStr(DimSize, "*") ? "MoveDraw" : "Move"
-				fx := fy := fw := fh := 0
-				For i, dim in (a := StrSplit(RegExReplace(DimSize, "i)[^xywh]"))) {
-					If (!RegExMatch(DimSize, "i)" . dim . "\s*\K[\d.-]+", f%dim%)) {
-						f%dim% := 1
-					}
-				}
-
-				If (InStr(DimSize, "t")) {
-					GuiControlGet hWnd, %A_Gui%: hWnd, %ctrl%
-					hWndParent := DllCall("GetParent", "Ptr", hWnd, "Ptr")
-					VarSetCapacity(RECT, 16, 0)
-					DllCall("GetWindowRect", "Ptr", hWndParent, "Ptr", &RECT)
-					DllCall("MapWindowPoints", "Ptr", 0, "Ptr"
-					, DllCall("GetParent", "Ptr", hWndParent, "Ptr"), "Ptr", &RECT, "UInt", 1)
-					ix -= (NumGet(RECT, 0, "Int") * 96) // A_ScreenDPI
-					iy -= (NumGet(RECT, 4, "Int") * 96) // A_ScreenDPI
-				}
-
-				cInfo[ctrlID] := {x: ix, fx: fx, y: iy, fy: fy, w: iw, fw: fw, h: ih, fh: fh, gw: A_GuiWidth, gh: A_GuiHeight, a: a, m: MMD}
-
-			} Else If (cInfo[ctrlID].a.1) {
-				dgx := dgw := A_GuiWidth - cInfo[ctrlID].gw
-				dgy := dgh := A_GuiHeight - cInfo[ctrlID].gh
-
-				Options := ""
-				For i, dim in cInfo[ctrlID]["a"] {
-					Options .= dim . (dg%dim% * cInfo[ctrlID]["f" . dim] + cInfo[ctrlID][dim]) . A_Space
-				}
-
-				GuiControl, % A_Gui ":" cInfo[ctrlID].m, % ctrl, % Options
-			}
-		}
-	}
-	AutoXYWH(DimSize, cList*){       ; http://ahkscript.org/boards/viewtopic.php?t=1079
-		static cInfo := {}
-		
-		If (DimSize = "reset")
-			Return cInfo := {}
-		
-		For i, ctrl in cList {
-			ctrlID := A_Gui ":" ctrl
-			If ( cInfo[ctrlID].x = "" ){
-				GuiControlGet, i, %A_Gui%:Pos, %ctrl%
-				MMD := InStr(DimSize, "*") ? "MoveDraw" : "Move"
-				fx := fy := fw := fh := 0
-				For i, dim in (a := StrSplit(RegExReplace(DimSize, "i)[^xywh]")))
-					If !RegExMatch(DimSize, "i)" dim "\s*\K[\d.-]+", f%dim%)
-						f%dim% := 1
-				cInfo[ctrlID] := { x:ix, fx:fx, y:iy, fy:fy, w:iw, fw:fw, h:ih, fh:fh, gw:A_GuiWidth, gh:A_GuiHeight, a:a , m:MMD}
-			}Else If ( cInfo[ctrlID].a.1) {
-				dgx := dgw := A_GuiWidth  - cInfo[ctrlID].gw  , dgy := dgh := A_GuiHeight - cInfo[ctrlID].gh
-				For i, dim in cInfo[ctrlID]["a"]
-					Options .= dim (dg%dim% * cInfo[ctrlID]["f" dim] + cInfo[ctrlID][dim]) A_Space
-				GuiControl, % A_Gui ":" cInfo[ctrlID].m , % ctrl, % Options
-	} } }
-*/
 #Include <RichCode>
-;#Include <Func_IniSettingsEditor_v6>
-; #Include D:\Dokumente neu\AutoHotkey\Lib\ObjTree\Attach.ahk
-; #Include D:\Dokumente neu\AutoHotkey\Lib\ObjTree\LV.ahk
-; #Include D:\Dokumente neu\AutoHotkey\Lib\ObjTree\ObjTree.ahk
 #Include %A_ScriptDir%\Editor\Editor.ahk
