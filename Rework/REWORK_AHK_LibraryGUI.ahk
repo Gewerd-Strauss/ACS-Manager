@@ -33,6 +33,7 @@ Ixiko - AHK-Rare - https://github.com/Ixiko/AHK-Rare
 Paris - DateParse - https://github.com/Paris/AutoHotkey-Scripts/blob/master/DateParse.ahk
 tidbit - String Things - https://www.autohotkey.com/boards/viewtopic.php?t=53
 hi5 - tf - https://github.com/hi5/TF#TF_InsertPrefix
+jballi - AddToolTip - https://www.autohotkey.com/boards/viewtopic.php?t=30079
 )
 FileGetTime, ModDate,%A_ScriptFullPath%,M
 FileGetTime, CrtDate,%A_ScriptFullPath%,C
@@ -241,8 +242,8 @@ lGUICreate_1New: ;; Fully Parametric-form
 					xPos_DDL_SearchMode2:=xPos_Text_XXSnippetsLoaded+Width_DDL_SearchMode+WidthMargin_Global
 					gui, font, s8
         			; gui, add, DDL,vSearchMethod x%xPos_DDL_SearchMode% y%yPos_DDL_SearchMode% h%Height_DDL_SearchMode% w%Width_DDL_SearchMode% r2 vCurrentMode glSetSearchMethod HwndCurrentModeHWND, InStr||RegEx	
-					gui, add, button, x%xPos_DDL_SearchMode% y%yPos_DDL_SearchMode% h%Height_DDL_SearchMode2%  w%Width_DDL_SearchMode% vvExtraButton glExtraButton HwndExtraButtonHWND,%  "NE:Ingest snippet"
-					gui, add, button, x%xPos_DDL_SearchMode2% y%yPos_DDL_SearchMode% h%Height_DDL_SearchMode2%  w%Width_DDL_SearchMode% vvExtraButton2 glExtraButton2 HwndExtraButton2HWND,%  "AAAAAAAAAA"
+					gui, add, button, x%xPos_DDL_SearchMode% y%yPos_DDL_SearchMode% h%Height_DDL_SearchMode2%  w%Width_DDL_SearchMode% vvExtraButton gfExtraButton HwndExtraButtonHWND,%  "NE:Ingest Snippet"
+					gui, add, button, x%xPos_DDL_SearchMode2% y%yPos_DDL_SearchMode% h%Height_DDL_SearchMode2%  w%Width_DDL_SearchMode% vvExtraButton2 gfExtraButton2 HwndExtraButton2HWND,%  "NE:Edit Snippet"
 					gui, font, s11 cWhite, Segoe 
 					Map2:={AU:"Author" ;; For fetching data from 'Matches', the presorted object
 	,DA:"Date"
@@ -282,9 +283,7 @@ lGUICreate_1New: ;; Fully Parametric-form
 					, Width_ListView:=vGuiWidth-2*WidthMargin_Global
 					, Height_ListView:=vGuiHeight*HeightFraction_ListView
         			gui, font,s8
-					; gui, add, Listview, x%xPos_ListView% y%yPos_ListView% w%Width_ListView% h%Height_ListView% +Report ReadOnly  -vScroll vLVvalue gfLV_Callback, Section|Snippet Name|Short description|Hash|Libraryfile|Snippet Identifier
-					;  gui, add, Listview, x%xPos_ListView% y%yPos_ListView% w%Width_ListView% h%Height_ListView% +Report ReadOnly Count%MaxSnippetCount% -vScroll vLVvalue gfLV_Callback, Section|Snippet Name|Short description|Hash|Libraryfile|Snippet Identifier
-					 gui, add, Listview, x%xPos_ListView% y%yPos_ListView% w%Width_ListView% h%Height_ListView% +Report ReadOnly Count%MaxSnippetCount% -vScroll vLVvalue gfLV_Callback, Section|Snippet Name|Hash|Libraryfile|Snippet Identifier|Ingestion-Order|License|Version|Author|Snippet Identifier
+					 gui, add, Listview, x%xPos_ListView% y%yPos_ListView% w%Width_ListView% h%Height_ListView% +Report ReadOnly Count%MaxSnippetCount% -vScroll vLVvalue gfLV_Callback, Section|Snippet Name|Hash|Library|Snippet Identifier|Ingestion-Order|License|Version|Author|Snippet Identifier
 					guicontrol, font, LVvalue
 			; Define Parameters - Description Box
 					xPos_DescriptionBox:=WidthMargin_Global
@@ -321,7 +320,6 @@ lGUICreate_1New: ;; Fully Parametric-form
 			fPrePopulateLV(SnippetsStructure)
 
 		}
-		
 		gui, tab, Examples
 		global RC2:=new RichCode(RESettings2, "y" yPos_RichCode " x" xPos_RichCode  " w" Width_RichCode " h" Height_RichCode,"MainGui", HighlightBound=Func("HighlightAHK"))
         RC2.HighlightBound:=Func("HighlightAHK")
@@ -340,9 +338,13 @@ lGUICreate_1New: ;; Fully Parametric-form
 
 		SB_SetParts(370,270,71)
 		; f_SB_Set()
-		SB_SetText("No Code from " script.name "on clipboard", 1)
-		script.Error:=""
-		SB_SetText("no Error",2)
+		SB_SetText("No Code from " script.name " on clipboard.", 1)
+		if (SnippetsStructure[4,"ahk"]!=SnippetsStructure[4,"ini"]) 
+			script.Error:="Critical Error: Metadata for " SnippetsStructure[4,"ini"] " files has been found, but code is only present for " SnippetsStructure[4,"ahk"] " snippets."
+		if (script.error!="")
+			SB_SetText(script.error,4)
+		else
+			SB_SetText("Errors:/",4)
 		SB_SetText("NE:Update Script",3)
 		fGuiShow_1(vGUIWidth,vGUIHeight,GuiNameMain)
         Hotkey, IfWinActive, % "ahk_id " MainGUI
@@ -350,6 +352,7 @@ lGUICreate_1New: ;; Fully Parametric-form
         Hotkey, ^f, fFocusSearchBar
         Hotkey, ^s, fFocusSearchBar
         Hotkey, ^k, fFocusListView
+        Hotkey, ^c, fCopyScript
 		; Hotkey, ^r, lGuiCreate_2
 		
 				Obj_ResetListView:=Func("fResetListView").Bind(SnippetsStructure)
@@ -457,7 +460,7 @@ fCopyScript()
 {
 	global
 	MouseGetPos,,,,mVC
-	if (mVC="RICHEDIT50W1")	; little safety to remove copying when clicking the DescriptionBox
+	; if (mVC="RICHEDIT50W1")	; little safety to remove copying when clicking the DescriptionBox
 	{
 		SelectedLVEntry:=f_GetSelectedLVEntries()
 		Code:=SnippetsStructure[1,SelectedLVEntry.3].Code 
@@ -479,6 +482,10 @@ fCopyScript()
 		Code:=ALG_st_Insert(";--uID:" SnippetsStructure[1,SelectedLVEntry.3].Metadata.Hash "`n",Code) . "`n" ;; prepend uID-token
 		Code:=ALG_st_Insert(";--uID:" SnippetsStructure[1,SelectedLVEntry.3].Metadata.Hash "`n",Code,StrLen(Code)+StrLen(";--uID:" SnippetsStructure[1,SelectedLVEntry.3].Metadata.Hash "`n")) ;; append uID-token
 		Clipboard:=Code
+		nameStr:=SnippetsStructure[1,SelectedLVEntry.3,"MetaData","Name"]
+		; nameStr:="abcdefghijklmno#pqrstuvwxyz1234567890"
+		Str:="On Clipboard: " SubStr(nameStr,1,20) " (v." SnippetsStructure[1,SelectedLVEntry.3,"MetaData","Version"] ")"
+		SB_SetText(Str , 1)
 	}
 	return
 }
@@ -487,14 +494,22 @@ PrependTextBeforeString(Text,StringToInsert)
 	return StringToInsert "`n`n" Text
 }
 
+FileCount(filter, mode) {																					                                                                    	;-- count matching files in the working directory
 
-lExtraButton2()
+   loop,files,% filter,% mode
+     Count := A_Index
+   return Count
+
+} ;</07.01.000017>
+
+
+fExtraButton2()
 {
 	gui, submit, NoHide
 	ttip("Congrats, this does absolutely nothing as well")
 	return
 }
-lExtraButton()
+fExtraButton()
 {
 	gui, submit, NoHide
 	ttip("Congrats, this does absolutely nothing")
@@ -577,7 +592,10 @@ fLoadFillDetails(SnippetsStructure,DirectoryPath)
 		if FileExist(Path ".ahk")
 			FileRead, Code, % Path ".ahk"
 		else
+		{
+
 			Code:="Error 01: File '" Path ".ahk does not exist.`nCode could not be loaded.`nPlease Reload the script after fixing the issue."
+		}
 		SnippetsStructure[1,SelectedLVEntry[3]].Code:=Code
 	}
 	if (Description="") || Instr(Description,"Error 01: File '")
@@ -1347,12 +1365,18 @@ floadFolderLibraries()
 	, SectionReferences:=[]
 	, k:=1
 	, LibrariesKnown:=[]
+	, FileTypeCount:={ahk:0
+		, description:0
+		, example:0
+		, ini:0}
 	loop, files, % DirectoryPath, FR
 	{
 
+ 		SplitPath, % A_LoopFileFullPath,FileName,DirName,Ext,NameNExt,Drive
+		FileTypeCount[Ext]++
 		if !Instr(SubStr(A_LoopFileFullPath,-3),"ini")
 			continue
- 		SplitPath, % A_LoopFileFullPath,FileName,DirName,Ext,NameNExt,Drive
+		
 		; if Instr(".Description,.Example,.ahk,",Ext)
 		; 	Continue
 		;; preset these fields
@@ -1388,7 +1412,7 @@ floadFolderLibraries()
 		k++
 	}
 	; ttip("Decide if we want all snippets in the same obj, or if we want to subobjectivise them by keeping the folderstructure within as a 1st-lvl-object differentiation.","Currently, the Section")
-	return [Arr,SectionNames,LibrariesKnown.Count()]
+	return [Arr,SectionNames,LibrariesKnown.Count(),FileTypeCount]
 }
 
 fReadINI(INI_File,bIsVar=0) ; return 2D-array from INI-file, or alternatively from a string with the same format.
@@ -1827,62 +1851,6 @@ AddToolTip(_CtrlHwnd, _TipText, _Modify = 0) 			;-- very easy to use function to
 	Return
 }
 
-CodeTimer(Description,x:=500,y:=500,ClipboardFlag:=0,RemoveTT:=1)
-{ ; adapted from https://www.autohotkey.com/boards/viewtopic.php?t=45263
-	
-	Global StartTimer
-	if (Description="-1")
-	{
-		tooltip
-		return
-
-	}
-	If (StartTimer != "")
-	{
-		FinishTimer := A_TickCount
-		, TimedDuration := FinishTimer - StartTimer
-		, StartTimer := ""
-		If (ClipboardFlag=1)
-			Clipboard:=TimedDuration
-		tooltip, Timer %Description%`n%TimedDuration% ms have elapsed!, x,y
-		Settimer, CodeTimer_RemoveTT, 2500
-		Return TimedDuration
-	}
-	Else
-		StartTimer := A_TickCount
-	return
-	CodeTimer_RemoveTT:
-	tooltip,
-	return
-}
-CodeTimer2(Description,x:=500,y:=500,ClipboardFlag:=0)
-{ ; adapted from https://www.autohotkey.com/boards/viewtopic.php?t=45263
-	
-	Global StartTimer2
-	if (Description="-1")
-	{
-		tooltip
-		return
-
-	}
-	If (StartTimer != "")
-	{
-		FinishTimer := A_TickCount
-		, TimedDuration := FinishTimer - StartTimer2
-		, StartTimer2 := ""
-		If (ClipboardFlag=1)
-			Clipboard:=TimedDuration
-		Settimer, CodeTimer_RemoveTT2, 2500
-		tooltip, Timer %Description%`n%TimedDuration% ms have elapsed!, x,y
-		Return TimedDuration
-	}
-	Else
-		StartTimer2 := A_TickCount
-	CodeTimer_RemoveTT2:
-	tooltip,
-	return
-}
-
 HighlightAHK(Settings, ByRef Code)
 {
 	static Flow := "break|byref|catch|class|continue|else|exit|exitapp|finally|for|global|gosub|goto|if|ifequal|ifexist|ifgreater|ifgreaterorequal|ifinstring|ifless|iflessorequal|ifmsgbox|ifnotequal|ifnotexist|ifnotinstring|ifwinactive|ifwinexist|ifwinnotactive|ifwinnotexist|local|loop|onexit|pause|return|settimer|sleep|static|suspend|throw|try|until|var|while"
@@ -2095,6 +2063,7 @@ FuzzySearch(string1, string2)
 	}
 	return min
 }
+ALG_StringDifference(string1, string2, maxOffset=1) {    ;returns a float: between "0.0 = identical" and "1.0 = nothing in common" 
 	;By Toralf:
 	;basic idea for SIFT3 code by Siderite Zackwehdex 
 	;http://siderite.blogspot.com/2007/04/super-fast-and-accurate-string-distance.html 
@@ -2105,7 +2074,6 @@ FuzzySearch(string1, string2)
 	; - modified code for speed, might lead to different results compared to original code 
 	; - optimized for speed (30% faster then original SIFT3 and 13.3 times faster than basic Levenshtein distance) 
 	;http://www.autohotkey.com/forum/topic59407.html 
-ALG_StringDifference(string1, string2, maxOffset=1) {    ;returns a float: between "0.0 = identical" and "1.0 = nothing in common" 
   If (string1 = string2) 
     Return (string1 == string2 ? 0/1 : 0.2/StrLen(string1))    ;either identical or (assumption:) "only one" char with different case 
   If (string1 = "" OR string2 = "") 
