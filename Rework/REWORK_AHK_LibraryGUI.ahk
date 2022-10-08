@@ -593,8 +593,13 @@ fLoadFillDetails(SnippetsStructure,DirectoryPath)
 			FileRead, Code, % Path ".ahk"
 		else
 		{
-
-			Code:="Error 01: File '" Path ".ahk does not exist.`nCode could not be loaded.`nPlease Reload the script after fixing the issue."
+			if FileExist(strreplace(Path,Data["Metadata","Hash"],Data["Metadata","Name"]) ".ahk")  ;; in case the file does not exist, try with the name set within the metadata.
+			{
+				Path:=strreplace(Path,Data["Metadata","Hash"],Data["Metadata","Name"])
+				FileRead, Code, % Path ".ahk"
+			}
+			else
+				Code:="Error 01: File '" Path ".ahk does not exist.`nCode could not be loaded.`nPlease Reload the script after fixing the issue."
 		}
 		SnippetsStructure[1,SelectedLVEntry[3]].Code:=Code
 	}
@@ -603,7 +608,15 @@ fLoadFillDetails(SnippetsStructure,DirectoryPath)
 		if FileExist(Path ".description")
 			FileRead, Description, % Path ".description"
 		else
-			Description:="Error 01: File '" Path ".description does not exist.`nDescription could not be loaded.`nPlease Reload the script after fixing the issue."
+		{
+			if FileExist(strreplace(Path,Data["Metadata","Hash"],Data["Metadata","Name"]) ".description")
+			{
+				Path:=strreplace(Path,Data["Metadata","Hash"],Data["Metadata","Name"])
+				FileRead, Description, % Path ".description"
+			}
+			else
+				Description:="Error 01: File '" Path ".description does not exist.`nDescription could not be loaded.`nPlease Reload the script after fixing the issue."
+		}
 		SnippetsStructure[1,SelectedLVEntry[3]].Description:=Description
 	}
 	if (Example="") || Instr(Example,"Error 01: File '")
@@ -611,7 +624,18 @@ fLoadFillDetails(SnippetsStructure,DirectoryPath)
 		if FileExist(Path ".example")
 			FileRead, Example, % Path ".example"
 		else
-			Example:="Error 01: File '" Path ".example does not exist.`nExample could not be loaded.`nPlease Reload the script after fixing the issue."
+		{
+			if FileExist(strreplace(Path,Data["Metadata","Hash"],Data["Metadata","Name"]) ".example")
+			{
+				Path:=strreplace(Path,Data["Metadata","Hash"],Data["Metadata","Name"])
+				FileRead, Code, % Path ".example"
+			}
+			else
+				Example:="Error 01: File '" Path ".example does not exist.`nExample could not be loaded.`nPlease Reload the script after fixing the issue."
+		}
+		; 	Code:="Error 01: File '" Path ".example does not exist.`nCode could not be loaded.`nPlease Reload the script after fixing the issue."
+
+		; else
 		SnippetsStructure[1,SelectedLVEntry[3]].Example:=Example
 	}
 	if bSearchSnippets
@@ -1394,7 +1418,13 @@ floadFolderLibraries()
 			, Arr[k,"Description"]:=""
 		}
 		
-	
+		if Instr(A_LoopFileFullPath,"alib")
+		{
+			if !FileExist(DirName "\" NameNExt ".ahk") && !FileExist(DirName "\" NameNExt ".description") && !FileExist(DirName "\" NameNExt ".example")
+			{
+
+			}
+		}
 		;; Insert Metadata from file and add the current library-(==folder-)name
 		; Info:=fReadINI(strreplace(A_LoopFileFullPath, ".ahk",".ini")).Info
 		Info:=fReadINI(A_LoopFileFullPath).Info

@@ -18,3 +18,7 @@
 - finished & tested search-alg started yesterday (06.10.2022 - 07.10.2022.1)
   - removed various bugs I introduced over both days, probably not the last one either
 - started mental prep on hook-stuff, generally thinking on required steps and changes
+--.2
+//
+--.3
+- allows snippet-loading for snippets whose filename is identical to the name set in Metadata.
