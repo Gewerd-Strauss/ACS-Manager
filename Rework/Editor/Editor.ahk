@@ -1,4 +1,4 @@
-EditorImporter(Snippet:="",SnippetsStructure:="")
+EditorImporter(Snippet:="",SnippetsStructure:="",ConvertingAHKRARE:=false)
 {
     gui, ACSI: destroy
     gui, ACSI: new, +AlwaysOnTop -SysMenu -ToolWindow -caption +Border +labelACSI -Resize ;+Owner1 ;+MinSize1000x		
@@ -43,13 +43,32 @@ EditorImporter(Snippet:="",SnippetsStructure:="")
         return
     }
     bIsEditing:=(IsObject(Snippet)?true:false)
-    FormatTime, Date,% Data.Metadata.Date, % script.config.Settings.DateFormat
+    if Snippet.Metadata.HasKey("Date") 
+    {
+        if (script.config.Settings.DateFormat!="")
+            FormatTime, Date,% Snippet.Metadata.Date, % script.config.Settings.DateFormat
+        else
+            FormatTime, Date,% Snippet.Metadata.Date, % "yyyyMMdd"
+        if (Date="") && (Snippet.Metadata.Date!="")
+        {
+            Date:=snippet.Metadata.Date
+        }
+
+    }
     ImporterSections:=""
     for k,v in SnippetsStructure[2]
+    {
+        if (v="")
+            continue
         ImporterSections.="|" v
-    gui, add, edit, w%EditWidth% h%EditHeight% vvSnippet_Importer,% Snippet.Code
-    gui, add, edit, w%EditWidth% h%EditHeight% vvDesc_Importer, % Snippet.Description
-    gui, add, edit, w%EditWidth% h%EditHeight% vvEx_Importer, % Snippet.Example
+    }
+        Clipboard:=ImporterSections
+    if !Instr(ImporterSections,snippet.MetaData.section)
+        ImporterSections.="|" snippet.MetaData.section "|"
+    FoundSection:=strreplace(ImporterSections,snippet.metadata.Section,snippet.metadata.Section "|")
+    gui, add, edit, w%EditWidth% h%EditHeight% vvSnippet_Importer,% (Snippet.Code!=""?Snippet.Code:"Code")
+    gui, add, edit, w%EditWidth% h%EditHeight% vvDesc_Importer, % (Snippet.Description!=""?snippet.Description:"Desc")
+    gui, add, edit, w%EditWidth% h%EditHeight% vvEx_Importer, % (Snippet.Example!=""?Snippet.Example:"Ex")
     gui, add, text, y%SmallFieldsStart% xp, Name
     gui, add, edit, yp xp+100 w120 h%SmallFieldsHeight% vvName_Importer, % snippet.metadata.name
     gui, add, text, yp+%SmallFieldsHeight%+5 xp-100, Author
@@ -61,36 +80,70 @@ EditorImporter(Snippet:="",SnippetsStructure:="")
     gui, add, text, yp+24 xp-100, License
     gui, add, ComboBox, yp xp+100 w120 r5 h%SmallFieldsHeight% vvLicense_Importer, % strreplace("MIT|BSD3|Unlicense|WTFPL|none|paste",snippet.metadata.License,snippet.metadata.License "|")
     gui, add, text, yp+%SmallFieldsHeight%+5 xp-100, Section
-    gui, add, ComboBox, yp xp+100 w120 r5 h%SmallFieldsHeight% vvSection_Importer, % strreplace(ImporterSections,snippet.metadata.Section,snippet.metadata.Section "|")
+    gui, add, ComboBox, yp xp+100 w120 r5 h%SmallFieldsHeight% vvSection_Importer, % FoundSection
     gui, add, text, yp+%SmallFieldsHeight%+5 xp-100, URL
     gui, add, edit, yp xp+100 w120 h%SmallFieldsHeight% vvURL_Importer, % snippet.metadata.URL
     gui, add, text, yp+%SmallFieldsHeight%+5 xp-100, Library
+    
     Ind:=0
-    loop, files, % A_ScriptDir "\Sources\*.*", D
-    {
-        Ind++
-        ;; todo: make this load from a path in script.settings.path, including scriptObj
-        SplitPath,% A_LoopFileFullPath,OutName, OutDir
-        OutName:=strsplit(OutName,"\")[strsplit(OutName,"\").MaxIndex()]
-        str.=OutName "|" 
-        if (Ind=1)
-            str.="|"
-    }
-    libstr:=strreplace(strreplace(str,"||","|"),snippet.metadata.Library,snippet.metadata.Library "|")
-    gui, add, ComboBox, yp xp+100 w120 h%SmallFieldsHeight% R100 vvLibrary_Importer,% libstr
+        loop, files, % A_ScriptDir "\Sources\*.*", D
+        {
+            Ind++
+            ;; todo: make this load from a path in script.settings.path, including scriptObj
+            SplitPath,% A_LoopFileFullPath,OutName, OutDir
+            OutName:=strsplit(OutName,"\")[strsplit(OutName,"\").MaxIndex()]
+            str.=OutName "|" 
+            if (Ind=1)
+                str.="|"
+        }
+        libstr:=strreplace(strreplace(str,"||","|"),snippet.metadata.Library,snippet.metadata.Library "|")
+        gui, add, ComboBox, yp xp+100 w120 h%SmallFieldsHeight% R100 vvLibrary_Importer,% libstr
+
+    
+    ; static vName_Importer2
+    ; static vAuthor_Importer2
+    ; static vVersion_Importer2
+    ; static vDate_Importer2
+    ; static vLicense_Importer2
+    ; static vSection_Importer2
+    ; ; static vURL_Importer2
+    gui, add, text, y%SmallFieldsStart% xp+200, Dependencies
+    gui, add, edit, yp xp+100 w120 h%SmallFieldsHeight% vvDependencies_Importer, % snippet.metadata.dependencies
+    gui, add, text, yp+%SmallFieldsHeight%+5 xp-100, AHK-Version
+    gui, add, edit, yp xp+100 w120 h%SmallFieldsHeight% vvAHK_Version_Importer, % snippet.metadata.AHK_Version
+    ; gui, add, text, yp+%SmallFieldsHeight%+5 xp-200, version
+    ; gui, add, edit, yp xp+300 w120 h%SmallFieldsHeight% vvVersion_Importer2, % snippet.metadata.version
+    ; gui, add, text, yp+%SmallFieldsHeight%+5 xp-300, Date
+    ; gui, add, edit, yp xp+300 w120 h%SmallFieldsHeight% vvDate_Importer2, % Date
+    ; gui, add, text, yp+24 xp-300, License
+    ; gui, add, ComboBox, yp xp+300 w120 r5 h%SmallFieldsHeight% vvLicense_Importer2, % strreplace("MIT|BSD3|Unlicense|WTFPL|none|paste",snippet.metadata.License,snippet.metadata.License "|")
+    ; gui, add, text, yp+%SmallFieldsHeight%+5 xp-300, Section
+    ; gui, add, ComboBox, yp xp+300 w120 r5 h%SmallFieldsHeight% vvSection_Importer2, % FoundSection
+    ; gui, add, text, yp+%SmallFieldsHeight%+5 xp-300, URL
+    ; gui, add, edit, yp xp+300 w120 h%SmallFieldsHeight% vvURL_Importer2, % snippet.metadata.URL
+    ; gui, add, text, yp+%SmallFieldsHeight%+5 xp-300, Library
+    
     EditWidth2:=EditWidth-220-110
     gui, add, text, yp-195 xp+150, % ""
-    ; Obj_SubmitImporter:=Func("fSubmitImporter").Bind(Desc, Ex, vSnippet_Importer, vDesc_Importer, vEx_Importer, vName_Importer, vAuthor_Importer, vVersion_Importer, vDate_Importer, vLicense_Importer, vSection_Importer, vURL_Importer, vLibrary_Importer, vLicense_ImporterInsert)
+    ; Obj_SubmitImporter:=Func("fSubmitImporter").Bind(Desc, Ex, vSnippet_Importer, vDesc_Importer, vEx_Importer, SubmissionObj.Name, vAuthor_Importer, vVersion_Importer, vDate_Importer, vLicense_Importer, vSection_Importer, vURL_Importer, vLibrary_Importer, vLicense_ImporterInsert)
     
-    gui, add, button, yp+20 xp h%SmallFieldsHeight% glSubmitImporter, % bIsEditing?"Edit":"Ingest"
+    gui, add, button, y%SmallFieldsStart% xp+200 h%SmallFieldsHeight% glSubmitImporter, % bIsEditing?"Edit":"Ingest"
     gui, add, button, yp+30 xp h%SmallFieldsHeight% glOpenSnippetInFolder, % "Open in folder"
+    ; gui, add, button, yp+30 xp h%SmallFieldsHeight% glDelete, % "Delete"
     ; gui, add, edit, y%SmallFieldsStart% xp+80 w%EditWidth2% h%LicenseFieldsHeight% r12  vvLicense_ImporterInsert, %  bIsEditing?"[[Insert License if not found in DDL]]":"[[Insert License if not found in DDL]]"
     gui, font, s9 cWhite, Segoe UI
-    fGuiShow_2(vGUIWidth2,vGuiHeight2)
+    if !ConvertingAHKRARE
+        fGuiShow_2(vGUIWidth2,vGuiHeight2)
     Hotkey, IfWinActive, % "ahk_id " ACSIGUI
     Hotkey, ^Enter,lSubmitImporter
     Hotkey, Esc, fGuiHide_2
-    SnippetClone:=Snippet.Clone()
+    global SnippetClone:=Snippet.Clone()
+    if (ConvertingAHKRARE)
+    {
+        bConvertfromAHKRARE:="ConvertingAHKRARE"
+        ; sleep, 200
+        gosub, lSubmitImporter
+    }
     return
 }
 fGuiHide_2()
@@ -105,65 +158,115 @@ fGuiHide_2()
 fGuiShow_2(Width,Height)
 {
     gui, 1: +Disabled
+    gui, 1: hide
     gui, ACSI: show, w%Width% h%Height%, % GuiNameMain
     return
 }
 lOpenSnippetInFolder:
 gui, ACSI: submit, 
 return
+lDelete:
+gui, ACSI: submit, NoHide 
+gui, 1: -Disabled
+fDelete(snippetclone.Metadata.name , SnippetClone.Metadata.Library , SnippetClone.Code,SnippetClone)
+return
+fDelete(vName_Importer , vLibrary_Importer , vSnippet_Importer,Snippet)
+{
+    gui, ACSI: submit
+    Key:=vName_Importer . vLibrary_Importer . vSnippet_Importer ;; cuz the hash is no longer required to be translated, I can make it 
+    Hash:=Object_HashmapHash(Key) ; Issue: What to include in the hashed snippet name?
+    Path:=A_ScriptDir "\Sources\" vLibrary_Importer "\" Hash 
+    loops:=[".ahk",".ini",".example",".description"]
+    for k,v in loops
+    {
+        if FileExist(A_ScriptDir "\Sources\" Snippet.Metadata.Library "\" Snippet.Metadata.Hash v)
+            FileRecycle, % A_ScriptDir "\Sources\" Snippet.Metadata.Library "\" Snippet.Metadata.Hash v
+    }
+    return
+}
 lSubmitImporter: ;; fucking hell I cannot bind it, I _must_ use a label here cuz I cannot bind to the button itself?
 gui, ACSI: submit, 
 ; SnippetClone
-fSubmitImporter(vSnippet_Importer, vDesc_Importer, vEx_Importer, vName_Importer, vAuthor_Importer, vVersion_Importer, vDate_Importer, vLicense_Importer, vSection_Importer, vURL_Importer, vLibrary_Importer,SnippetClone,bIsEditing)
+if (snippetClone.Count()!=0) && (SnippetClone!="")
+    fDelete(snippetclone.Metadata.name , SnippetClone.Metadata.Library , SnippetClone.Code,SnippetClone)
+; global ConvertingAHKRARE:=ConvertingAHKRARE
+fSubmitImporter({Snippet:vSnippet_Importer,Description:vDesc_Importer, Example:vEx_Importer, Name:vName_Importer,Author:vAuthor_Importer, Version:vVersion_Importer,Date:vDate_Importer,License:vLicense_Importer,Section:vSection_Importer,URL:vURL_Importer,Library:vLibrary_Importer,Dependencies:vDependencies_Importer,AHK_Version:vAHK_Version_Importer}, Snippet,bIsEditing,ConvertingAHKRARE)
 return
 ; ACSISubmit:
 ; return
-fSubmitImporter(vSnippet_Importer, vDesc_Importer, vEx_Importer, vName_Importer, vAuthor_Importer, vVersion_Importer, vDate_Importer, vLicense_Importer, vSection_Importer, vURL_Importer, vLibrary_Importer, Snippet,bIsEditing)
+fSubmitImporter(SubmissionObj, Snippet,bIsEditing,ConvertingAHKRARE:=false)
 { ;; submits inputs
 
-    gui, ACSI: submit, 
-    Submission:=[vSnippet_Importer, vDesc_Importer, vEx_Importer, vName_Importer, vAuthor_Importer, vVersion_Importer, vDate_Importer, vLicense_Importer, vSection_Importer, vURL_Importer, vLibrary_Importer, Snippet,bIsEditing]
-    if ((vSnippet_Importer="") || (vDesc_Importer="") || (vEx_Importer="") || (vName_Importer="") || (vAuthor_Importer="") || (vVersion_Importer="") || (vDate_Importer="") || (vLicense_Importer="") || (vSection_Importer="") || (vURL_Importer="") || (vLibrary_Importer="")) 
+    gui, ACSI: submit, nohide
+    gui, 1: -Disabled
+    Submission:=[SubmissionObj.Snippet, SubmissionObj.Description, SubmissionObj.Example, SubmissionObj.Name, SubmissionObj.Author, SubmissionObj.Version, SubmissionObj.Date, SubmissionObj.Licens, SubmissionObj.Section, SubmissionObj.URL, SubmissionObj.Library, Snippet,bIsEditing]
+    if !ConvertingAHKRARE
     {
-        missingStr:=""
-        for k,v in Submissions
-            if (v="")
-                missingStr.=v (mod(3,k)?",`n":", ")
-
-        MsgBox 0x40030, `% script.name " - Snippet Editor", "The contents fed to be edited do not resemble a valid snippet object.`n`nPlease check for errors in the data structure`, as well as the source code.`nFaulty Values:`n" missingStr "`nReturning to Main GUI"
-        return
+        if ((SubmissionObj.Snippet="")  || (SubmissionObj.Name="")   || (SubmissionObj.Library=""))
+        {
+            i:=0
+            missingStr:=""
+            for k,v in SubmissionObject
+            {
+                i++
+                if (v="")
+                    missingStr.= k ":" v (mod(3,i)?",`n":", ")
+            }
+            MsgBox 0x40030, `% script.name " - Snippet Editor", "The contents fed to be edited do not resemble a valid snippet object.`n`nPlease check for errors in the data structure`, as well as the source code.`nFaulty Values:`n" missingStr "`nReturning to Main GUI"
+            return
+        }
     }
+
+/*
+    required for saving:
+
+    SubmissionObj.Snippet
+        SubmissionObj.Description
+        SubmissionObj.Example
+    SubmissionObj.Name
+    SubmissionObj.Library
+
+*/
+
+
     OldHash:=Snippet.Metadata.Hash
     OldLib:=Snippet.Metadata.Library
-    ttip(vName_Importer,vLibrary_Importer)
-    Key:=vName_Importer . vLibrary_Importer
+    ttip(SubmissionObj.Name,SubmissionObj.Library)
+    Key:=SubmissionObj.Name . SubmissionObj.Library . SubmissionObj.Snippet ;; cuz the hash is no longer required to be translated, I can make it 
     Hash:=Object_HashmapHash(Key) ; Issue: What to include in the hashed snippet name?
-    , Obj:={Name:vName_Importer,Author:vAuthor_Importer,Date:vDate_Importer,License:vLicense_Importer,URL:vURL_Importer,Section:vSection_Importer,Version:vVersion_Importer,Hash:Hash} ;; decide if we actually want to     if (Code="")  ;; do not write to disc
+    , Obj:={Name:SubmissionObj.Name,Author:SubmissionObj.Author,Date:DateParse(SubmissionObj.Date),License:SubmissionObj.Licens,URL:SubmissionObj.URL,Section:SubmissionObj.Section,Version:SubmissionObj.Version,Hash:Hash} ;; decide if we actually want to     if (Code="")  ;; do not write to disc
     if bIsEditing && (Hash!=OldHash) ;; Hash has changed while editing → remove old file
     {
         loops:=[".ahk",".ini",".example",".description"]
         for k,v in loops
         {
             if FileExist(A_ScriptDir "\Sources\" OldLib "\" OldHash v)
-                FileDelete,% A_ScriptDir "\Sources\" OldLib "\" OldHash v
+                FileRecycle,% A_ScriptDir "\Sources\" OldLib "\" OldHash v
             if FileExist(A_ScriptDir "\Sources\" OldLib "\" snippet.Metadata.name v)
-                FileDelete,% A_ScriptDir "\Sources\" OldLib "\" snippet.Metadata.Name v
+                FileRecycle,% A_ScriptDir "\Sources\" OldLib "\" snippet.Metadata.Name v
         }
     } 
     if (Obj.Count()>0) && (Obj.Count()!="")
-        ACSI_fWriteIni({Info:Obj},A_ScriptDir "\Sources\" vLibrary_Importer "\" Hash ".ini")
-    if (vSnippet_Importe!="")
-        fWriteTextToFile(vSnippet_Importer,A_ScriptDir "\Sources\" vLibrary_Importer "\" Hash ".ahk")
-    if (vEx_Importer!="")
-        fWriteTextToFile(vEx_Importer,A_ScriptDir "\Sources\" vLibrary_Importer "\" Hash ".example")
-    if (vDesc_Importer!="")
-        fWriteTextToFile(vDesc_Importer,A_ScriptDir "\Sources\" vLibrary_Importer "\" Hash ".description")
+        ACSI_fWriteIni({Info:Obj},A_ScriptDir "\Sources\" SubmissionObj.Library "\" Hash ".ini")
+    if (SubmissionObj.Snippet!="") && (RegExReplace(SubmissionObj.Snippet,"\s*","")!="") && !Instr(SubmissionObj.Snippet,"Error 01: No code-file was found under the expected path ")
+        fWriteTextToFile(SubmissionObj.Snippet,A_ScriptDir "\Sources\" SubmissionObj.Library "\" Hash ".ahk")
+    if (SubmissionObj.Example!="") && (RegExReplace(SubmissionObj.Example,"\s*","")!="") && !Instr(SubmissionObj.Example, "Error 01: No example-file was found under the expected path")
+        fWriteTextToFile(SubmissionObj.Example,A_ScriptDir "\Sources\" SubmissionObj.Library "\" Hash ".example")
+    if (SubmissionObj.Description!="") && (RegExReplace(SubmissionObj.Description,"\s*","")!="") && !Instr(SubmissionObj.Description, "Error 01: No example-file was found under the expected path")
+        fWriteTextToFile(SubmissionObj.Description,A_ScriptDir "\Sources\" SubmissionObj.Library "\" Hash ".description")
+    if (ConvertingAHKRARE)
+    {
+        WinActivate, AHK-Rare_TheGui
+        sleep, 400
+    }
+    fGuiHide_2()
+    return
     reload
     return
 }
 fWriteTextToFile(Text,Path)
 { ;; writes string to file, replacing the current file
-    FileDelete, % Path      ;; is this smarter than wiping file contents via .fileopen(,w) → .fileclose() ??
+    FileRecycle, % Path      ;; is this smarter than wiping file contents via .fileopen(,w) → .fileclose() ??
     FileAppend, % Text, % Path
     return FileExist(Path)?1:0
 }

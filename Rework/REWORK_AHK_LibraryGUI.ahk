@@ -1,6 +1,7 @@
-/*
+ /*
 	TODO:::: ADD NAMESPACED VERSIONS OF FUNCTIONS FROM stringthings.ahk AND TF.AHK to this script
 */
+ttip("Comb through ahkrare-content and move example and description comment blocks to their respective files","add all metadata-fields to be used in the editor, and figure out how to do the editor metadata-adjustable")
 #SingleInstance, Force
 #Warn,,Off 
 #persistent
@@ -88,8 +89,17 @@ if !script.Load(,1)
 	, CopyExampleToOutput:true
 	, LibraryRelativeSI:false
 	, ShowRedraw:false
-	, bDebugSwitch:false
-	, Max_InDepth_Searchable:200}
+	, bDebugSwitch:true
+	, Max_InDepth_Searchable:200
+	, Map2:{AU:"Author" ;; For fetching data from 'Matches', the presorted object TODO: make this a 
+					,DA:"Date"
+					,Fi:"Library"
+					,Li:"License"
+					,Na:"Name"
+					,Se:"Section"
+					,Url:"URL"
+					,Ver:"Version"
+					,Dep:"Dependencies"}}
    ,Search_Descriptions:{Search_Code:";Check if you want to search code of snippets as well. Adds substantial overhead at bootup."
     , Search_Description:";Check if you want to search descriptions of snippets as well. Adds substantial overhead at bootup."
 	, Search_Examples:";Check if you want to search examples of snippets as well. Adds substantial overhead at bootup."
@@ -100,7 +110,8 @@ if !script.Load(,1)
 	, LibraryRelativeSI:";Set SnippetIdentifier relative to its own library"
 	, ShowRedraw:"Display the redrawing of the LV-Control. Can reduce performance."
 	, bDebugSwitch:"Set to true to expose additional information helpful for debugging issues."
-	, Max_InDepth_Searchable:";Set the maximum number of snippets for which the script will also search all previously loaded Codes, Descriptions and Examples.`nFor more snippets, these searches will not be performed to not reduce performance too much."}}
+	, Max_InDepth_Searchable:";Set the maximum number of snippets for which the script will also search all previously loaded Codes, Descriptions and Examples.`nFor more snippets, these searches will not be performed to not reduce performance too much."
+	, Map2:"The Map corresponding shorthand searchkeys with their longhand assignments within the metadata"}}
 	script.Save()
 }
 ; script.Version:=script.config.Settings.ScriptVersion
@@ -161,7 +172,7 @@ RESettings2 :=
 gosub, lGUICreate_1New
 
 
-;;  an armada of different search testing strings :)
+;;  an armada of different search testing strings :
 Clipboard:="Au:Gew Se:menu Li:Un"
 Clipboard:="Au:Gew Se:menu Li:Un Da:07.10.2022"
 Clipboard:="Fi:Libr AU:ano"
@@ -173,7 +184,11 @@ Clipboard:="Na:1 fi:ary1"
 clipboard:="Na:1 fi:ary1 au:ano"
 clipboard:="fi:sec au:ano"
 clipboard:="fi:sec au:ano NA:alib"
-
+clipboard:="gui - to change"
+clipboard:="getcommstate"
+clipboard:="InvokeVerb"
+clipboard:="PostMessageUn"
+clipboard:="controlgettabs"
 ; Clipboard:="Au:anon na:1"
 
 return
@@ -247,15 +262,8 @@ lGUICreate_1New: ;; Fully Parametric-form, TODO: functionalise this thing
 					gui, add, button, x%xPos_DDL_SearchMode% y%yPos_DDL_SearchMode% h%Height_DDL_SearchMode2%  w%Width_DDL_SearchMode% vvExtraButton glIngestSnippet HwndExtraButtonHWND,%  "&Ingest Snippet"
 					gui, add, button, x%xPos_DDL_SearchMode2% y%yPos_DDL_SearchMode% h%Height_DDL_SearchMode2%  w%Width_DDL_SearchMode% vvExtraButton2 glEditSnippet HwndExtraButton2HWND,%  "&Edit Snippet"
 					gui, font, s11 cWhite, Segoe 
-					Map2:={AU:"Author" ;; For fetching data from 'Matches', the presorted object
-					,DA:"Date"
-					,Fi:"Library"
-					,Li:"License"
-					,Na:"Name"
-					,Se:"Section"
-					,Url:"URL"
-					,Ver:"Version"}
-					str:=Obj2Str(Map2)
+					
+					str:=Obj2Str(script.config.settings.map2)
 					AddToolTip(ExtraButtonHWND,"Press Enter to Search.`n" str)
 			; Define Parameters: Fuzzy-Search Checkbox
 					xPos_FuzzySearchCheckbox:=xPos_DDL_SearchMode + Width_DDL_SearchMode  +(WidthMargin_Global/2)
@@ -274,8 +282,7 @@ lGUICreate_1New: ;; Fully Parametric-form, TODO: functionalise this thing
 					, yPos_Edit_SearchMode:=yPos_DDL_SearchMode
 					, Width_Edit_SearchMode:=Width_Search_GroupBox-Width_DDL_SearchMode*3-3*WidthMargin_Global
 					, Height_Edit_SearchMode:=Height_DDL_SearchMode
-        			; gui, add, edit, x%xPos_Edit_SearchMode% y%yPos_Edit_SearchMode% w%Width_Edit_SearchMode% r1 cBlack glCheckStringForLVRestore vSearchString HwndSearchStringHWND,  ; Search here
-        			gui, add, edit, x%xPos_Edit_SearchMode% y%yPos_Edit_SearchMode% w%Width_Edit_SearchMode% r1 cBlack  vSearchString HwndSearchStringHWND,  ; Search here
+        			gui, add, edit, x%xPos_Edit_SearchMode% y%yPos_Edit_SearchMode% w%Width_Edit_SearchMode% r1 cBlack gfSuperviseSearchBar vSearchString HwndSearchStringHWND,  ; Search here
 					AddToolTip(SearchStringHWND,"Enter search string. Use key 'ID:xx' to search by function ID, and key 's:xx' to search by section index")
 			; Define Parameters - ListView
 					xPos_ListView:=WidthMargin_Global
@@ -339,6 +346,14 @@ lGUICreate_1New: ;; Fully Parametric-form, TODO: functionalise this thing
 		gui, add, statusbar, -Theme vStatusBarMainWindow  gfCallBack_StatusBarMainWindow ; finish up statusbar - settings, updating library/adding additional libraries
 
 		SB_SetParts(370,270,71)
+		if ((!(script.computername==script.authorID)) && !script.config.settings.bDebugSwitch)
+		{ ;; public display
+			SB_SetText("Standard Mode Engaged. Click to enter debug-mode",2)
+		}
+		else if ((script.computername==script.authorID) || (!(script.computername==script.authorID) && script.config.settings.bDebugSwitch))
+		{
+			SB_SetText("Author/Debug Mode Engaged",2)
+		}
 		; f_SB_Set()
 		SB_SetText("No Code from " script.name " on clipboard.", 1)
 		if (SnippetsStructure[4,"ahk"]!=SnippetsStructure[4,"ini"]) 
@@ -429,6 +444,11 @@ fFocusListView()
 	guicontrol, focus, LVvalue
 	return
 }
+fSuperviseSearchBar()
+{
+	if Instr(fGetSearchFunctionsString(),"?")
+		ttip(script.config.settings.map2)
+}
 fDeleteWordFromSearchBar()
 {
 	SendInput, ^+{Left}{Del}{ShiftUp}{CtrlUp}
@@ -485,7 +505,7 @@ fCopyScript()
 				Example:=TF_InsertPrefix(Matches[1,SelectedLVEntry.3].Example,1,, ";; ") ;; make sure the example is definitely a comment 
 			else
 				Example:=TF_InsertPrefix(SnippetsStructure[1,SelectedLVEntry.3].Example,1,, ";; ") ;; make sure the example is definitely a comment 
-			Clipboard:=Code:=PrependTextBeforeString(Code,";; Example:`n" Example)
+			Code:=PrependTextBeforeString(Code,";; Example:`n" Example)
 			; Clipboard:=Code:=PrependTextBeforeString(Code,";; Example:`n")
 		}
 		else
@@ -521,6 +541,7 @@ fCopyScript()
 		; nameStr:="abcdefghijklmno#pqrstuvwxyz1234567890"
 		Str:="On Clipboard: " SubStr(nameStr,1,20) " (v." SnippetsStructure[1,SelectedLVEntry.3,"MetaData","Version"] ")"
 		SB_SetText(Str , 1)
+
 	}
 	return
 }
@@ -554,7 +575,7 @@ fEditSnippet(SnippetsStructure:="",matcges:="")
 	ttip("Congrats, this does absolutely nothing as well")
 	SelectedLVEntry:=f_GetSelectedLVEntries()
 	if (Matches.Count()!="") && (Matches.Count()>0)
-		EditorImporter(Matches[1,SelectedLVEntry.3] ,Matches)
+		EditorImporter(Matches[1,SelectedLVEntry.3+0] ,Matches)
 	Else
 		EditorImporter(SnippetsStructure[1,SelectedLVEntry.3] ,SnippetsStructure)
 	return
@@ -568,6 +589,21 @@ fCallBack_StatusBarMainWindow()
 		SB_SetText("Testing Error", 2)
 	if ((A_GuiEvent="DoubleClick") && (A_EventInfo=2)) ;; print detailed Error
 	{
+		script.config.settings.bDebugSwitch:= !script.config.settings.bDebugSwitch
+		if ((!(script.computername==script.authorID)) && !script.config.settings.bDebugSwitch) || ((script.computername==script.authorID) && !script.config.settings.bDebugSwitch)
+		{ ;; public display
+			SB_SetText("Standard Mode Engaged. Click to enter debug-mode",2)
+		}
+		else if ((script.computername==script.authorID) || (!(script.computername==script.authorID) && script.config.settings.bDebugSwitch))
+		{
+			SB_SetText("Author/Debug Mode Engaged. Click to exit debug-mode",2)
+		}
+		if !strsplit(script.config.settings.ShowRedraw,A_Space).1
+			GuiControl, -Redraw, LVvalue
+		if strsplit(script.config.settings.ShowRedraw,A_Space).1
+			GuiControl, +Redraw, LVvalue
+		f_RescaleLV()
+		GuiControl, +Redraw, LVvalue
 		StatusBarGetText, currText, 2, % GuiNameMain
 		if (currText!="no Error")
 			if script.error
@@ -575,7 +611,7 @@ fCallBack_StatusBarMainWindow()
 	}
 	return
 }
-fLV_Callback(SnippetsStructure,Matches)
+fLV_Callback(SnippetsStructure,FoundMatches)
 { ;; decides based on contents of searchbox what contents to load into the richfields and edit-fields
 	global ;; there is certainly a way to avoid this global here, but for me it is far too complicated.
 	str:=fGetSearchFunctionsString()
@@ -629,7 +665,7 @@ fLoadFillDetails(SnippetsStructure,DirectoryPath)
 				FileRead, Code, % Path ".ahk"
 			}
 			else
-				Code:="Error 01: File '" Path ".ahk does not exist.`nCode could not be loaded.`nPlease Reload the script after fixing the issue."
+				Code:="Error 01: No code-file was found under the expected path '" Path ".ahk'.`nCode could not be loaded.`nEither ignore or add Code-file and reload."
 		}
 		SnippetsStructure[1,SelectedLVEntry[3]].Code:=Code
 	}
@@ -645,7 +681,7 @@ fLoadFillDetails(SnippetsStructure,DirectoryPath)
 				FileRead, Description, % Path ".description"
 			}
 			else
-				Description:="Error 01: File '" Path ".description does not exist.`nDescription could not be loaded.`nPlease Reload the script after fixing the issue."
+				Description:="Error 01: No description-file was found under the expected path '" Path ".example'.`nDescription could not be loaded.`nEither ignore or add description-file and reload."
 		}
 		SnippetsStructure[1,SelectedLVEntry[3]].Description:=Description
 	}
@@ -661,22 +697,30 @@ fLoadFillDetails(SnippetsStructure,DirectoryPath)
 				FileRead, Code, % Path ".example"
 			}
 			else
-				Example:="Error 01: File '" Path ".example does not exist.`nExample could not be loaded.`nPlease Reload the script after fixing the issue."
+				Example:="Error 01: No example-file was found under the expected path '" Path ".example'.`nExample could not be loaded.`nEither ignore or add example-file and reload."
 		}
 		; 	Code:="Error 01: File '" Path ".example does not exist.`nCode could not be loaded.`nPlease Reload the script after fixing the issue."
 
 		; else
 		SnippetsStructure[1,SelectedLVEntry[3]].Example:=Example
 	}
-	Name:=Data.Metadata.Name
-	, Version:=Data.Metadata.Version
-	, Author:=Data.Metadata.Author
-	, Library:=Data.Metadata.Library
-	, Section:=Data.Metadata.Section
-	, SectionInd:=Data.Metadata.SectionInd
-	, URL:=Data.Metadata.URL
-	, License:=Data.Metadata.License
+	Author:=Data.Metadata.Author
 	FormatTime, Date,% Data.Metadata.Date, % script.config.Settings.DateFormat
+	; Hash
+	License:=Data.Metadata.License
+	Name:=Data.Metadata.Name
+	Section:=Data.Metadata.Section
+	URL:=Data.Metadata.URL
+	Version:=Data.Metadata.Version
+
+	SectionInd:=Data.Metadata.SectionInd
+	Library:=Data.Metadata.Library
+
+	AHK_Version:=(Data.Metadata.AHK_Version!=""?Data.Metadata.AHK_Version:"/")
+	Dependencies:=(Data.Metadata.Dependencies!=""?Data.Metadata.Dependencies:"/")
+	; Changelog:=Data.Metadata.Changelog ;; this one is a maybe because I would probably have to include an additional TAB+RC-Control cuz this would likely have to be its own file.
+	; KeyWords:=Data.Metadata.KeyWords
+	LicenseLink:=Data.Metadata.LicenseLink
 		; missing: 
 		; 						name
 		; 						version
@@ -692,6 +736,13 @@ fLoadFillDetails(SnippetsStructure,DirectoryPath)
 		; 						date
 
 		; 						license
+
+			; AHK_Version:=Data.Metadata.AHK_Version
+		; Changelog:=Data.Metadata.Changelog ;; this one is a maybe because I would probably have to include an additional TAB+RC-Control cuz this would likely have to be its own file.
+			; Dependencies:=Data.Metadata.Dependencies
+			; KeyWords:=Data.Metadata.KeyWords
+		; LicenseLink:=Data.Metadata.LicenseLink
+
 		; hash
 		; lvind
 	InfoText=
@@ -699,13 +750,34 @@ fLoadFillDetails(SnippetsStructure,DirectoryPath)
 	Snippet: %Name% (v.%Version%)
 	--------------------------------------------------------------
 	Author: %Author%
-	License: %License%
-	Source: %URL% (%Date%)
-	--------------------------------------------------------------
-	Library: %Library%
-	Section: %SectionInd% - %Section%
 	)
-	guicontrol,1:, Edit2,% InfoText
+	if (LicenseLink!="")
+	{
+			InfoText2=
+		(LTRIM
+		License: %License% (%LicenseLink%)
+		)
+	}
+	else
+	{
+			InfoText2=
+			(LTRIM
+		License: %License%
+		)
+	}
+	InfoText3=
+	(LTRIM
+		Source: %URL% (%Date%)
+		--------------------------------------------------------------
+		Library: %Library%
+		Section: %SectionInd% - %Section%
+		--------------------------------------------------------------
+		Dependencies: %Dependencies%
+		AHK_Version: %AHK_Version%
+	)
+
+	FinalInfoText:=InfoText "`n" InfoText2 "`n" InfoText3
+	guicontrol,1:, Edit2,% FinalInfoText
 		f_FillFields(Code,Description,Example)		;; using name as the identifier could be problematic when having multiple snippets  of same name
 	return
 }
@@ -889,19 +961,14 @@ f_CollectMatches(Array,String,References,AllSections)
 	,Li:3
 	,Da:4
 	,Fi:5}
-	Map2:={AU:"Author" ;; For fetching data from 'Matches', the presorted object
-	,DA:"Date"
-	,Fi:"Library"
-	,Li:"License"
-	,Na:"Name"
-	,Se:"Section"
-	,Url:"URL"
-	,Ver:"Version"}
-
+	regex:="("
+	for k,v in script.config.settings.map2
+		regex.=k "|"
+	regex:=SubStr(regex,1,StrLen(regex)-1) "):(.+?)`n"
 
 	str:=""
 	pos := 1
-	regex:="(AU|DA|FI|LI|NA|SE|URL|VER):(.+?)`n"
+	
 	     
 	if (String="") || (StrLen(Trim(String))=0) ;; the string is entirely empty/spaces/tabs
 		return
@@ -915,14 +982,20 @@ f_CollectMatches(Array,String,References,AllSections)
 		;; 5. Combined? 
 	
 	;; make sure formatting is clean
-	String:=TRIM(strreplace(String,"AU:","`nAU:"))
-	String:=TRIM(strreplace(String,"DA:","`nDA:"))
-	String:=TRIM(strreplace(String,"FI:","`nFI:"))
-	String:=TRIM(strreplace(String,"LI:","`nLI:"))
-	String:=TRIM(strreplace(String,"NA:","`nNA:"))
-	String:=TRIM(strreplace(String,"SE:","`nSE:"))
-	String:=TRIM(strreplace(String,"URL:","`nURL:"))
-	String:=TRIM(strreplace(String,"VER:","`nVER:"))
+	; TODO: FIGURE OUT HOW TO this conversion automatically so that one doesn't have to adjust this for additional keytypes anymore
+	for k,v in script.config.settings.map2
+	{
+		String:=TRIM(strreplace(String,k ":","`n" k ":"))
+	}
+	; String:=TRIM(strreplace(String,"AU:","`nAU:"))
+	; String:=TRIM(strreplace(String,"DA:","`nDA:"))
+	; String:=TRIM(strreplace(String,"FI:","`nFI:"))
+	; String:=TRIM(strreplace(String,"LI:","`nLI:"))
+	; String:=TRIM(strreplace(String,"NA:","`nNA:"))
+	; String:=TRIM(strreplace(String,"SE:","`nSE:"))
+	; String:=TRIM(strreplace(String,"URL:","`nURL:"))
+	; String:=TRIM(strreplace(String,"VER:","`nVER:"))
+	; String:=TRIM(strreplace(String,"DEP:","`nDEP:"))
 
 	;; setup, get key-value pairs
 	while RegExMatch(String "`n", "im)" regex, match, pos)
@@ -984,7 +1057,7 @@ f_CollectMatches(Array,String,References,AllSections)
 			MatchCount:=0
 			for k,v in KeyVals
 			{
-				SearchedStr:=Matches[s,"MetaData",Map2[k]]
+				SearchedStr:=Matches[s,"MetaData",script.config.settings.map2[k]]
 				Needle:=(k="DA")?DateParse(v):v
 				if script.config.settings.Search_InString_MetaFields
 				{
@@ -1028,7 +1101,7 @@ f_CollectMatches(Array,String,References,AllSections)
 					Matches2.push(w)
 					MatchedLibraries[Matches[s,"Metadata","Library"]]:=1
 					AddedOnes.=w.Metadata.Hash ", "
-					if Instr(w.Metadata[Map2[k]],v)
+					if Instr(w.Metadata[script.config.settings.map2[k]],v)
 					{
 
 						; Matches2.
@@ -1047,7 +1120,7 @@ f_CollectMatches(Array,String,References,AllSections)
 				; 	{
 					;; Catcher for quicker testing	
 				; 	}
-				SearchedStr:=Matches[s,"MetaData",Map2[k]]
+				SearchedStr:=Matches[s,"MetaData",script.config.settings.map2[k]]
 				Needle:=(k="DA")?DateParse(v):v
 				if script.config.settings.Search_InString_MetaFields
 				{
@@ -1076,7 +1149,7 @@ f_CollectMatches(Array,String,References,AllSections)
 	{
 		for x,y in KeyVals
 		{
-			PassedVal:=w.Metadata[map2[x]]
+			PassedVal:=w.Metadata[script.config.settings.map2[x]]
 			if !Instr(PassedVal,y)
 				Matches2.Remove(s)
 			
@@ -1249,7 +1322,8 @@ fPopulateLVNew(Snippets,SectionNames,LibraryCount)
 				, DateReferences[v.Metadata.Date]:=DateReferences[v.Metadata.Date] k ","
 				, FileReferences[v.Metadata.Library]:=FileReferences[v.Metadata.Library] k ","
 				, v.MetaData.LVInd:=fPadIndex(SectionNamesRespectiveIndex[v.Metadata.Section],Snippets.Count())
-				, v.MetaData.SectionInd:=fPadIndex(SectionNamesReversed[v.Metadata.Section],Snippets.Count())
+				, v.MetaData.SectionInd:=fPadIndex(SectionNamesReversed[v.Metadata.Section],SectionNames.Count())
+				, v.MetaData.AdditionIndex:=fPadIndex(k,Snippets.Count())
 				; ; TempInd:=SectionNamesRespectiveIndex[v.Metadata.Section]++
 				; Clipboard:=SectionNamesRespectiveIndex[v.Metadata.Section]	
 		}
@@ -1259,10 +1333,10 @@ fPopulateLVNew(Snippets,SectionNames,LibraryCount)
 		, Addition.Hash:=v.MetaData.Hash
 		, Addition.LibraryName:=v.MetaData.Library
 		, Addition.LVIdentifier:=fPadIndex(v.MetaData.SectionInd,SectionPad) "." fPadIndex((InStr(A_ThisLabel,"lSearchSnippets")?v.MetaData.LVInd:v.MetaData.LVInd),SectionPad)
-		, Addition.AdditionIndex:=k
+		, Addition.AdditionIndex:=v.MetaData.AdditionIndex
 		, Addition.License:=v.Metadata.License
 		, Addition.Version:=v.Metadata.Version
-		, Addition.Author:=v.Metadata.Author
+		, Addition.Author:=SubStr(v.Metadata.Author,1,150)
 		LV_Add("-E0x200",		Addition.LVSection,		Addition.Name,		Addition.Hash,		Addition.LibraryName,		Addition.LVIdentifier, Addition.AdditionIndex, Addition.License, Addition.Version,Addition.Author,Addition.LVIdentifier		)
 	}
 	; m(d,Snippets.Count())
@@ -1273,23 +1347,30 @@ fPopulateLVNew(Snippets,SectionNames,LibraryCount)
 
 f_RescaleLV()
 { ;; makes sure the ListView is correctly scaled. ;;TODO: change the order/settings here to hide 
-	if ((!(script.computername==script.authorID)) && !script.config.settings.bDebugSwitch)
+	if ((!(script.computername==script.authorID)) && !script.config.settings.bDebugSwitch) || ((script.computername==script.authorID) && !script.config.settings.bDebugSwitch)
 	{
 		LV_ModifyCol(5,0)
 		, LV_ModifyCol(3,0)
 		, LV_ModifyCol(6,0) 
-		, LV_ModifyCol(7,0) 
-		, LV_ModifyCol(8,0) 
-		, LV_ModifyCol(9,0) 
-	}
-	else if ((script.computername==script.authorID) || (!(script.computername==script.authorID) && script.config.settings.bDebugSwitch))
-	{
-		LV_ModifyCol(5,0)
-		, LV_ModifyCol(3,"AutoHdr") 
-		, LV_ModifyCol(6,"AutoHdr") 
+		; , LV_ModifyCol(7,0) 
+		; , LV_ModifyCol(8,0) 
+		; , LV_ModifyCol(9,0) 
 		, LV_ModifyCol(7,"AutoHdr") 
 		, LV_ModifyCol(8,"AutoHdr") 
 		, LV_ModifyCol(9,"AutoHdr") 
+	}
+	else if ((script.computername==script.authorID) || (!(script.computername==script.authorID) && script.config.settings.bDebugSwitch))
+	{
+		LV_ModifyCol(5,"AutoHdr")
+		, LV_ModifyCol(3,"AutoHdr") 
+		, LV_ModifyCol(6,"AutoHdr") 
+		, LV_ModifyCol(7,"AutoHdr") 
+		, LV_ModifyCol(9,"AutoHdr") 
+		, LV_ModifyCol(8,"AutoHdr") 
+
+    	, LV_ModifyCol(10,"Left")
+	, LV_ModifyCol(10,"Sort")
+	, LV_ModifyCol(10,"AutoHdr")
 
 	}
 	; , LV_ModifyCol(3,"AutoHdr")
@@ -1298,8 +1379,9 @@ f_RescaleLV()
 	, LV_ModifyCol(4,"AutoHdr")
     , LV_ModifyCol(2,"AutoHDr")
     , LV_ModifyCol(10,"Right")
-	, LV_ModifyCol(10,"AutoHdr")
 	, LV_ModifyCol(10,"Sort")
+	, LV_ModifyCol(9,"AutoHdr")
+	, LV_ModifyCol(10,"AutoHdr")
 }
 
 f_FillFields(Code,Description,Example)
@@ -1307,8 +1389,8 @@ f_FillFields(Code,Description,Example)
  	RC.Settings.Highlighter := "HighlightAHK"
 	, RC.Value := []
 	, RC.Value:=code
-	, RC2.Value:=Description
-	, RC3.Value:=Example
+	, RC2.Value:=Example
+	, RC3.Value:=Description
 	return
 }
 
