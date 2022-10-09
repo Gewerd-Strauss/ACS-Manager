@@ -104,9 +104,10 @@ if !script.Load(,1)
 	script.Save()
 }
 ; script.Version:=script.config.Settings.ScriptVersion
-SnippetsStructure:=fLoadFolderLibraries()
+global DirectoryPath:= A_ScriptDir "\Sources\*" ;; this is the path that contains all libraries which will be read.
+SnippetsStructure:=fLoadFolderLibraries(DirectoryPath)
 oArr:=SnippetsStructure.Clone()
-
+SearchHistory:=[]
 
 GUI_Mode:=1
 bSwitchSize:=0
@@ -171,6 +172,7 @@ Clipboard:="au:gew fi:ary1"
 Clipboard:="Na:1 fi:ary1"
 clipboard:="Na:1 fi:ary1 au:ano"
 clipboard:="fi:sec au:ano"
+clipboard:="fi:sec au:ano NA:alib"
 
 ; Clipboard:="Au:anon na:1"
 
@@ -317,7 +319,7 @@ lGUICreate_1New: ;; Fully Parametric-form, TODO: functionalise this thing
 			}
         	RC.HighlightBound:=Func("HighlightAHK")
 			fGuiShow_1(vGUIWidth,vGUIHeight,GuiNameMain)
-			fPrePopulateLV(SnippetsStructure)
+			References:=fPrePopulateLV(SnippetsStructure)
 
 		}
 		gui, tab, Examples
@@ -357,35 +359,37 @@ lGUICreate_1New: ;; Fully Parametric-form, TODO: functionalise this thing
 		
 			Obj_ExtraButton2:=Func("fEditSnippet").Bind(SnippetsStructure,matches)
 			Hotkey, !e, % Obj_ExtraButton2
-				Obj_ResetListView:=Func("fResetListView").Bind(SnippetsStructure)
-				Hotkey, Del, % Obj_ResetListView
+			Obj_ResetListView:=Func("fResetListView").Bind(SnippetsStructure)
+			Hotkey, Del, % Obj_ResetListView
 
         Hotkey, if, % SearchIsFocused
         		HotKey, ^BS, fDeleteWordFromSearchBar
         		Hotkey, ^k, fFocusListView
-        Hotkey, ~Enter, lSearchSnippetsEnter
-
+			Obj_SearchSnippets:=Func("fSearchSnippetsEnter").Bind(SnippetsStructure,References,DirectoryPath,SearchHistory)
+			Obj_MoveThroughSearchHistory:=Func("fMoveThroughSearchHistory").Bind(SnippetsStructure,References,DirectoryPath,SearchHistory)
+			Hotkey, ~Enter, % Obj_SearchSnippets
+			Hotkey, ~Up, % Obj_MoveThroughSearchHistory
+			Hotkey, ~Down, % Obj_MoveThroughSearchHistory
         Hotkey, if, % ListViewIsFocused
-		Obj_MoveOnListView2:=Func("MoveOnListView").Bind(-1)
-		Obj_MoveOnListView:=Func("MoveOnListView").Bind(1)
+			Obj_MoveOnListView2:=Func("MoveOnListView").Bind(-1)
+			Obj_MoveOnListView:=Func("MoveOnListView").Bind(1)
 
         ; Hotkey, ~Up, % Obj_MoveOnListView2
         ; Hotkey, ~Down, % Obj_MoveOnListView
-		; Obj_fLVCallback:=Func("fLV_Callback").Bind()
-        Hotkey, ~Up, fLV_Callback
-        Hotkey, ~Down, fLV_Callback
+		Obj_fLVCallback:=Func("fLV_Callback").Bind(SnippetsStructure,Matches)
+        ; Hotkey, ~Up, fLV_Callback
+        ; Hotkey, ~Down, fLV_Callback
+        Hotkey, ~Up, % Obj_fLVCallback
+        Hotkey, ~Down, % Obj_fLVCallback
         
         hotkey, if, % RCFieldIsClicked
         Hotkey, ~RButton, fCopyScript
         Hotkey, ~LButton, fCopyScript
-		hotkey, if
-					; hotkey, if, % EditFieldIsClicked
-					; Hotkey, ~RButton, fCopyScript
-					; Hotkey, ~LButton, fCopyScript
+		hotkey, if 
 					; Gui, Color, 4f1f21, 432a2e
 					; fFocusListView()
 					; sleep, 300
-		fSelectFirstLVEntry()
+		fSelectFirstLVEntry(SnippetsStructure,Matches)
 		LastScaledSize:=[vGUIWidth,vGUIHeight]
 		lCheckClipboardContents()
 return
@@ -407,7 +411,7 @@ fPrePopulateLV(SnippetsStructure)
 	f_RescaleLV()
 	if !strsplit(script.config.settings.ShowRedraw,A_Space).1
 		GuiControl, +Redraw, LVvalue
-	return
+	return References
 }
 fGuiHide_1()
 {
@@ -435,7 +439,7 @@ fResetListView(SnippetObj:="")
 	fClearSearchBar()
 	fPrePopulateLV(SnippetObj)
 	fSelectFirstLVEntry_Searches()
-	fLV_Callback()
+	fLV_Callback(SnippetObj,Matches)
 	return
 }
 
@@ -465,23 +469,51 @@ fCopyScript()
 	MouseGetPos,,,,mVC
 	; if (mVC="RICHEDIT50W1")	; little safety to remove copying when clicking the DescriptionBox
 	{
+		searchstr:=fGetSearchFunctionsString()
 		SelectedLVEntry:=f_GetSelectedLVEntries()
-		Code:=SnippetsStructure[1,SelectedLVEntry.3].Code 
+		if (searchstr!="")
+			Code:=Matches[1,SelectedLVEntry.3].Code 
+		else
+			Code:=SnippetsStructure[1,SelectedLVEntry.3].Code 
+		if (Code="") && (searchstr!="")
+			fLoadFillDetails(Matches,DirectoryPath)
+		else if (Code="") && (searchstr="")
+			fLoadFillDetails(SnippetsStructure,DirectoryPath)
 		if script.config.Settings.CopyExampleToOutput
 		{
-			Example:=TF_InsertPrefix(SnippetsStructure[1,SelectedLVEntry.3].Example,1,, ";; ") ;; make sure the example is definitely a comment 
-			Code:=PrependTextBeforeString(SnippetsStructure[1,SelectedLVEntry.3].Code,";; Example:`n" Example)
+			if (searchstr!="")
+				Example:=TF_InsertPrefix(Matches[1,SelectedLVEntry.3].Example,1,, ";; ") ;; make sure the example is definitely a comment 
+			else
+				Example:=TF_InsertPrefix(SnippetsStructure[1,SelectedLVEntry.3].Example,1,, ";; ") ;; make sure the example is definitely a comment 
+			Clipboard:=Code:=PrependTextBeforeString(Code,";; Example:`n" Example)
 			; Clipboard:=Code:=PrependTextBeforeString(Code,";; Example:`n")
 		}
 		else
+		{
+			if (searchstr!="")
+				Example:=TF_InsertPrefix(Matches[1,SelectedLVEntry.3].Example,1,, ";; ") ;; make sure the example is definitely a comment 
+			else
+				Example:=TF_InsertPrefix(SnippetsStructure[1,SelectedLVEntry.3].Example,1,, ";; ") ;; make sure the example is definitely a comment 
+
 			Code:=SnippetsStructure[1,SelectedLVEntry.3].Code
+		}
 		if script.config.Settings.CopyDescriptionToOutput
 		{
-			Description:=TF_InsertPrefix(SnippetsStructure[1,SelectedLVEntry.3].Description,1,, ";;; ") ;; make sure the description is definitely a comment 
+			if (searchstr!="")
+				Description:=TF_InsertPrefix(Matches[1,SelectedLVEntry.3].Description,1,, ";;; ") ;; make sure the example is definitely a comment 
+			else
+				Description:=TF_InsertPrefix(SnippetsStructure[1,SelectedLVEntry.3].Description,1,, ";;; ") ;; make sure the example is definitely a comment 
+			; Description:=TF_InsertPrefix(SnippetsStructure[1,SelectedLVEntry.3].Description,1,, ";;; ") ;; make sure the description is definitely a comment 
 			Code:=PrependTextBeforeString(Code,";;; Description:`n" Description)
 		}
 		else
+		{
+			if (searchstr!="")
+				Description:=TF_InsertPrefix(Matches[1,SelectedLVEntry.3].Description,1,, ";;; ") ;; make sure the example is definitely a comment 
+			else
+				Description:=TF_InsertPrefix(SnippetsStructure[1,SelectedLVEntry.3].Description,1,, ";;; ") ;; make sure the example is definitely a comment 
 			Code:=SnippetsStructure[1,SelectedLVEntry.3].Code
+		}
 		Code:=ALG_st_Insert(";--uID:" SnippetsStructure[1,SelectedLVEntry.3].Metadata.Hash "`n",Code) . "`n" ;; prepend uID-token
 		Code:=ALG_st_Insert(";--uID:" SnippetsStructure[1,SelectedLVEntry.3].Metadata.Hash "`n",Code,StrLen(Code)+StrLen(";--uID:" SnippetsStructure[1,SelectedLVEntry.3].Metadata.Hash "`n")) ;; append uID-token
 		Clipboard:=Code
@@ -507,7 +539,6 @@ FileCount(filter, mode)
 } ;</07.01.000017>
 lIngestSnippet:
 {
-	gui,1: submit, NoHide
 	EditorImporter("Ingestion",SnippetsStructure)
 }
 return
@@ -541,12 +572,11 @@ fCallBack_StatusBarMainWindow()
 		if (currText!="no Error")
 			if script.error
 				script.Debug(script.error.Level,script.error.Label,script.error.Message,script.error.AddInfo,script.error.Vars)
-			; script.Debug(2,"fCopyScript","Snippet could not be copied successfully. Clipboard might be occupied by another program.","`n------------------`nCLIPBOARD:`n`n",Clipboard,"`n-------------`nINTENDED CODE`n`n",AttemptedClipboard)
 	}
 	return
 }
-fLV_Callback()
-{
+fLV_Callback(SnippetsStructure,Matches)
+{ ;; decides based on contents of searchbox what contents to load into the richfields and edit-fields
 	global ;; there is certainly a way to avoid this global here, but for me it is far too complicated.
 	str:=fGetSearchFunctionsString()
 	if (str="") ;; search-box is empty, thus we ingest the default Object
@@ -592,6 +622,7 @@ fLoadFillDetails(SnippetsStructure,DirectoryPath)
 			FileRead, Code, % Path ".ahk"
 		else
 		{
+			str:=strreplace(Path,Data["Metadata","Hash"],Data["Metadata","Name"])
 			if FileExist(str:=strreplace(Path,Data["Metadata","Hash"],Data["Metadata","Name"]) ".ahk")  ;; in case the file does not exist, try with the name set within the metadata.
 			{
 				Path:=strreplace(Path,Data["Metadata","Hash"],Data["Metadata","Name"])
@@ -705,59 +736,102 @@ lCheckClipboardContents()
 	gui, 1: Submit, NoHide
 	return
 }
+fMoveThroughSearchHistory(SnippetsStructure,References,DirectoryPath,SearchHistory)
+{
+	SearchString:=fGetSearchFunctionsString()
 
-lSearchSnippetsEnter:
-; A_GuiControl A_ThisHotkey A_ThisFunc A_THisLabel A_GuiControlEvent A_GuiEvent | always useful having these here when checking annoying states
-lSearchSnippets:
-	Settimer, % func, Off
-	Gui, 1: Submit, NoHide
-	Matches:=[] ;; create Obj
-	global Matches:=f_CollectMatches(SnippetsStructure[1],SearchString,References,SnippetsStructure[2]) ;; for sections, because we need to load every single snippet's metadata anyways, we might just as well preprocess into various lists?
-	if (Matches!=-1)  && IsObject(Matches) ;; is this even necessary? ;; DEPRECATED: || RegExMatch(SearchString,Regex.SecSearch,s) 
+	OldPos:=Pos:=HasVal(SearchHistory,SearchString)+0
+	Pos:=(Pos=0?SearchHistory.MaxIndex():Pos)
+	Dir:=(Instr(A_ThisHotkey,"Up")?-1:1)
+	; if Instr(A_ThisHotkey,"Up")
+	; 	Dir:=-1
+	; else
+	; 	Dir:=1
+	Pos:=Pos+Dir + (SearchString=""?1:0) ;; adjustment if search is empty and we want to find the latest search result
+	Pos:=(Pos<1?1:Pos)
+	if (Pos=OldPos) ;; reached start/end of search history, no need to refresh the LV
+		return
+	NewSearchString:=SearchHistory[Pos]
+	fSetSearchFunctionsString(NewSearchString,SearchString)
+	ttip(Pos)
+	if (NewSearchString="")
 	{
-		global bSearchSnippets:=true ;; fuck I can't be bothered anymore
-		if strsplit(script.config.settings.ShowRedraw,A_Space).1
-			GuiControl, +Redraw, LVvalue
-		else
-			GuiControl, -Redraw, LVvalue
-		fPopulateLVNew(Matches[1],SnippetsStructure[2],Matches[3])
-		GuiControl, +Redraw, LVvalue
-		d:= Matches[1].count() " snippets loaded from " Matches[3]  ((Matches[3]>1)?" libraries":" library")
-		GuiControl,,vSearchFunctions,% Matches[1].Count() " snippets found in "  Matches[3] ((Matches[3]>1)?" libraries":" library")
-		
-		f_RescaleLV()
-		fLoadFillDetails(Matches,DirectoryPath)
-		global bSearchSnippets:=false
-		fSelectFirstLVEntry_Searches()
-		sleep,200
-		; Matches:=[]
-		SendInput, % "{Up}"
+		fResetListView(SnippetsStructure)		
+		fFocusListView()
 	}
-return
+	fSearchSnippetsEnter(SnippetsStructure,References,DirectoryPath,SearchHistory)
+	return
+}
+fSearchSnippetsEnter(SnippetsStructure,References,DirectoryPath,SearchHistory)
+{
+	; A_GuiControl A_ThisHotkey A_ThisFunc A_THisLabel A_GuiControlEvent A_GuiEvent | always useful having these here when checking annoying states
+	lSearchSnippets:
+		; Settimer, % func, Off
+		Gui, 1: Submit, NoHide
+		; GuiControlGet, currentSearch, , SearchString
+		SearchString:=fGetSearchFunctionsString()
+		; Matches:=[] ;; create Obj
+		global Matches:=f_CollectMatches(SnippetsStructure[1],SearchString,References,SnippetsStructure[2]) ;; for sections, because we need to load every single snippet's metadata anyways, we might just as well preprocess into various lists?
+		if (Matches!=-1)  && IsObject(Matches) ;; is this even necessary? ;; DEPRECATED: || RegExMatch(SearchString,Regex.SecSearch,s) 
+		{
+			global bSearchSnippets:=true ;; fuck I can't be bothered anymore
+			if strsplit(script.config.settings.ShowRedraw,A_Space).1
+				GuiControl, +Redraw, LVvalue
+			else
+				GuiControl, -Redraw, LVvalue
+			fPopulateLVNew(Matches[1],SnippetsStructure[2],Matches[3])
+			GuiControl, +Redraw, LVvalue
+			d:= Matches[1].count() " snippets loaded from " Matches[3]  ((Matches[3]>1)?" libraries":" library")
+			GuiControl,,vSearchFunctions,% Matches[1].Count() " snippets found in "  Matches[3] ((Matches[3]>1)?" libraries":" library")
+			; A_ThisHotkey
+			f_RescaleLV()
+			fLoadFillDetails(Matches,DirectoryPath)
+			global bSearchSnippets:=false
+			if (A_ThisHotkey!="~Up") && (A_ThisHotkey!="~Down")
+			{
+				fSelectFirstLVEntry_Searches()
+				sleep,200
+				; Matches:=[]
+				SendInput, % "{Up}"
+			}
+		}
+		if (Matches=-1)
+			ttip("No results")
+		if (SearchString!="") && !HasVal(SearchHistory,SearchString) && (Matches[1]!=-1)
+			SearchHistory.push(SearchString)
+	return SearchHistory
+
+}
 
 fGetSearchFunctionsString(Str:="")
-{
+{ ;; retrieves the contents of the search-edit field
 	GuiControlGet, ContentsSearchField,,SearchString
 	return ContentsSearchField
 }
+fSetSearchFunctionsString(Str,OldStr)
+{ ;; sets the contents of the search-edit field
+	GuiControl, , SearchString, % Str
+	Result:=(fGetSearchFunctionsString()!=""?true:false) 
+	return Result
+}
 
 fSelectFirstLVEntry_Searches()
-{
+{ ;; selects the visually first element currently on the listview
 	SendInput, {Down}{Up}
 	return
 }
 
-MoveOnListView(Direction:=1)
-{
-	sleep, 150
-	SendInput, % str:="{" ((Direction==1)?"Down":"Up") "}"
-	return
-}
+; MoveOnListView(Direction:=1)
+; { 
+; 	sleep, 150
+; 	SendInput, % str:="{" ((Direction==1)?"Down":"Up") "}"
+; 	return
+; }
 
-fSelectFirstLVEntry()
-{
+fSelectFirstLVEntry(SnippetsStructure,Matches)
+{ ;; selects the first entry of the listview, but then also initiates the population of the richfields and edit-field9
 	fSelectFirstLVEntry_Searches()
-	fLV_Callback()
+	fLV_Callback(SnippetsStructure,Matches)
 	return
 }
 ::alib.s::
@@ -773,11 +847,10 @@ f_RescaleLV()
 if !strsplit(script.config.settings.ShowRedraw,A_Space).1
 	GuiControl, +Redraw, LVvalue
 return 
+
 #If WinActive(GuiNameMain)
-Esc::
-gui, 1: hide
-return
-Numpad9::
+Esc::fGuiHide_1()
+Numpad9:: ;; resizes the GUI 
 bSwitchSize:=1
 if (vGuiHeight==(1080-20))
 {
@@ -791,11 +864,12 @@ else
 }
 gosub, lGUICreate_1New
 return
-#if Winactive(GuiNameIngestion)
-Esc::
-gui, 2: destroy
-gui, 1: show
-return
+
+; #if Winactive(GuiNameIngestion)
+; Esc::
+; gui, 2: destroy
+; gui, 1: show
+; return
 #If (A_ComputerName=script.AuthorID?1:0) 
 !esc::
 SendInput, ^s  
@@ -896,61 +970,7 @@ f_CollectMatches(Array,String,References,AllSections)
 			continue
 		Matches.push(Array[k])
 	}
-	/*
-
-			; 		if KeyVals.AU=""
-			; 		{
-			; /*
-			; str = the dog went for a run with another dog
-			; match = dog
-
-			; msgbox % "Found " ( count, regexReplace( str
-			; 		 , "(" match ")", match, count ))
-			; 		 . " instance" ( count!=1 ? "s" : "" )
-			; 		 . " of " match "."
-			; */
-			; 		}
-			; 		if e:=RegExMatch(String, "i)(AU\:)(?<Author>.*)(\s|\:)*",v)
-			; 		{
-			; 			Result:=CollectMatchesAcrossObject(References[1],String)
-			; 			; Result:=CollectMatchesAcrossObject(References[1],vAuthor)
-			; 			for k,v in Result ;strsplit(References[1,vAuthor],",")  ;; this only allows for exact author-matches, but not for an approx-/instr match
-			; 			{
-			; 				if InStr(Added,Array[v].Metadata.Hash)
-			; 					continue ;; skip if the snippet is already added
-			; 				out.push(Array[v])
-			; 				Added.=Array[v].Metadata.Hash ", " ;; used for quick lookup on what we can skip further down the road
-			; 			}
-			; 		}
-			; 		;;2.
-			; 		; ttip("Figure out what the (\+)-capturing group in these two regexes was for :P")
-			; 		if RegExMatch(String, "i)(SE\:)(?<Section>.*)(\+)",v)
-			; 		{
-			; 			Result:=CollectMatchesAcrossObject(References[2],vSection)
-			; 			; d:=strsplit(References[2,vSection],",")
-			; 			for k,v in Result[1]
-			; 			{
-			; 				if InStr(Added,Array[v].Metadata.Hash)
-			; 					continue ;; skip if the snippet is already added
-			; 				out.push(Array[v])
-			; 				Added.=Array[v].Metadata.Hash ", "
-
-			; 			}
-			; 		}
-			; 		if RegExMatch(String, "i)(LI\:)(?<License>.+)",v)
-			; 		{
-			; 			Result:=CollectMatchesAcrossObject(References[3],vLicense)
-			; 			; d:=strsplit(References[2,vLicense],",")
-			; 			for k,v in Result[1]
-			; 			{
-			; 				if InStr(Added,Array[v].Metadata.Hash)
-			; 					continue ;; skip if the snippet is already added
-			; 				out.push(Array[v])
-			; 				Added.=Array[v].Metadata.Hash ", "
-
-			; 			}
-			; 		}
-	*/		
+	
 	; ttip(";; this entire sectio	n is painful bs. #important#todo: figure out how to remove so that 'Fi:Libr AU:ano' will net 0 results in the current configuration","the issue is that the smarter solution above doesn't work flawlessly, and that","this is a flawed implementation of a fix")
 	if (Matches.Count()=0)
 		Matches:=Array.Clone()
@@ -1008,10 +1028,19 @@ f_CollectMatches(Array,String,References,AllSections)
 					Matches2.push(w)
 					MatchedLibraries[Matches[s,"Metadata","Library"]]:=1
 					AddedOnes.=w.Metadata.Hash ", "
-				}
+					if Instr(w.Metadata[Map2[k]],v)
+					{
 
+						; Matches2.
+					}
+					else
+					{
+
+					}
+				}
 				continue
 			}
+			
 			for s,w in Matches
 			{
 				; if instr(w.Metadata.Library,"second")
@@ -1043,8 +1072,22 @@ f_CollectMatches(Array,String,References,AllSections)
 			}
 		}
 	}
+	for s,w in Matches2
+	{
+		for x,y in KeyVals
+		{
+			PassedVal:=w.Metadata[map2[x]]
+			if !Instr(PassedVal,y)
+				Matches2.Remove(s)
+			
+		}
+			; if w.
+	}
 	; m(Matches2)
-	
+	; for k,v in Matches2
+	; {
+	; 	; for s,w in KeyVals
+	; }
  	return (Matches2.Count()>0 && Matches2.Count()!="")?[Matches2,AllSections,MatchedLibraries.Count()]:-1 ;; throw a -1 if something went wrong.
 }
 
@@ -1057,6 +1100,37 @@ HasVal(haystack, needle)
 			return index
 	return 0
 }
+GetFocusedControl()  {                                                                                            	;-- retrieves the ahk_id (HWND) of the active window's focused control.
+
+        ; This script requires Windows 98+ or NT 4.0 SP3+.
+        /*
+        typedef struct tagGUITHREADINFO {
+        DWORD cbSize;
+        DWORD flags;
+        HWND  hwndActive;
+        HWND  hwndFocus;
+        HWND  hwndCapture;
+        HWND  hwndMenuOwner;
+        HWND  hwndMoveSize;
+        HWND  hwndCaret;
+        RECT  rcCaret;
+        } GUITHREADINFO, *PGUITHREADINFO;
+        */
+
+    guiThreadInfoSize := 8 + 6 * A_PtrSize + 16
+   VarSetCapacity(guiThreadInfo, guiThreadInfoSize, 0)
+   NumPut(GuiThreadInfoSize, GuiThreadInfo, 0)
+   ; DllCall("RtlFillMemory" , "PTR", &guiThreadInfo, "UInt", 1 , "UChar", guiThreadInfoSize)   ; Below 0xFF, one call only is needed
+   if (DllCall("GetGUIThreadInfo" , "UInt", 0   ; Foreground thread
+         , "PTR", &guiThreadInfo) = 0)
+   {
+      ErrorLevel := A_LastError   ; Failure
+      Return 0
+   }
+   focusedHwnd := NumGet(guiThreadInfo,8+A_PtrSize, "Ptr") ; *(addr + 12) + (*(addr + 13) << 8) +  (*(addr + 14) << 16) + (*(addr + 15) << 24)
+
+	Return focusedHwnd
+} ;</06.04.02.000002>
 
 f_GetSelectedLVEntries(Number:="")
 { ; Get Values from selected row in LV A_DefaultListView ;TODO: this can probably be condensed
@@ -1066,7 +1140,11 @@ f_GetSelectedLVEntries(Number:="")
 	{
 		loop 
 		{
-			fFocusListView()
+			CurrFocusName:=""
+			CurrFocus:=GetFocusedControl()
+			GuiControlGet, CurrFocusName, 1:Name,%CurrFocus%
+			if (CurrFocusName!="LVvalue")
+				fFocusListView()
 			vRowNum:=LV_GetNext(vRowNum)
 			if not vRowNum  ; The above returned zero, so there are no more selected rows.
 				break
@@ -1090,6 +1168,11 @@ f_GetSelectedLVEntries(Number:="")
 			,License:sCurrText7
 			,Version:sCurrText8
 			,Author:sCurrText9}
+			CurrFocusName:=""
+			CurrFocus:=GetFocusedControl()
+			GuiControlGet, CurrFocusName, 1:Name,%CurrFocus%
+			if ((CurrFocusName!="SearchString") && (A_ThisHotkey!="~Up") && (A_ThisHotkey!="~Down"))
+				fFocusListView()
 			return [sel,vRowNum,sCurrText6]
 		}
 	}
@@ -1123,6 +1206,12 @@ f_GetSelectedLVEntries(Number:="")
 			return [sel,(vRowNum=0?1:vRowNum),sCurrText6]
 
 	}
+	CurrFocus:=GetFocusedControl()
+	GuiControlGet, CurrFocusName, 1:Name,%CurrFocus%
+	if ((CurrFocusName!="SearchString") && (A_ThisHotkey!="~Up") && (A_ThisHotkey!="~Down"))
+		fFocusListView()
+	else
+		fFocusSearchBar()
 }
 
 fPopulateLVNew(Snippets,SectionNames,LibraryCount)
@@ -1237,9 +1326,9 @@ ControlIsFocused(ControlID)                                                     
 	*/
 }
 
-floadFolderLibraries()
+floadFolderLibraries(DirectoryPath)
 {	;; new method of loading snippets by separating data and 
-	global DirectoryPath:= A_ScriptDir "\Sources\*" ;; this is the path that contains all libraries which will be read.
+	
 	Arr:={}
 	, SectionNames:=[]
 	, SectionNamesIntern:=[]
