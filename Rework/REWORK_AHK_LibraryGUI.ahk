@@ -1,7 +1,40 @@
  /*
 	TODO:::: ADD NAMESPACED VERSIONS OF FUNCTIONS FROM stringthings.ahk AND TF.AHK to this script
+Sections copied successfully from ahk-rare:
+
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+
+
 */
-ttip("Comb through ahkrare-content and move example and description comment blocks to their respective files","add all metadata-fields to be used in the editor, and figure out how to do the editor metadata-adjustable")
+; ttip("Comb through ahkrare-content and move example and description comment blocks to their respective files","add all metadata-fields to be used in the editor, and figure out how to do the editor metadata-adjustable")
 #SingleInstance, Force
 #Warn,,Off 
 #persistent
@@ -46,7 +79,7 @@ CrtDate:=SubStr(CrtDate,7,  2) "." SubStr(CrtDate,5,2) "." SubStr(CrtDate,1,4)
                     ,dbgLevel	  : 1
                     ,computername : A_ComputerName
                     ,author       : "Gewerd Strauss"
-					,authorID	  : "LAPTOP-C"
+					,authorID	  : "LAPTOP-Cd"
 					,authorlink   : ""
                     ,email        : ""
                     ,credits      : CreditsRaw
@@ -89,7 +122,7 @@ if !script.Load(,1)
 	, CopyExampleToOutput:true
 	, LibraryRelativeSI:false
 	, ShowRedraw:false
-	, bDebugSwitch:true
+	, bDebugSwitch:false
 	, SoundAlertOnDebug:true
 	, Max_InDepth_Searchable:200
 	, Map2:{AU:"Author" ;; For fetching data from 'Matches', the presorted object TODO: make this a 
@@ -192,6 +225,7 @@ clipboard:="InvokeVerb"
 clipboard:="PostMessageUn"
 clipboard:="controlgettabs"
 clipboard:="WinGetPosEx"
+clipboard:="Window"
 ; Clipboard:="Au:anon na:1"
 
 return
@@ -353,9 +387,7 @@ lGUICreate_1New: ;; Fully Parametric-form, TODO: functionalise this thing
 		{ ;; public display
 			SB_SetText("Standard Mode Engaged. Click to enter debug-mode",2)
 			ListLines, Off
-			ListVars, Off
-			ListHotkeys, Off
-			KeyHistory
+			; KeyHistory
 		}
 		else if ((script.computername==script.authorID) || (!(script.computername==script.authorID) && script.config.settings.bDebugSwitch))
 		{
@@ -381,7 +413,7 @@ lGUICreate_1New: ;; Fully Parametric-form, TODO: functionalise this thing
         Hotkey, ^c, fCopyScript
 		; Hotkey, ^r, lGuiCreate_2
 		
-			Obj_ExtraButton2:=Func("fEditSnippet").Bind(SnippetsStructure,matches)
+			Obj_ExtraButton2:=Func("fEditSnippet").Bind(SnippetsStructure)
 			Hotkey, !e, % Obj_ExtraButton2
 			Obj_ResetListView:=Func("fResetListView").Bind(SnippetsStructure)
 			Hotkey, Del, % Obj_ResetListView
@@ -505,9 +537,9 @@ fCopyScript()
 		else if !Instr(SnippetsStructure[1,SelectedLVEntry.3].Code,"Error 01: No code-file was found under the expected path")
 			Code:=SnippetsStructure[1,SelectedLVEntry.3].Code 
 		if (Code="") && (searchstr!="")
-			fLoadFillDetails(Matches,DirectoryPath)
+			fLoadFillDetails() ;(Matches,DirectoryPath)
 		else if (Code="") && (searchstr="")
-			fLoadFillDetails(SnippetsStructure,DirectoryPath)
+			fLoadFillDetails() ;(SnippetsStructure,DirectoryPath)
 		if script.config.Settings.CopyExampleToOutput
 		{
 			if (searchstr!="") && !Instr(Matches[1,SelectedLVEntry.3].Example,"Error 01: No example-file was found under the expected path")
@@ -578,23 +610,14 @@ lEditSnippet: ;; I have no idea how to bind a function to a gui-button itself.
 	fEditSnippet(SnippetsStructure)
 }
 return
-fEditSnippet(SnippetsStructure:="",matcges:="")
+fEditSnippet(SnippetsStructure:="")
 {
 	global ;; figure out how to bind the contents properly so I can remove the global-code
 	gui,1: submit, NoHide
 	SelectedLVEntry:=f_GetSelectedLVEntries()
 	SearchStr:=fGetSearchFunctionsString()
-
-	if (Matches.Count()!="") && (Matches.Count()>0) && (SearchStr!="")
-	{
-		fLoadFillDetails(Matches,DirectoryPath)
-		EditorImporter(Matches[1,SelectedLVEntry.3] ,Matches)
-	}
-	Else
-	{	
-		fLoadFillDetails(SnippetsStructure,DirectoryPath)
-		EditorImporter(SnippetsStructure[1,SelectedLVEntry.3] ,SnippetsStructure)
-	}
+	fLoadFillDetails() ;(SnippetsStructure,DirectoryPath)
+	EditorImporter(SnippetsStructure[1,SelectedLVEntry.3] ,SnippetsStructure)
 	return
 }
 
@@ -617,6 +640,7 @@ fCallBack_StatusBarMainWindow(Path:="")
 				SoundBeep, 150, 150
 				SoundBeep, 150, 150
 				SB_SetText("Standard Mode Engaged. Click to enter debug-mode",2)
+				
 			}
 		}
 		else if ((script.computername==script.authorID) || (!(script.computername==script.authorID) && script.config.settings.bDebugSwitch))
@@ -647,16 +671,17 @@ fLV_Callback(SnippetsStructure,FoundMatches)
 	global ;; there is certainly a way to avoid this global here, but for me it is far too complicated.
 	str:=fGetSearchFunctionsString()
 	if (str="") ;; search-box is empty, thus we ingest the default Object
-		func := Func("fLoadFillDetails").Bind(SnippetsStructure,DirectoryPath) ;; need to remember how to do this
+		func := Func("fLoadFillDetails") ;.Bind(SnippetsStructure,DirectoryPath) ;; need to remember how to do this
 	else 		;; search-box is not empty, thus we ingest the search results
-		func := Func("fLoadFillDetails").Bind(Matches,DirectoryPath) ;; need to remember how to do this
+		func := Func("fLoadFillDetails") ;.Bind(Matches,DirectoryPath) ;; need to remember how to do this
 	Settimer, % func, Off
 	Settimer, % func, -150 ;; TODO: replace this timer with the hook proposed by anonymous1184
 	return
 }
-
-fLoadFillDetails(SnippetsStructure,DirectoryPath)
+; SnippetsStructure
+fLoadFillDetails()
 { ;; Load the details into the Details-Field and load Code, Example and Description
+	global
 	gui,1: default
 	gui,1: submit, NoHide
 	if (A_GuiControlEvent="ColClick")
@@ -666,21 +691,21 @@ fLoadFillDetails(SnippetsStructure,DirectoryPath)
 		SelectedLVEntry:=[,,1]
 	Data:=SnippetsStructure[1,SelectedLVEntry[3]] ;;TODO: BUG: SelectedLVEntry[2] is not a valid key, because it maps to the element added  at that point, but not at the visually x'th 
 	Path:=SubStr(DirectoryPath,1,StrLen(DirectoryPath)-1) Data["Metadata","Library"] "\" Data["MetaData","Hash"] ;SelectedLVEntry[1,1].Library "\" SelectedLVEntry[1,1].Hash
-	,Code:= Data.Code ;SnippetsStructure[1,SelectedLVEntry[3]].Code
+	,Code:= Data.Code ;SnippetStructure[1,SelectedLVEntry[3]].Code
 	,Description:=Data.Description ;SnippetsStructure[1,SelectedLVEntry[3]].Description
 	,Example:=Data.Example ;SnippetsStructure[1,SelectedLVEntry[3]].Example
 
-	if (bSearchSnippets)
-	{
-		selRow++
-		SelectedLVEntry:=f_GetSelectedLVEntries(selRow)
-		sel:=[]
-		Data:=SnippetsStructure[1,SelectedLVEntry[3]]
-		Path:=SubStr(DirectoryPath,1,StrLen(DirectoryPath)-1) Data["Metadata","Library"] "\" Data["Metadata","Hash"] ;SelectedLVEntry[1,1].Library "\" SelectedLVEntry[1,1].Hash
-		,Code:=Data.Code ;SnippetsStructure[1,SelectedLVEntry[3]].Code
-		,Description:=Data.Description ;SnippetsStructure[1,SelectedLVEntry[3]].Description
-		,Example:=Data.Example ;SnippetsStructure[1,SelectedLVEntry[3]].Example
-	}
+	; if (bSearchSnippets)
+	; {
+	; 	selRow++
+	; 	SelectedLVEntry:=f_GetSelectedLVEntries(selRow)
+	; 	sel:=[]
+	; 	Data:=SnippetsStructure[1,SelectedLVEntry[3]]
+	; 	Path:=SubStr(DirectoryPath,1,StrLen(DirectoryPath)-1) Data["Metadata","Library"] "\" Data["Metadata","Hash"] ;SelectedLVEntry[1,1].Library "\" SelectedLVEntry[1,1].Hash
+	; 	,Code:=Data.Code ;SnippetsStructure[1,SelectedLVEntry[3]].Code
+	; 	,Description:=Data.Description ;SnippetsStructure[1,SelectedLVEntry[3]].Description
+	; 	,Example:=Data.Example ;SnippetsStructure[1,SelectedLVEntry[3]].Example
+	; }
 	if (Data="")	
 		return
 	if (Code="") || Instr(Code,"Error 01: File '")
@@ -887,8 +912,8 @@ fSearchSnippetsEnter(SnippetsStructure,References,DirectoryPath,SearchHistory)
 			d:= Matches[1].count() " snippets loaded from " Matches[3]  ((Matches[3]>1)?" libraries":" library")
 			GuiControl,,vSearchFunctions,% Matches[1].Count() " snippets found in "  Matches[3] ((Matches[3]>1)?" libraries":" library")
 			; A_ThisHotkey
-			f_RescaleLV()
-			fLoadFillDetails(Matches,DirectoryPath)
+			fLoadFillDetails() ;(Matches,DirectoryPath)
+			f_RescaleLV(1)
 			global bSearchSnippets:=false
 			if (A_ThisHotkey!="~Up") && (A_ThisHotkey!="~Down")
 			{
@@ -1311,12 +1336,41 @@ f_GetSelectedLVEntries(Number:="")
 			return [sel,(vRowNum=0?1:vRowNum),sCurrText6]
 
 	}
+	; loop
+	; {
+
+	; 	vRowNum:=LV_GetNext(vRowNum)
+	; 			if not vRowNum  ; The above returned zero, so there are no more selected rows.
+	; 				break
+	; }
+	vRowNum:=(vRowNum=0?1:vRowNum)
+			LV_GetText(sCurrText1,vRowNum,1) ; SectionInd - SectionName
+			LV_GetText(sCurrText2,vRowNum,2) ; Name
+			LV_GetText(sCurrText3,vRowNum,3) ; Hash
+			LV_GetText(sCurrText4,vRowNum,4) ; LibraryName
+			LV_GetText(sCurrText5,vRowNum,5) ; LVIdentifier
+			LV_GetText(sCurrText6,vRowNum,6) ; AdditionIndex
+
+			LV_GetText(sCurrText7,vRowNum,7) ; License
+			LV_GetText(sCurrText8,vRowNum,8) ; Version
+			LV_GetText(sCurrText9,vRowNum,9) ; Author
+			sel[(vRowNum=0?1:vRowNum)]:={SelectedEntrySection:sCurrText1
+			,SelectedEntryName:sCurrText2
+			,Hash:sCurrText3
+			,Library:sCurrText4
+			,SelectedEntrySnippetIdentifier:sCurrText5
+			,AdditionIndex:sCurrText6
+			,License:sCurrText7
+			,Version:sCurrText8
+			,Author:sCurrText9}
+
 	CurrFocus:=GetFocusedControl()
 	GuiControlGet, CurrFocusName, 1:Name,%CurrFocus%
 	if ((CurrFocusName!="SearchString") && (A_ThisHotkey!="~Up") && (A_ThisHotkey!="~Down"))
 		fFocusListView()
 	else
 		fFocusSearchBar()
+	return [sel,(vRowNum=0?1:vRowNum),sCurrText6]
 }
 
 fPopulateLVNew(Snippets,SectionNames,LibraryCount)
@@ -1358,18 +1412,20 @@ fPopulateLVNew(Snippets,SectionNames,LibraryCount)
 				; ; TempInd:=SectionNamesRespectiveIndex[v.Metadata.Section]++
 				; Clipboard:=SectionNamesRespectiveIndex[v.Metadata.Section]	
 		}
-		if Instr(A_ThisLabel,"GuiCreate_1New")
-			v.MetaData.AdditionIndex:=fPadIndex(k,Snippets.Count())
 		Addition:=[] ;; remove all of these and move them into the LV_Add instead, then comment this one out as a help for understanding later
 		, Addition.LVSection:=(fPadIndex(v.MetaData.SectionInd,SectionPad)) " - " (strlen(v.MetaData.Section)<=0?"-1 INVALIDSECTIONKEY":v.MetaData.Section)
 		, Addition.Name:=v.MetaData.Name
 		, Addition.Hash:=v.MetaData.Hash
 		, Addition.LibraryName:=v.MetaData.Library
 		, Addition.LVIdentifier:=fPadIndex(v.MetaData.SectionInd,SectionPad) "." fPadIndex((InStr(A_ThisLabel,"lSearchSnippets")?v.MetaData.LVInd:v.MetaData.LVInd),SectionPad)
-		, Addition.AdditionIndex:=v.MetaData.AdditionIndex
 		, Addition.License:=strreplace(v.Metadata.License,"none","/")
 		, Addition.Version:=v.Metadata.Version
 		, Addition.Author:=SubStr(v.Metadata.Author,1,150)
+		if Instr(A_ThisLabel,"GuiCreate_1New")
+		{
+			v.MetaData.AdditionIndex:=fPadIndex(k,Snippets.Count())
+		}
+		Addition.AdditionIndex:=v.MetaData.AdditionIndex
 		LV_Add("-E0x200",		Addition.LVSection,		Addition.Name,		Addition.Hash,		Addition.LibraryName,		Addition.LVIdentifier, Addition.AdditionIndex, Addition.License, Addition.Version,Addition.Author,Addition.LVIdentifier		)
 	}
 	; m(d,Snippets.Count())
@@ -1378,7 +1434,7 @@ fPopulateLVNew(Snippets,SectionNames,LibraryCount)
 	return [AuthorReferences,SectionReferences,LicenseReferences,DateReferences,FileReferences]
 }
 
-f_RescaleLV()
+f_RescaleLV(OverWriteShow:=0)
 { ;; makes sure the ListView is correctly scaled. ;;TODO: change the order/settings here to hide 
 	if ((!(script.computername==script.authorID)) && !script.config.settings.bDebugSwitch) || ((script.computername==script.authorID) && !script.config.settings.bDebugSwitch)
 	{
@@ -1392,7 +1448,7 @@ f_RescaleLV()
 		, LV_ModifyCol(8,"AutoHdr") 
 		, LV_ModifyCol(9,"AutoHdr") 
 	}
-	else if ((script.computername==script.authorID) || (!(script.computername==script.authorID) && script.config.settings.bDebugSwitch))
+	if ((script.computername==script.authorID) || (!(script.computername==script.authorID) && script.config.settings.bDebugSwitch)) || OverWriteShow
 	{
 		LV_ModifyCol(5,"AutoHdr")
 		, LV_ModifyCol(3,"AutoHdr") 
@@ -1503,7 +1559,7 @@ floadFolderLibraries(DirectoryPath)
 		k++
 	}
 	; ttip("Decide if we want all snippets in the same obj, or if we want to subobjectivise them by keeping the folderstructure within as a 1st-lvl-object differentiation.","Currently, the Section")
-	return [Arr,SectionNames,LibrariesKnown.Count(),FileTypeCount]
+	return [Arr,SectionNames,LibrariesKnown.Count(),FileTypeCount,Arr.Count()]
 }
 
 fReadINI(INI_File,bIsVar=0) ; return 2D-array from INI-file, or alternatively from a string with the same format.

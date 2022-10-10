@@ -1,3 +1,14 @@
+
+
+
+
+
+
+
+
+
+
+
 EditorImporter(Snippet:="",SnippetsStructure:="",ConvertingAHKRARE:=false)
 {
     gui, ACSI: destroy
@@ -111,8 +122,8 @@ EditorImporter(Snippet:="",SnippetsStructure:="",ConvertingAHKRARE:=false)
     gui, add, edit, yp xp+100 w120 h%SmallFieldsHeight% vvDependencies_Importer, % snippet.metadata.dependencies
     gui, add, text, yp+%SmallFieldsHeight%+5 xp-100, AHK-Version
     gui, add, edit, yp xp+100 w120 h%SmallFieldsHeight% vvAHK_Version_Importer, % snippet.metadata.AHK_Version
-    ; gui, add, text, yp+%SmallFieldsHeight%+5 xp-200, version
-    ; gui, add, edit, yp xp+300 w120 h%SmallFieldsHeight% vvVersion_Importer2, % snippet.metadata.version
+    gui, add, text, yp+%SmallFieldsHeight%+5 xp-100, Keywords   
+    gui, add, edit, yp xp+100 w120 h%SmallFieldsHeight% vvKeywords_Importer, % snippet.metadata.KeyWords
     ; gui, add, text, yp+%SmallFieldsHeight%+5 xp-300, Date
     ; gui, add, edit, yp xp+300 w120 h%SmallFieldsHeight% vvDate_Importer2, % Date
     ; gui, add, text, yp+24 xp-300, License
@@ -195,13 +206,30 @@ fDelete(vName_Importer , vLibrary_Importer , vSnippet_Importer,Snippet)
     }
     return
 }
+fBackup(vName_Importer , vLibrary_Importer , vSnippet_Importer,Snippet)
+{
+    gui, ACSI: submit
+    Key:=vName_Importer . vLibrary_Importer . vSnippet_Importer ;; cuz the hash is no longer required to be translated, I can make it 
+    Hash:=Object_HashmapHash(Key) ; Issue: What to include in the hashed snippet name?
+    Path:=A_ScriptDir "\Sources\" vLibrary_Importer "\" Hash 
+    loops:=[".ahk",".ini",".example",".description"]
+    for k,v in loops
+    {
+        if FileExist(A_ScriptDir "\Sources\" Snippet.Metadata.Library "\" Snippet.Metadata.Hash v)
+            FileCopy,% A_ScriptDir "\Sources\" Snippet.Metadata.Library "\" Snippet.Metadata.Hash v,% BackupLoc:=A_ScriptDir "\Sources\" Snippet.Metadata.Library "\BACKUP_" Snippet.Metadata.Hash v,1
+    }
+    return
+}
 lSubmitImporter: ;; fucking hell I cannot bind it, I _must_ use a label here cuz I cannot bind to the button itself?
 gui, ACSI: submit, 
 ; SnippetClone
 if (snippetClone.Count()!=0) && (SnippetClone!="")
+{
+    fBackup(snippetclone.Metadata.name , SnippetClone.Metadata.Library , SnippetClone.Code,SnippetClone)
     fDelete(snippetclone.Metadata.name , SnippetClone.Metadata.Library , SnippetClone.Code,SnippetClone)
+}
 ; global ConvertingAHKRARE:=ConvertingAHKRARE
-fSubmitImporter({Snippet:vSnippet_Importer,Description:vDesc_Importer, Example:vEx_Importer, Name:vName_Importer,Author:vAuthor_Importer, Version:vVersion_Importer,Date:vDate_Importer,License:vLicense_Importer,Section:vSection_Importer,URL:vURL_Importer,Library:vLibrary_Importer,Dependencies:vDependencies_Importer,AHK_Version:vAHK_Version_Importer}, Snippet,bIsEditing,ConvertingAHKRARE)
+fSubmitImporter({Snippet:vSnippet_Importer,Description:vDesc_Importer, Example:vEx_Importer, Name:vName_Importer,Author:vAuthor_Importer, Version:vVersion_Importer,Date:vDate_Importer,License:vLicense_Importer,Section:vSection_Importer,URL:vURL_Importer,Library:vLibrary_Importer,Dependencies:vDependencies_Importer,AHK_Version:vAHK_Version_Importer,KeyWords:vKeywords_Importer}, Snippet,bIsEditing,ConvertingAHKRARE)
 return
 ; ACSISubmit:
 ; return
@@ -210,7 +238,6 @@ fSubmitImporter(SubmissionObj, Snippet,bIsEditing,ConvertingAHKRARE:=false)
 
     gui, ACSI: submit, nohide
     gui, 1: -Disabled
-    Submission:=[SubmissionObj.Snippet, SubmissionObj.Description, SubmissionObj.Example, SubmissionObj.Name, SubmissionObj.Author, SubmissionObj.Version, SubmissionObj.Date, SubmissionObj.Licens, SubmissionObj.Section, SubmissionObj.URL, SubmissionObj.Library, Snippet,bIsEditing]
     if !ConvertingAHKRARE
     {
         if ((SubmissionObj.Snippet="")  || (SubmissionObj.Name="")   || (SubmissionObj.Library=""))
@@ -246,42 +273,52 @@ fSubmitImporter(SubmissionObj, Snippet,bIsEditing,ConvertingAHKRARE:=false)
     Key:=SubmissionObj.Name . SubmissionObj.Library . SubmissionObj.Snippet ;; cuz the hash is no longer required to be translated, I can make it 
     Hash:=Object_HashmapHash(Key) ; Issue: What to include in the hashed snippet name?
     , Obj:={Name:SubmissionObj.Name,Author:SubmissionObj.Author,Date:DateParse(SubmissionObj.Date),License:SubmissionObj.Licens,URL:SubmissionObj.URL,Section:SubmissionObj.Section,Version:SubmissionObj.Version,Hash:Hash} ;; decide if we actually want to     if (Code="")  ;; do not write to disc
-    if bIsEditing && (Hash!=OldHash) ;; Hash has changed while editing → remove old file
+    
+    loops:=[".ahk",".ini",".example",".description"]
+    for k,v in loops
     {
-        loops:=[".ahk",".ini",".example",".description"]
-        for k,v in loops
+        if FileExist(A_ScriptDir "\Sources\" OldLib "\" OldHash v)
         {
-            if FileExist(A_ScriptDir "\Sources\" OldLib "\" OldHash v)
-            {
-                FileCopy,% A_ScriptDir "\Sources\" OldLib "\" OldHash v,% BackupLoc:=A_ScriptDir "\Sources\" OldLib "\BACKUP_" OldHash v,1
-                FileRecycle,% A_ScriptDir "\Sources\" OldLib "\" OldHash v
-            }
-            if FileExist(A_ScriptDir "\Sources\" OldLib "\" snippet.Metadata.name v)
-            {
-                
-                FileCopy,% A_ScriptDir "\Sources\" OldLib "\" OldHash v,% BackupLoc:=A_ScriptDir "\Sources\" OldLib "\BACKUP_" Snippet.metadata.name v,1
-                FileRecycle,% A_ScriptDir "\Sources\" OldLib "\" snippet.Metadata.Name v
-            }
+            FileCopy,% A_ScriptDir "\Sources\" OldLib "\" OldHash v,% BackupLoc:=A_ScriptDir "\Sources\BACKUP_" OldLib "_" OldHash v,1
+            FileRecycle,% A_ScriptDir "\Sources\" OldLib "\" OldHash v
         }
-    } 
+        if FileExist(A_ScriptDir "\Sources\" OldLib "\" snippet.Metadata.name v)
+        {
+            
+            FileCopy,% A_ScriptDir "\Sources\" OldLib "\" OldHash v,% BackupLoc:=A_ScriptDir "\Sources\BACKUP_" OldLib "_" Snippet.metadata.name v,1
+            FileRecycle,% A_ScriptDir "\Sources\" OldLib "\" snippet.Metadata.Name v
+        }
+    }
     Success:=Expected:=0
     if (Obj.Count()>0) && (Obj.Count()!="")
-        Success=+ACSI_fWriteIni({Info:Obj},A_ScriptDir "\Sources\" SubmissionObj.Library "\" Hash ".ini")
+        if ACSI_fWriteIni({Info:Obj},A_ScriptDir "\Sources\" SubmissionObj.Library "\" Hash ".ini")
+            Success++
     if (SubmissionObj.Snippet!="") && (RegExReplace(SubmissionObj.Snippet,"\s*","")!="") && !Instr(SubmissionObj.Snippet,"Error 01: No code-file was found under the expected path ")
-        Success=+fWriteTextToFile(SubmissionObj.Snippet,A_ScriptDir "\Sources\" SubmissionObj.Library "\" Hash ".ahk")
+    {
+        if fWriteTextToFile(SubmissionObj.Snippet,A_ScriptDir "\Sources\" SubmissionObj.Library "\" Hash ".ahk")
+            Success++
+    }
     if (SubmissionObj.Example!="") && (RegExReplace(SubmissionObj.Example,"\s*","")!="") && !Instr(SubmissionObj.Example, "Error 01: No example-file was found under the expected path")
-        Success=+fWriteTextToFile(SubmissionObj.Example,A_ScriptDir "\Sources\" SubmissionObj.Library "\" Hash ".example")
+    {
+        if fWriteTextToFile(SubmissionObj.Example,A_ScriptDir "\Sources\" SubmissionObj.Library "\" Hash ".example")
+            Success
+
+    }
     if (SubmissionObj.Description!="") && (RegExReplace(SubmissionObj.Description,"\s*","")!="") && !Instr(SubmissionObj.Description, "Error 01: No example-file was found under the expected path")
-        Success=+fWriteTextToFile(SubmissionObj.Description,A_ScriptDir "\Sources\" SubmissionObj.Library "\" Hash ".description")
+    {
+        if fWriteTextToFile(SubmissionObj.Description,A_ScriptDir "\Sources\" SubmissionObj.Library "\" Hash ".description")
+            Success
+
+    }
     if (Obj.Count()>0) && (Obj.Count()!="")
-        Expected=+1
+        Expected++
     if (SubmissionObj.Snippet!="") && (RegExReplace(SubmissionObj.Snippet,"\s*","")!="") && !Instr(SubmissionObj.Snippet,"Error 01: No code-file was found under the expected path ")
-        Expected=+1
+        Expected++
     if (SubmissionObj.Example!="") && (RegExReplace(SubmissionObj.Example,"\s*","")!="") && !Instr(SubmissionObj.Example, "Error 01: No example-file was found under the expected path")
-        Expected=+1
+        Expected++
     if (SubmissionObj.Description!="") && (RegExReplace(SubmissionObj.Description,"\s*","")!="") && !Instr(SubmissionObj.Description, "Error 01: No example-file was found under the expected path")
-        Expected=+1
-    if (Expected>Success)
+        Expected++
+   if (Expected>Success)
     {
         SplitPath, BackupLoc, OutFileName
         MsgBox 0x30, % script.name " - Snippet Editor", "Error:`n" Expected " files were expected to be updated`, but only " Success " files could be written to file.`nBackfiles exist in the LibraryFolder under the name " OutFileName
@@ -291,6 +328,7 @@ fSubmitImporter(SubmissionObj, Snippet,bIsEditing,ConvertingAHKRARE:=false)
         WinActivate, AHK-Rare_TheGui
         sleep, 400
     }
+    Clipboard:=BackupLoc "`nNewHash: " Hash
     fGuiHide_2()
     reload
     return
@@ -299,7 +337,7 @@ fWriteTextToFile(Text,Path)
 { ;; writes string to file, replacing the current file
     FileRecycle, % Path      ;; is this smarter than wiping file contents via .fileopen(,w) → .fileclose() ??
     FileAppend, % Text, % Path
-    return FileExist(Path)?1:0
+    return (FileExist(Path)?1:0)
 }
 ACSI_fWriteIni(ByRef Array2D, INI_File)  ; write 2D-array to INI-file
 {
