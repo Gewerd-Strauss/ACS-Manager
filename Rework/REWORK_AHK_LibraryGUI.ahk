@@ -57,8 +57,8 @@ CrtDate:=SubStr(CrtDate,7,  2) "." SubStr(CrtDate,5,2) "." SubStr(CrtDate,1,4)
                     ,homepagelink : ""
                     ,ghtext 	  : "GH-Repo"
                     ,ghlink       : "https://github.com/Gewerd-Strauss/AHK-Code-Snippets"
-                    ,doctext	  : ""
-                    ,doclink	  : ""
+                    ,doctext	  : "Documenation"
+                    ,doclink	  : "https://github.com/Gewerd-Strauss/ScriptObj#readme"
                     ,forumtext	  : ""
                     ,forumlink	  : ""
                     ,donateLink	  : ""
@@ -90,6 +90,7 @@ if !script.Load(,1)
 	, LibraryRelativeSI:false
 	, ShowRedraw:false
 	, bDebugSwitch:true
+	, SoundAlertOnDebug:true
 	, Max_InDepth_Searchable:200
 	, Map2:{AU:"Author" ;; For fetching data from 'Matches', the presorted object TODO: make this a 
 					,DA:"Date"
@@ -100,17 +101,18 @@ if !script.Load(,1)
 					,Url:"URL"
 					,Ver:"Version"
 					,Dep:"Dependencies"}}
-   ,Search_Descriptions:{Search_Code:";Check if you want to search code of snippets as well. Adds substantial overhead at bootup."
-    , Search_Description:";Check if you want to search descriptions of snippets as well. Adds substantial overhead at bootup."
-	, Search_Examples:";Check if you want to search examples of snippets as well. Adds substantial overhead at bootup."
-	, Search_InString_MetaFields:";Check if you want to search via In-String-matching in Metadata, instead of only allowing exact matches"
-	, DateFormat:";Set the format with which to display dates."
-	, CopyDescriptionToOutput:";Decide if you want to include the documentation when copying a snippet"
-	, CopyExampleToOutput:";Decide if you want to include the example when copying a snippet"
-	, LibraryRelativeSI:";Set SnippetIdentifier relative to its own library"
+   ,Search_Descriptions:{Search_Code:"Check if you want to search code of snippets as well. Adds substantial overhead at bootup."
+    , Search_Description:"Check if you want to search descriptions of snippets as well. Adds substantial overhead at bootup."
+	, Search_Examples:"Check if you want to search examples of snippets as well. Adds substantial overhead at bootup."
+	, Search_InString_MetaFields:"Check if you want to search via In-String-matching in Metadata, instead of only allowing exact matches"
+	, DateFormat:"Set the format with which to display dates."
+	, CopyDescriptionToOutput:"Decide if you want to include the documentation when copying a snippet"
+	, CopyExampleToOutput:"Decide if you want to include the example when copying a snippet"
+	, LibraryRelativeSI:"TODO:NOT IMPLEMENTED:Set SnippetIdentifier relative to its own library"
 	, ShowRedraw:"Display the redrawing of the LV-Control. Can reduce performance."
 	, bDebugSwitch:"Set to true to expose additional information helpful for debugging issues."
-	, Max_InDepth_Searchable:";Set the maximum number of snippets for which the script will also search all previously loaded Codes, Descriptions and Examples.`nFor more snippets, these searches will not be performed to not reduce performance too much."
+	, SoundAlertOnDebug:"Set true/false if you want to get an audio-ping whenever entering/exiting debug mode. Recommended to be on as db-mode can alter how the program behaves."
+	, Max_InDepth_Searchable:"Set the maximum number of snippets for which the script will also search all previously loaded Codes, Descriptions and Examples.`nFor more snippets, these searches will not be performed to not reduce performance too much."
 	, Map2:"The Map corresponding shorthand searchkeys with their longhand assignments within the metadata"}}
 	script.Save()
 }
@@ -346,23 +348,29 @@ lGUICreate_1New: ;; Fully Parametric-form, TODO: functionalise this thing
 
 		gui, add, statusbar, -Theme vStatusBarMainWindow  gfCallBack_StatusBarMainWindow ; finish up statusbar - settings, updating library/adding additional libraries
 
-		SB_SetParts(370,270,71)
+		SB_SetParts(370,273,70,80)
 		if ((!(script.computername==script.authorID)) && !script.config.settings.bDebugSwitch)
 		{ ;; public display
 			SB_SetText("Standard Mode Engaged. Click to enter debug-mode",2)
+			ListLines, Off
+			ListVars, Off
+			ListHotkeys, Off
+			KeyHistory
 		}
 		else if ((script.computername==script.authorID) || (!(script.computername==script.authorID) && script.config.settings.bDebugSwitch))
 		{
-			SB_SetText("Author/Debug Mode Engaged",2)
+			SB_SetText("Author/Debug Mode Engaged. Click to exit debug-mode",2)
+			ListLines, On
 		}
 		; f_SB_Set()
 		SB_SetText("No Code from " script.name " on clipboard.", 1)
 		if (SnippetsStructure[4,"ahk"]!=SnippetsStructure[4,"ini"]) 
 			script.Error:="Critical Error: Metadata for " SnippetsStructure[4,"ini"] " files has been found, but code is only present for " SnippetsStructure[4,"ahk"] " snippets."
 		if (script.error!="")
-			SB_SetText(script.error,4)
+			SB_SetText(script.error,5)
 		else
-			SB_SetText("Errors:/",4)
+			SB_SetText("Errors:/",5)
+		SB_SetText("About this script",4)
 		SB_SetText("NE:Update Script",3)
 		fGuiShow_1(vGUIWidth,vGUIHeight,GuiNameMain)
         Hotkey, IfWinActive, % "ahk_id " MainGUI
@@ -508,7 +516,6 @@ fCopyScript()
 				Example:=TF_InsertPrefix(SnippetsStructure[1,SelectedLVEntry.3].Example,1,, ";; ") ;; make sure the example is definitely a comment 
 			if (Example!="")
 				Code:=PrependTextBeforeString(Code,";; Example:`n" Example)
-			; Clipboard:=Code:=PrependTextBeforeString(Code,";; Example:`n")
 		}
 		else
 		{
@@ -525,7 +532,6 @@ fCopyScript()
 				Description:=TF_InsertPrefix(Matches[1,SelectedLVEntry.3].Description,1,, ";;; ") ;; make sure the example is definitely a comment 
 			else if !Instr(SnippetsStructure[1,SelectedLVEntry.3].Description,"Error 01: No description-file was found under the expected path")
 				Description:=TF_InsertPrefix(SnippetsStructure[1,SelectedLVEntry.3].Description,1,, ";;; ") ;; make sure the example is definitely a comment 
-			; Description:=TF_InsertPrefix(SnippetsStructure[1,SelectedLVEntry.3].Description,1,, ";;; ") ;; make sure the description is definitely a comment 
 			if (Description!="")
 				Code:=PrependTextBeforeString(Code,";;; Description:`n" Description)
 		}
@@ -574,32 +580,51 @@ lEditSnippet: ;; I have no idea how to bind a function to a gui-button itself.
 return
 fEditSnippet(SnippetsStructure:="",matcges:="")
 {
-	global
+	global ;; figure out how to bind the contents properly so I can remove the global-code
 	gui,1: submit, NoHide
-	ttip("Congrats, this does absolutely nothing as well")
 	SelectedLVEntry:=f_GetSelectedLVEntries()
 	if (Matches.Count()!="") && (Matches.Count()>0)
-		EditorImporter(Matches[1,SelectedLVEntry.3+0] ,Matches)
+	{
+		fLoadFillDetails(Matches,DirectoryPath)
+		EditorImporter(Matches[1,SelectedLVEntry.3] ,Matches)
+	}
 	Else
+	{	
+		fLoadFillDetails(SnippetsStructure,DirectoryPath)
 		EditorImporter(SnippetsStructure[1,SelectedLVEntry.3] ,SnippetsStructure)
+	}
 	return
 }
 
-fCallBack_StatusBarMainWindow()
+fCallBack_StatusBarMainWindow(Path:="")
 {
 ; not implemented yet
 	gui, submit, NoHide
-	if ((A_GuiEvent="DoubleClick") && (A_EventInfo=4)) ;; trigger Error
+	if (((A_GuiEvent="DoubleClick") && (A_EventInfo=4))) || (Path=1) ;; trigger About
+		script.About()
+	if ((A_GuiEvent="DoubleClick") && (A_EventInfo=5)) || (Path=5) ;; trigger Error
 		SB_SetText("Testing Error", 2)
-	if ((A_GuiEvent="DoubleClick") && (A_EventInfo=2)) ;; print detailed Error
+	if ((A_GuiEvent="DoubleClick") && (A_EventInfo=2)) || (Path=2) ;; toggle debug mode
 	{
 		script.config.settings.bDebugSwitch:= !script.config.settings.bDebugSwitch
 		if ((!(script.computername==script.authorID)) && !script.config.settings.bDebugSwitch) || ((script.computername==script.authorID) && !script.config.settings.bDebugSwitch)
 		{ ;; public display
-			SB_SetText("Standard Mode Engaged. Click to enter debug-mode",2)
+			if script.config.settings.SoundAlertOnDebug
+			{
+				SoundBeep, 150, 150
+				SoundBeep, 150, 150
+				SoundBeep, 150, 150
+				SB_SetText("Standard Mode Engaged. Click to enter debug-mode",2)
+			}
 		}
 		else if ((script.computername==script.authorID) || (!(script.computername==script.authorID) && script.config.settings.bDebugSwitch))
 		{
+			if script.config.settings.SoundAlertOnDebug
+			{
+				SoundBeep, 1750, 150
+				SoundBeep, 1750, 150
+				SoundBeep, 1750, 150
+			}
 			SB_SetText("Author/Debug Mode Engaged. Click to exit debug-mode",2)
 		}
 		if !strsplit(script.config.settings.ShowRedraw,A_Space).1
@@ -925,6 +950,7 @@ if !strsplit(script.config.settings.ShowRedraw,A_Space).1
 return 
 
 #If WinActive(GuiNameMain)
+^T::fCallBack_StatusBarMainWindow(2)
 Esc::fGuiHide_1()
 Numpad9:: ;; resizes the GUI 
 bSwitchSize:=1
@@ -1338,7 +1364,7 @@ fPopulateLVNew(Snippets,SectionNames,LibraryCount)
 		, Addition.LibraryName:=v.MetaData.Library
 		, Addition.LVIdentifier:=fPadIndex(v.MetaData.SectionInd,SectionPad) "." fPadIndex((InStr(A_ThisLabel,"lSearchSnippets")?v.MetaData.LVInd:v.MetaData.LVInd),SectionPad)
 		, Addition.AdditionIndex:=v.MetaData.AdditionIndex
-		, Addition.License:=v.Metadata.License
+		, Addition.License:=strreplace(v.Metadata.License,"none","/")
 		, Addition.Version:=v.Metadata.Version
 		, Addition.Author:=SubStr(v.Metadata.Author,1,150)
 		LV_Add("-E0x200",		Addition.LVSection,		Addition.Name,		Addition.Hash,		Addition.LibraryName,		Addition.LVIdentifier, Addition.AdditionIndex, Addition.License, Addition.Version,Addition.Author,Addition.LVIdentifier		)
