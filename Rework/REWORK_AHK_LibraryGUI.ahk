@@ -1,37 +1,67 @@
  /*
 	TODO:::: ADD NAMESPACED VERSIONS OF FUNCTIONS FROM stringthings.ahk AND TF.AHK to this script
-Sections copied successfully from ahk-rare:
+	Sections copied successfully from ahk-rare:
 
-1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-16
-17
-18
-19
-20
-21
-22
-23
-24
-25
-26
-27
-28
-29
+	1
+	2
+	3
+	4
+	5
+	6
+	7
+	8
+	9
+	10
+	11
+	12
+	13
+	14
+	15
+	16
+	17
+	18
+	19
+	20
+	21
+	22
+	23
+	24
+	25
+	26
+	27
+	28
+	29
 
+String/Array/Text
+gui - interacting
+Varius get
+Clipboard
+graphic
+System functions/Binary handling
+gui - get informations
+Internet Explorer/Chrome/FireFox/HTML
+Filesystem
+Variables
+Math/Converting
+Internet/Network
+gui - control type
+Keys/Hotkeys/Hotstring
+Objects
+gui - customize
+Hooks/Messaging
+Font things
+gui - menu
+ACC (MSAA)
+gui - to change
+Other
+ToolTips
+Command CommandLine
+System/User/hardware
+Date or Time
+gui - icon
+UIAutomation
+Other languages/MCode
+gui - customise
 
 */
 ; ttip("Comb through ahkrare-content and move example and description comment blocks to their respective files","add all metadata-fields to be used in the editor, and figure out how to do the editor metadata-adjustable")
@@ -133,6 +163,7 @@ if !script.Load(,1)
 					,Se:"Section"
 					,Url:"URL"
 					,Ver:"Version"
+					,Key:"Keywords"
 					,Dep:"Dependencies"}}
    ,Search_Descriptions:{Search_Code:"Check if you want to search code of snippets as well. Adds substantial overhead at bootup."
     , Search_Description:"Check if you want to search descriptions of snippets as well. Adds substantial overhead at bootup."
@@ -152,6 +183,11 @@ if !script.Load(,1)
 ; script.Version:=script.config.Settings.ScriptVersion
 global DirectoryPath:= A_ScriptDir "\Sources\*" ;; this is the path that contains all libraries which will be read.
 SnippetsStructure:=fLoadFolderLibraries(DirectoryPath)
+Clipboard:=""
+for k,v in SnippetsStructure[2]
+{
+	Clipboard.="`n" v
+}
 oArr:=SnippetsStructure.Clone()
 SearchHistory:=[]
 
@@ -695,17 +731,7 @@ fLoadFillDetails()
 	,Description:=Data.Description ;SnippetsStructure[1,SelectedLVEntry[3]].Description
 	,Example:=Data.Example ;SnippetsStructure[1,SelectedLVEntry[3]].Example
 
-	; if (bSearchSnippets)
-	; {
-	; 	selRow++
-	; 	SelectedLVEntry:=f_GetSelectedLVEntries(selRow)
-	; 	sel:=[]
-	; 	Data:=SnippetsStructure[1,SelectedLVEntry[3]]
-	; 	Path:=SubStr(DirectoryPath,1,StrLen(DirectoryPath)-1) Data["Metadata","Library"] "\" Data["Metadata","Hash"] ;SelectedLVEntry[1,1].Library "\" SelectedLVEntry[1,1].Hash
-	; 	,Code:=Data.Code ;SnippetsStructure[1,SelectedLVEntry[3]].Code
-	; 	,Description:=Data.Description ;SnippetsStructure[1,SelectedLVEntry[3]].Description
-	; 	,Example:=Data.Example ;SnippetsStructure[1,SelectedLVEntry[3]].Example
-	; }
+	
 	if (Data="")	
 		return
 	if (Code="") || Instr(Code,"Error 01: File '")
@@ -1534,14 +1560,27 @@ floadFolderLibraries(DirectoryPath)
 			, Arr[k,"Example"]:=""
 			, Arr[k,"Description"]:=""
 		}
-		
-		if Instr(A_LoopFileFullPath,"alib")
+		Err:=0
+		if !FileExist(DirName "\" NameNExt ".ahk") ; && !FileExist(DirName "\" NameNExt ".description") && !FileExist(DirName "\" NameNExt ".example")
 		{
-			if !FileExist(DirName "\" NameNExt ".ahk") && !FileExist(DirName "\" NameNExt ".description") && !FileExist(DirName "\" NameNExt ".example")
-			{
-
-			}
+			Err++
 		}
+		if !FileExist(DirName "\" NameNExt ".ini") ; && !FileExist(DirName "\" NameNExt ".description") && !FileExist(DirName "\" NameNExt ".example")
+		{
+			Err++
+
+		}
+		if !FileExist(DirName "\" NameNExt ".example")
+		{
+			Err++
+			
+		}
+		if !FileExist(DirName "\" NameNExt ".description")
+		{
+			Err++
+
+		}
+
 		;; Insert Metadata from file and add the current library-(==folder-)name
 		; Info:=fReadINI(strreplace(A_LoopFileFullPath, ".ahk",".ini")).Info
 		Info:=fReadINI(A_LoopFileFullPath).Info
