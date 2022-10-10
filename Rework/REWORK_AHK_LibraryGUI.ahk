@@ -583,7 +583,9 @@ fEditSnippet(SnippetsStructure:="",matcges:="")
 	global ;; figure out how to bind the contents properly so I can remove the global-code
 	gui,1: submit, NoHide
 	SelectedLVEntry:=f_GetSelectedLVEntries()
-	if (Matches.Count()!="") && (Matches.Count()>0)
+	SearchStr:=fGetSearchFunctionsString()
+
+	if (Matches.Count()!="") && (Matches.Count()>0) && (SearchStr!="")
 	{
 		fLoadFillDetails(Matches,DirectoryPath)
 		EditorImporter(Matches[1,SelectedLVEntry.3] ,Matches)
@@ -904,7 +906,7 @@ fSearchSnippetsEnter(SnippetsStructure,References,DirectoryPath,SearchHistory)
 
 }
 
-fGetSearchFunctionsString(Str:="")
+fGetSearchFunctionsString()
 { ;; retrieves the contents of the search-edit field
 	GuiControlGet, ContentsSearchField,,SearchString
 	return ContentsSearchField
