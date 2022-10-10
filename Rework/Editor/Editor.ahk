@@ -39,7 +39,7 @@ EditorImporter(Snippet:="",SnippetsStructure:="",ConvertingAHKRARE:=false)
     {
 
         ; Gui +OwnDialogs
-        MsgBox 0x40030, `% script.name " - Snippet Editor", The contents fed to be edited do not resemble a valid snippet object.`n`nPlease check for errors in the data structure`, as well as the source code.`n`nReturning to Main GUI
+        MsgBox 0x40030, % script.name " - Snippet Editor", The contents fed to be edited do not resemble a valid snippet object.`n`nPlease check for errors in the data structure`, as well as the source code.`n`nReturning to Main GUI
         return
     }
     bIsEditing:=(IsObject(Snippet)?true:false)
@@ -86,7 +86,7 @@ EditorImporter(Snippet:="",SnippetsStructure:="",ConvertingAHKRARE:=false)
     gui, add, text, yp+%SmallFieldsHeight%+5 xp-100, Library
     
     Ind:=0
-        loop, files, % A_ScriptDir "\Sources\*.*", D
+        loop, files, % DirectoryPath, D
         {
             Ind++
             ;; todo: make this load from a path in script.settings.path, including scriptObj
@@ -163,8 +163,19 @@ fGuiShow_2(Width,Height)
     return
 }
 lOpenSnippetInFolder:
-gui, ACSI: submit, 
+gui, ACSI: submit, NoHide 
+gui, 1: -Disabled
+fOpenSnippetInFolder(vName_Importer, vLibrary_Importer, vSnippet_Importer)
 return
+fOpenSnippetInFolder(vName_Importer, vLibrary_Importer, vSnippet_Importer)
+{
+    Key:=vName_Importer . vLibrary_Importer . vSnippet_Importer ;; cuz the hash is no longer required to be translated, I can make it 
+    Hash:=Object_HashmapHash(Key) ; Issue: What to include in the hashed snippet name?
+    Path:=substr(DirectoryPath,1,Strlen(DirectoryPath)-1)  vLibrary_Importer "\" Hash
+    Run %COMSPEC% /c explorer.exe /select`, "%Path%",, ; TODO: figure out how to open the containing folder and highlight a file
+    ; run, % 
+    return
+}
 lDelete:
 gui, ACSI: submit, NoHide 
 gui, 1: -Disabled
@@ -241,26 +252,46 @@ fSubmitImporter(SubmissionObj, Snippet,bIsEditing,ConvertingAHKRARE:=false)
         for k,v in loops
         {
             if FileExist(A_ScriptDir "\Sources\" OldLib "\" OldHash v)
+            {
+                FileCopy,% A_ScriptDir "\Sources\" OldLib "\" OldHash v,% BackupLoc:=A_ScriptDir "\Sources\" OldLib "\BACKUP_" OldHash v,1
                 FileRecycle,% A_ScriptDir "\Sources\" OldLib "\" OldHash v
+            }
             if FileExist(A_ScriptDir "\Sources\" OldLib "\" snippet.Metadata.name v)
+            {
+                
+                FileCopy,% A_ScriptDir "\Sources\" OldLib "\" OldHash v,% BackupLoc:=A_ScriptDir "\Sources\" OldLib "\BACKUP_" Snippet.metadata.name v,1
                 FileRecycle,% A_ScriptDir "\Sources\" OldLib "\" snippet.Metadata.Name v
+            }
         }
     } 
+    Success:=Expected:=0
     if (Obj.Count()>0) && (Obj.Count()!="")
-        ACSI_fWriteIni({Info:Obj},A_ScriptDir "\Sources\" SubmissionObj.Library "\" Hash ".ini")
+        Success=+ACSI_fWriteIni({Info:Obj},A_ScriptDir "\Sources\" SubmissionObj.Library "\" Hash ".ini")
     if (SubmissionObj.Snippet!="") && (RegExReplace(SubmissionObj.Snippet,"\s*","")!="") && !Instr(SubmissionObj.Snippet,"Error 01: No code-file was found under the expected path ")
-        fWriteTextToFile(SubmissionObj.Snippet,A_ScriptDir "\Sources\" SubmissionObj.Library "\" Hash ".ahk")
+        Success=+fWriteTextToFile(SubmissionObj.Snippet,A_ScriptDir "\Sources\" SubmissionObj.Library "\" Hash ".ahk")
     if (SubmissionObj.Example!="") && (RegExReplace(SubmissionObj.Example,"\s*","")!="") && !Instr(SubmissionObj.Example, "Error 01: No example-file was found under the expected path")
-        fWriteTextToFile(SubmissionObj.Example,A_ScriptDir "\Sources\" SubmissionObj.Library "\" Hash ".example")
+        Success=+fWriteTextToFile(SubmissionObj.Example,A_ScriptDir "\Sources\" SubmissionObj.Library "\" Hash ".example")
     if (SubmissionObj.Description!="") && (RegExReplace(SubmissionObj.Description,"\s*","")!="") && !Instr(SubmissionObj.Description, "Error 01: No example-file was found under the expected path")
-        fWriteTextToFile(SubmissionObj.Description,A_ScriptDir "\Sources\" SubmissionObj.Library "\" Hash ".description")
+        Success=+fWriteTextToFile(SubmissionObj.Description,A_ScriptDir "\Sources\" SubmissionObj.Library "\" Hash ".description")
+    if (Obj.Count()>0) && (Obj.Count()!="")
+        Expected=+1
+    if (SubmissionObj.Snippet!="") && (RegExReplace(SubmissionObj.Snippet,"\s*","")!="") && !Instr(SubmissionObj.Snippet,"Error 01: No code-file was found under the expected path ")
+        Expected=+1
+    if (SubmissionObj.Example!="") && (RegExReplace(SubmissionObj.Example,"\s*","")!="") && !Instr(SubmissionObj.Example, "Error 01: No example-file was found under the expected path")
+        Expected=+1
+    if (SubmissionObj.Description!="") && (RegExReplace(SubmissionObj.Description,"\s*","")!="") && !Instr(SubmissionObj.Description, "Error 01: No example-file was found under the expected path")
+        Expected=+1
+    if (Expected>Success)
+    {
+        SplitPath, BackupLoc, OutFileName
+        MsgBox 0x30, % script.name " - Snippet Editor", "Error:`n" Expected " files were expected to be updated`, but only " Success " files could be written to file.`nBackfiles exist in the LibraryFolder under the name " OutFileName
+    }
     if (ConvertingAHKRARE)
     {
         WinActivate, AHK-Rare_TheGui
         sleep, 400
     }
     fGuiHide_2()
-    return
     reload
     return
 }
@@ -299,7 +330,7 @@ ACSI_fWriteIni(ByRef Array2D, INI_File)  ; write 2D-array to INI-file
 	}
 	if A_WorkingDir!=OrigWorkDir
 		SetWorkingDir, %OrigWorkDir%
-    return
+    return FileExist(Instr(INI_File,".ini")?INI_File:INI_File . ".ini")?true:false
 	/* Original File from https://www.autohotkey.com/boards/viewtopic.php?p=256714#p256714
 		
 	;-------------------------------------------------------------------------------
