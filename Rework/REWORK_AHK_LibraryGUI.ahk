@@ -189,6 +189,7 @@ clipboard:="getcommstate"
 clipboard:="InvokeVerb"
 clipboard:="PostMessageUn"
 clipboard:="controlgettabs"
+clipboard:="WinGetPosEx"
 ; Clipboard:="Au:anon na:1"
 
 return
@@ -491,9 +492,9 @@ fCopyScript()
 	{
 		searchstr:=fGetSearchFunctionsString()
 		SelectedLVEntry:=f_GetSelectedLVEntries()
-		if (searchstr!="")
+		if (searchstr!="") && !Instr(Matches[1,SelectedLVEntry.3].Code,"Error 01: No code-file was found under the expected path")
 			Code:=Matches[1,SelectedLVEntry.3].Code 
-		else
+		else if !Instr(SnippetsStructure[1,SelectedLVEntry.3].Code,"Error 01: No code-file was found under the expected path")
 			Code:=SnippetsStructure[1,SelectedLVEntry.3].Code 
 		if (Code="") && (searchstr!="")
 			fLoadFillDetails(Matches,DirectoryPath)
@@ -501,38 +502,41 @@ fCopyScript()
 			fLoadFillDetails(SnippetsStructure,DirectoryPath)
 		if script.config.Settings.CopyExampleToOutput
 		{
-			if (searchstr!="")
+			if (searchstr!="") && !Instr(Matches[1,SelectedLVEntry.3].Example,"Error 01: No example-file was found under the expected path")
 				Example:=TF_InsertPrefix(Matches[1,SelectedLVEntry.3].Example,1,, ";; ") ;; make sure the example is definitely a comment 
-			else
+			else if !Instr(SnippetsStructure[1,SelectedLVEntry.3].Example,"Error 01: No example-file was found under the expected path")
 				Example:=TF_InsertPrefix(SnippetsStructure[1,SelectedLVEntry.3].Example,1,, ";; ") ;; make sure the example is definitely a comment 
-			Code:=PrependTextBeforeString(Code,";; Example:`n" Example)
+			if (Example!="")
+				Code:=PrependTextBeforeString(Code,";; Example:`n" Example)
 			; Clipboard:=Code:=PrependTextBeforeString(Code,";; Example:`n")
 		}
 		else
 		{
-			if (searchstr!="")
+			if (searchstr!="") && !Instr(Matches[1,SelectedLVEntry.3].Example,"Error 01: No example-file was found under the expected path")
 				Example:=TF_InsertPrefix(Matches[1,SelectedLVEntry.3].Example,1,, ";; ") ;; make sure the example is definitely a comment 
-			else
+			else if !Instr(SnippetsStructure[1,SelectedLVEntry.3].Example,"Error 01: No example-file was found under the expected path")
 				Example:=TF_InsertPrefix(SnippetsStructure[1,SelectedLVEntry.3].Example,1,, ";; ") ;; make sure the example is definitely a comment 
-
-			Code:=SnippetsStructure[1,SelectedLVEntry.3].Code
+			if (Example!="")
+				Code:=SnippetsStructure[1,SelectedLVEntry.3].Code
 		}
 		if script.config.Settings.CopyDescriptionToOutput
 		{
-			if (searchstr!="")
+			if (searchstr!="") && !Instr(Matches[1,SelectedLVEntry.3].Description,"Error 01: No description-file was found under the expected path")
 				Description:=TF_InsertPrefix(Matches[1,SelectedLVEntry.3].Description,1,, ";;; ") ;; make sure the example is definitely a comment 
-			else
+			else if !Instr(SnippetsStructure[1,SelectedLVEntry.3].Description,"Error 01: No description-file was found under the expected path")
 				Description:=TF_InsertPrefix(SnippetsStructure[1,SelectedLVEntry.3].Description,1,, ";;; ") ;; make sure the example is definitely a comment 
 			; Description:=TF_InsertPrefix(SnippetsStructure[1,SelectedLVEntry.3].Description,1,, ";;; ") ;; make sure the description is definitely a comment 
-			Code:=PrependTextBeforeString(Code,";;; Description:`n" Description)
+			if (Description!="")
+				Code:=PrependTextBeforeString(Code,";;; Description:`n" Description)
 		}
 		else
 		{
-			if (searchstr!="")
+			if (searchstr!="") && !Instr(Matches[1,SelectedLVEntry.3].Description,"Error 01: No description-file was found under the expected path")
 				Description:=TF_InsertPrefix(Matches[1,SelectedLVEntry.3].Description,1,, ";;; ") ;; make sure the example is definitely a comment 
-			else
+			else if !Instr(Matches[1,SelectedLVEntry.3].Description,"Error 01: No description-file was found under the expected path")
 				Description:=TF_InsertPrefix(SnippetsStructure[1,SelectedLVEntry.3].Description,1,, ";;; ") ;; make sure the example is definitely a comment 
-			Code:=SnippetsStructure[1,SelectedLVEntry.3].Code
+			if (Description!="")
+				Code:=SnippetsStructure[1,SelectedLVEntry.3].Code
 		}
 		Code:=ALG_st_Insert(";--uID:" SnippetsStructure[1,SelectedLVEntry.3].Metadata.Hash "`n",Code) . "`n" ;; prepend uID-token
 		Code:=ALG_st_Insert(";--uID:" SnippetsStructure[1,SelectedLVEntry.3].Metadata.Hash "`n",Code,StrLen(Code)+StrLen(";--uID:" SnippetsStructure[1,SelectedLVEntry.3].Metadata.Hash "`n")) ;; append uID-token
