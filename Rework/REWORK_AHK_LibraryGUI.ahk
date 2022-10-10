@@ -2,36 +2,6 @@
 	TODO:::: ADD NAMESPACED VERSIONS OF FUNCTIONS FROM stringthings.ahk AND TF.AHK to this script
 	Sections copied successfully from ahk-rare:
 
-	1
-	2
-	3
-	4
-	5
-	6
-	7
-	8
-	9
-	10
-	11
-	12
-	13
-	14
-	15
-	16
-	17
-	18
-	19
-	20
-	21
-	22
-	23
-	24
-	25
-	26
-	27
-	28
-	29
-
 String/Array/Text
 gui - interacting
 Varius get
@@ -154,6 +124,7 @@ if !script.Load(,1)
 	, ShowRedraw:false
 	, bDebugSwitch:false
 	, SoundAlertOnDebug:true
+	, bSetSearchresultAlphabetically:true
 	, Max_InDepth_Searchable:200
 	, Map2:{AU:"Author" ;; For fetching data from 'Matches', the presorted object TODO: make this a 
 					,DA:"Date"
@@ -939,7 +910,8 @@ fSearchSnippetsEnter(SnippetsStructure,References,DirectoryPath,SearchHistory)
 			GuiControl,,vSearchFunctions,% Matches[1].Count() " snippets found in "  Matches[3] ((Matches[3]>1)?" libraries":" library")
 			; A_ThisHotkey
 			fLoadFillDetails() ;(Matches,DirectoryPath)
-			f_RescaleLV(1)
+			
+			f_RescaleLV(1,script.config.Settings.bSetSearchresultAlphabetically)
 			global bSearchSnippets:=false
 			if (A_ThisHotkey!="~Up") && (A_ThisHotkey!="~Down")
 			{
@@ -1460,7 +1432,7 @@ fPopulateLVNew(Snippets,SectionNames,LibraryCount)
 	return [AuthorReferences,SectionReferences,LicenseReferences,DateReferences,FileReferences]
 }
 
-f_RescaleLV(OverWriteShow:=0)
+f_RescaleLV(OverWriteShow:=false,SearchResultSort:=false)
 { ;; makes sure the ListView is correctly scaled. ;;TODO: change the order/settings here to hide 
 	if ((!(script.computername==script.authorID)) && !script.config.settings.bDebugSwitch) || ((script.computername==script.authorID) && !script.config.settings.bDebugSwitch)
 	{
@@ -1484,7 +1456,10 @@ f_RescaleLV(OverWriteShow:=0)
 		, LV_ModifyCol(8,"AutoHdr") 
 
     	, LV_ModifyCol(10,"Left")
-	, LV_ModifyCol(10,"Sort")
+		if !SearchResultSort
+			LV_ModifyCol(10,"Sort")
+		else
+			LV_ModifyCol(2,"Sort")
 	, LV_ModifyCol(10,"AutoHdr")
 
 	}
@@ -1494,9 +1469,13 @@ f_RescaleLV(OverWriteShow:=0)
 	, LV_ModifyCol(4,"AutoHdr")
     , LV_ModifyCol(2,"AutoHDr")
     , LV_ModifyCol(10,"Right")
-	, LV_ModifyCol(10,"Sort")
-	, LV_ModifyCol(9,"AutoHdr")
+	if !SearchResultSort
+		LV_ModifyCol(10,"Sort")
+	else
+		LV_ModifyCol(2,"Sort")
+	LV_ModifyCol(9,"AutoHdr")
 	, LV_ModifyCol(10,"AutoHdr")
+
 }
 
 f_FillFields(Code,Description,Example)

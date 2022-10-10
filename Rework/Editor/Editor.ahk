@@ -357,7 +357,6 @@ fSubmitImporter(SubmissionObj, Snippet,bIsEditing,ConvertingAHKRARE:=false)
     for k,v in loops
     { ;TODO: backup files are not deleted once the others are checked to exist
         if FileExist(NewFile) && FileExist(Dir "\000-BACKUP_" Snippet.Metadata.Hash v)
-        ; Filexist(NewFile)
         {
             FileDelete,% Dir "\000-BACKUP_" Snippet.Metadata.Hash v
             ; FileDelete, FilePattern
