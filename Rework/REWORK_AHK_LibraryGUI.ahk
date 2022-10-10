@@ -1353,10 +1353,11 @@ fPopulateLVNew(Snippets,SectionNames,LibraryCount)
 				, FileReferences[v.Metadata.Library]:=FileReferences[v.Metadata.Library] k ","
 				, v.MetaData.LVInd:=fPadIndex(SectionNamesRespectiveIndex[v.Metadata.Section],Snippets.Count())
 				, v.MetaData.SectionInd:=fPadIndex(SectionNamesReversed[v.Metadata.Section],SectionNames.Count())
-				, v.MetaData.AdditionIndex:=fPadIndex(k,Snippets.Count())
 				; ; TempInd:=SectionNamesRespectiveIndex[v.Metadata.Section]++
 				; Clipboard:=SectionNamesRespectiveIndex[v.Metadata.Section]	
 		}
+		if Instr(A_ThisLabel,"GuiCreate_1New")
+			v.MetaData.AdditionIndex:=fPadIndex(k,Snippets.Count())
 		Addition:=[] ;; remove all of these and move them into the LV_Add instead, then comment this one out as a help for understanding later
 		, Addition.LVSection:=(fPadIndex(v.MetaData.SectionInd,SectionPad)) " - " (strlen(v.MetaData.Section)<=0?"-1 INVALIDSECTIONKEY":v.MetaData.Section)
 		, Addition.Name:=v.MetaData.Name
