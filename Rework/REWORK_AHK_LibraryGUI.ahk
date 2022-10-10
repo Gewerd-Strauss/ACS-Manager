@@ -113,6 +113,16 @@ CrtDate:=SubStr(CrtDate,7,  2) "." SubStr(CrtDate,5,2) "." SubStr(CrtDate,1,4)
 FileDelete, % script.configfile ;; for testing purposes and keeping the settings updated when adding/changing keys
 if !script.Load(,1) 
 { ;; default settings
+Map:={AU:"Author" ;; For fetching data from 'Matches', the presorted object TODO: make this a 
+			,DA:"Date"
+					,Fi:"Library"
+					,Li:"License"
+					,Na:"Name"
+					,Se:"Section"
+					,Url:"URL"
+					,Ver:"Version"
+					,Key:"Keywords"
+					,Dep:"Dependencies"}
 	script.config:={Settings:{Search_Code: false ;" " ";Check if you want to search code of snippets as well. Adds substantial overhead at bootup."
 	, Search_Description:false
 	, Search_Examples:false
@@ -126,16 +136,7 @@ if !script.Load(,1)
 	, SoundAlertOnDebug:true
 	, bSetSearchresultAlphabetically:true
 	, Max_InDepth_Searchable:200
-	, Map2:{AU:"Author" ;; For fetching data from 'Matches', the presorted object TODO: make this a 
-					,DA:"Date"
-					,Fi:"Library"
-					,Li:"License"
-					,Na:"Name"
-					,Se:"Section"
-					,Url:"URL"
-					,Ver:"Version"
-					,Key:"Keywords"
-					,Dep:"Dependencies"}}
+	, Map2:Map}
    ,Search_Descriptions:{Search_Code:"Check if you want to search code of snippets as well. Adds substantial overhead at bootup."
     , Search_Description:"Check if you want to search descriptions of snippets as well. Adds substantial overhead at bootup."
 	, Search_Examples:"Check if you want to search examples of snippets as well. Adds substantial overhead at bootup."
