@@ -5,6 +5,7 @@
 	Sections copied successfully from ahk-rare:
 	TODO:::: add a double map to translate any assumed ahk_Version's to unified
 				output: v1,v1.1,v2
+	TODO:::: replace information edit field with a URL-formatting Textfield
 
 String/Array/Text
 gui - interacting
@@ -223,23 +224,23 @@ gosub, lGUICreate_1New
 
 
 ;;  an armada of different search testing strings :
-Clipboard:="Au:Gew Se:menu Li:Un"
-Clipboard:="Au:Gew Se:menu Li:Un Da:07.10.2022"
-Clipboard:="Fi:Libr AU:ano"
-Clipboard:="Au:Gew Se:menu Ver:1.3"
-; Clipboard:="Au:Gew Se:menu"
-Clipboard:="fi:Sec"
-Clipboard:="au:gew fi:ary1"
-Clipboard:="Na:1 fi:ary1"
-clipboard:="Na:1 fi:ary1 au:ano"
-clipboard:="fi:sec au:ano"
-clipboard:="fi:sec au:ano NA:alib"
-clipboard:="gui - to change"
-clipboard:="getcommstate"
-clipboard:="InvokeVerb"
-clipboard:="PostMessageUn"
-clipboard:="controlgettabs"
-clipboard:="WinGetPosEx"
+; Clipboard:="Au:Gew Se:menu Li:Un"
+; Clipboard:="Au:Gew Se:menu Li:Un Da:07.10.2022"
+; Clipboard:="Fi:Libr AU:ano"
+; Clipboard:="Au:Gew Se:menu Ver:1.3"
+; ; Clipboard:="Au:Gew Se:menu"
+; Clipboard:="fi:Sec"
+; Clipboard:="au:gew fi:ary1"
+; Clipboard:="Na:1 fi:ary1"
+; clipboard:="Na:1 fi:ary1 au:ano"
+; clipboard:="fi:sec au:ano"
+; clipboard:="fi:sec au:ano NA:alib"
+; clipboard:="gui - to change"
+; clipboard:="getcommstate"
+; clipboard:="InvokeVerb"
+; clipboard:="PostMessageUn"
+; clipboard:="controlgettabs"
+; clipboard:="WinGetPosEx"
 clipboard:="Window"
 ; Clipboard:="Au:anon na:1"
 
