@@ -357,7 +357,7 @@ fSubmitImporter(SubmissionObj, Snippet,bIsEditing,ConvertingAHKRARE:=false)
         sleep, 400
     }
     if script.config.settings.bDebugSwitch
-        MsgBox, % script.name, % "Old Hash:" Snippet.Metadata.Hash "`nNewHash: " Hash
+        MsgBox,, % script.name, % "Old Hash:" Snippet.Metadata.Hash "`nNewHash: " Hash
     fGuiHide_2()
     SplitPath,% NewFile,, Dir, ,Name
     Extensions:=[".ahk",".ini",".example",".description"]
