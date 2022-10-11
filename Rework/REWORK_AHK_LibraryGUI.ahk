@@ -166,9 +166,7 @@ global DirectoryPath:= A_ScriptDir "\Sources\*" ;; this is the path that contain
 SnippetsStructure:=fLoadFolderLibraries(DirectoryPath)
 Clipboard:=""
 for k,v in SnippetsStructure[2]
-{
 	Clipboard.="`n" v
-}
 oArr:=SnippetsStructure.Clone()
 SearchHistory:=[]
 
@@ -2692,6 +2690,6 @@ ALG_TF_CountLines(Text)
 	 StringReplace, Text, Text, `n, `n, UseErrorLevel
 	 Return ErrorLevel + 1
 	}
-#Include <RichCode>
-#Include %A_ScriptDir%\Editor\Editor.ahk
+#Include %A_ScriptDir%\Includes\RichCode.ahk
+#Include %A_ScriptDir%\Includes\Editor.ahk
 
