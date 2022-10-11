@@ -1,5 +1,4 @@
  /*
-	TODO:::: ADD NAMESPACED VERSIONS OF FUNCTIONS FROM stringthings.ahk AND TF.AHK to this script
 	TODO:::: Integrate RichCode into the script properly or include it
 		- depends on whether or not I want to include the inisettingseditor or not, but probably not.
 	TODO:::: Make the script language-agnostic (replace ".ahk"-filetype references with any file of same name for any  ini-file in library-path)
@@ -2422,5 +2421,277 @@ DateParse(str)
 	Return, d
 }
 
+ALG_TF_InsertPrefix(Text, StartLine = 1, EndLine = 0, InsertText = "")
+	{
+	 ALG_TF_GetData(OW, Text, FileName)
+	 ALG_TF_MatchList:=ALG_TF__MakeMatchList(Text, StartLine, EndLine, 0, A_ThisFunc) ; create MatchList
+	 Loop, Parse, Text, `n, `r
+		{
+		 If A_Index in %ALG_TF_MatchList%
+			OutPut .= InsertText A_LoopField "`n"
+		 Else
+			OutPut .= A_LoopField "`n"
+		}
+	 Return ALG_TF_ReturnOutPut(OW, OutPut, FileName)
+	}
+
+ALG_TF_GetData(byref OW, byref Text, byref FileName)
+	{
+	 If (text = 0 "") ; v3.6 -> v3.7 https://github.com/hi5/TF/issues/4 and https://autohotkey.com/boards/viewtopic.php?p=142166#p142166 in case user passes on zero/zeros ("0000") as text - will error out when passing on one 0 and there is no file with that name
+		{
+		 IfNotExist, %Text% ; additional check to see if a file 0 exists
+			{
+			 MsgBox, 48, TF Lib Error, % "Read Error - possible reasons (see documentation):`n- Perhaps you used !""file.txt"" vs ""!file.txt""`n- A single zero (0) was passed on to a TF function as text"
+			 ExitApp
+			}
+		}
+	 OW=0 ; default setting: asume it is a file and create file_copy
+	 IfNotInString, Text, `n ; it can be a file as the Text doesn't contact a newline character
+		{
+		 If (SubStr(Text,1,1)="!") ; first we check for "overwrite"
+			{
+			 Text:=SubStr(Text,2)
+			 OW=1 ; overwrite file (if it is a file)
+			}
+		 IfNotExist, %Text% ; now we can check if the file exists, it doesn't so it is a var
+			{
+			 If (OW=1) ; the variable started with a ! so we need to put it back because it is variable/text not a file
+				Text:= "!" . Text
+			 OW=2 ; no file, so it is a var or Text passed on directly to TF
+			}
+		}
+	 Else ; there is a newline character in Text so it has to be a variable
+		{
+		 OW=2
+		}
+	 If (OW = 0) or (OW = 1) ; it is a file, so we have to read into var Text
+		{
+		 Text := (SubStr(Text,1,1)="!") ? (SubStr(Text,2)) : Text
+		 FileName=%Text% ; Store FileName
+		 FileRead, Text, %Text% ; Read file and return as var Text
+		 If (ErrorLevel > 0)
+			{
+			 MsgBox, 48, TF Lib Error, % "Can not read " FileName
+			 ExitApp
+			}
+		}
+	 Return
+	}
+
+
+; ALG_TF__MakeMatchList()
+; Purpose:
+; Make a MatchList which is used in various functions
+; Using a MatchList gives greater flexibility so you can process multiple
+; sections of lines in one go avoiding repetitive fileread/append actions
+; For TF 3.4 added COL = 0/1 option (for ALG_TF_Col* functions) and CallFunc for
+; all ALG_TF_* functions to facilitate bug tracking
+ALG_TF__MakeMatchList(Text, Start = 1, End = 0, Col = 0, CallFunc = "Not available")
+	{
+	 ErrorList=
+	 (join|
+Error 01: Invalid StartLine parameter (non numerical character)`nFunction used: %CallFunc%
+Error 02: Invalid EndLine parameter (non numerical character)`nFunction used: %CallFunc%
+Error 03: Invalid StartLine parameter (only one + allowed)`nFunction used: %CallFunc%
+	 )
+	 StringSplit, ErrorMessage, ErrorList, |
+	 Error = 0
+
+	 If (Col = 1)
+		{
+		 LongestLine:=ALG_TF_Stat(Text)
+		 If (End > LongestLine) or (End = 1) ; FIXITHERE BUG
+			End:=LongestLine
+		}
+
+	 ALG_TF_MatchList= ; just to be sure
+	 If (Start = 0 or Start = "")
+		Start = 1
+
+	 ; some basic error checking
+
+	 ; error: only digits - and + allowed
+	 If (RegExReplace(Start, "[ 0-9+\-\,]", "") <> "")
+		 Error = 1
+
+	 If (RegExReplace(End, "[0-9 ]", "") <> "")
+		 Error = 2
+
+	 ; error: only one + allowed
+	 If (ALG_TF_Count(Start,"+") > 1)
+		 Error = 3
+
+	 If (Error > 0 )
+		{
+		 MsgBox, 48, TF Lib Error, % ErrorMessage%Error%
+		 ExitApp
+		}
+
+	 ; Option #0 [ added 30-Oct-2010 ]
+	 ; Startline has negative value so process X last lines of file
+	 ; endline parameter ignored
+
+	 If (Start < 0) ; remove last X lines from file, endline parameter ignored
+		{
+		 Start:=ALG_TF_CountLines(Text) + Start + 1
+		 End=0 ; now continue
+		}
+
+	 ; Option #1
+	 ; StartLine has + character indicating startline + incremental processing.
+	 ; EndLine will be used
+	 ; Make ALG_TF_MatchList
+
+	 IfInString, Start, `+
+		{
+		 If (End = 0 or End = "") ; determine number of lines
+			End:= ALG_TF_Count(Text, "`n") + 1
+		 StringSplit, Section, Start, `, ; we need to create a new "ALG_TF_MatchList" so we split by ,
+		 Loop, %Section0%
+			{
+			 StringSplit, SectionLines, Section%A_Index%, `+
+			 LoopSection:=End + 1 - SectionLines1
+			 Counter=0
+			 	 ALG_TF_MatchList .= SectionLines1 ","
+			 Loop, %LoopSection%
+				{
+				 If (A_Index >= End) ;
+					Break
+				 If (Counter = (SectionLines2-1)) ; counter is smaller than the incremental value so skip
+					{
+					 ALG_TF_MatchList .= (SectionLines1 + A_Index) ","
+					 Counter=0
+					}
+				 Else
+					Counter++
+				}
+			}
+		 StringTrimRight, ALG_TF_MatchList, ALG_TF_MatchList, 1 ; remove trailing ,
+		 Return ALG_TF_MatchList
+		}
+
+	 ; Option #2
+	 ; StartLine has - character indicating from-to, COULD be multiple sections.
+	 ; EndLine will be ignored
+	 ; Make ALG_TF_MatchList
+
+	 IfInString, Start, `-
+		{
+		 StringSplit, Section, Start, `, ; we need to create a new "ALG_TF_MatchList" so we split by ,
+		 Loop, %Section0%
+			{
+			 StringSplit, SectionLines, Section%A_Index%, `-
+			 LoopSection:=SectionLines2 + 1 - SectionLines1
+			 Loop, %LoopSection%
+				{
+				 ALG_TF_MatchList .= (SectionLines1 - 1 + A_Index) ","
+				}
+			}
+		 StringTrimRight, ALG_TF_MatchList, ALG_TF_MatchList, 1 ; remove trailing ,
+		 Return ALG_TF_MatchList
+		}
+
+	 ; Option #3
+	 ; StartLine has comma indicating multiple lines.
+	 ; EndLine will be ignored
+
+	 IfInString, Start, `,
+		{
+		 ALG_TF_MatchList:=Start
+		 Return ALG_TF_MatchList
+		}
+
+	 ; Option #4
+	 ; parameters passed on as StartLine, EndLine.
+	 ; Make ALG_TF_MatchList from StartLine to EndLine
+
+	 If (End = 0 or End = "") ; determine number of lines
+			End:= ALG_TF_Count(Text, "`n") + 1
+	 LoopTimes:=End-Start
+	 Loop, %LoopTimes%
+		{
+		 ALG_TF_MatchList .= (Start - 1 + A_Index) ","
+		}
+	 ALG_TF_MatchList .= End ","
+	 StringTrimRight, ALG_TF_MatchList, ALG_TF_MatchList, 1 ; remove trailing ,
+	 Return ALG_TF_MatchList
+	}
+
+; added for TF 3.4 col functions - currently only gets longest line may change in future
+
+ALG_TF_Count(String, Char)
+	{
+	StringReplace, String, String, %Char%,, UseErrorLevel
+	Return ErrorLevel
+	}
+
+
+ALG_TF_Stat(Text)
+	{
+	 ALG_TF_GetData(OW, Text, FileName)
+	 Sort, Text, f _AscendingLinesL
+	 Pos:=InStr(Text,"`n")-1
+	 Return pos
+	}
+
+
+; Write to file or return variable depending on input
+ALG_TF_ReturnOutPut(OW, Text, FileName, TrimTrailing = 1, CreateNewFile = 0) {
+	If (OW = 0) ; input was file, file_copy will be created, if it already exist file_copy will be overwritten
+		{
+		 IfNotExist, % FileName ; check if file Exist, if not return otherwise it would create an empty file. Thanks for the idea Murp|e
+			{
+			 If (CreateNewFile = 1) ; CreateNewFile used for ALG_TF_SplitFileBy* and others
+				{
+				 OW = 1
+				 Goto ALG_TF_CreateNewFile
+				}
+			 Else
+				Return
+			}
+		 If (TrimTrailing = 1)
+			 StringTrimRight, Text, Text, 1 ; remove trailing `n
+		 SplitPath, FileName,, Dir, Ext, Name
+		 If (Dir = "") ; if Dir is empty Text & script are in same directory
+			Dir := A_WorkingDir
+		 IfExist, % Dir "\backup" ; if there is a backup dir, copy original file there
+			FileCopy, % Dir "\" Name "_copy." Ext, % Dir "\backup\" Name "_copy.bak", 1
+		 FileDelete, % Dir "\" Name "_copy." Ext
+		 FileAppend, %Text%, % Dir "\" Name "_copy." Ext
+		 Return Errorlevel ? False : True
+		}
+	 ALG_TF_CreateNewFile:
+	 If (OW = 1) ; input was file, will be overwritten by output
+		{
+		 IfNotExist, % FileName ; check if file Exist, if not return otherwise it would create an empty file. Thanks for the idea Murp|e
+			{
+			If (CreateNewFile = 0) ; CreateNewFile used for ALG_TF_SplitFileBy* and others
+				Return
+			}
+		 If (TrimTrailing = 1)
+			 StringTrimRight, Text, Text, 1 ; remove trailing `n
+		 SplitPath, FileName,, Dir, Ext, Name
+		 If (Dir = "") ; if Dir is empty Text & script are in same directory
+			Dir := A_WorkingDir
+		 IfExist, % Dir "\backup" ; if there is a backup dir, copy original file there
+			FileCopy, % Dir "\" Name "." Ext, % Dir "\backup\" Name ".bak", 1
+		 FileDelete, % Dir "\" Name "." Ext
+		 FileAppend, %Text%, % Dir "\" Name "." Ext
+		 Return Errorlevel ? False : True
+		}
+	If (OW = 2) ; input was var, return variable
+		{
+		 If (TrimTrailing = 1)
+			StringTrimRight, Text, Text, 1 ; remove trailing `n
+		 Return Text
+		}
+	}
+ALG_TF_CountLines(Text)
+	{
+	 TF_GetData(OW, Text, FileName)
+	 StringReplace, Text, Text, `n, `n, UseErrorLevel
+	 Return ErrorLevel + 1
+	}
 #Include <RichCode>
 #Include %A_ScriptDir%\Editor\Editor.ahk
+
