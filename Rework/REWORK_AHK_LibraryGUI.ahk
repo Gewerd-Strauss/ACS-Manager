@@ -39,17 +39,42 @@ Other languages/MCode
 gui - customise
 
 */
+#NoEnv
+		#Persistent
+		#SingleInstance, Force
+		#InstallKeybdHook
+		#MaxThreads, 250
+		#MaxThreadsBuffer, On
+		#MaxHotkeysPerInterval 99000000
+		#HotkeyInterval 99000000
+		#KeyHistory 1
+		ListLines Off
+
+		SetTitleMatchMode     	, 2
+		SetTitleMatchMode     	, Fast
+		DetectHiddenWindows	, Off
+		CoordMode                 	, Mouse, Screen
+		CoordMode                 	, Pixel, Screen
+		CoordMode                 	, ToolTip, Screen
+		CoordMode                 	, Caret, Screen
+		CoordMode                 	, Menu, Screen
+		SetKeyDelay                	, -1, -1
+		SetBatchLines           		, -1
+		SetWinDelay                	, -1
+		SetControlDelay          	, -1
+		SendMode                   	, Input
+		AutoTrim                     	, On
+		FileEncoding                	, UTF-8
+
 ; ttip("Comb through ahkrare-content and move example and description comment blocks to their respective files","add all metadata-fields to be used in the editor, and figure out how to do the editor metadata-adjustable")
 #SingleInstance, Force
 #Warn,,Off 
-#persistent
-SetTitleMatchMode, 2
-SendMode Input
 
 ; some performance stuff
-ListLines, Off
-#KeyHistory, 0
+
+; #KeyHistory, 0
 SetWorkingDir, %A_ScriptDir%
+CodeTimer("")
 CurrentMode:="Instr"
 ; Add scriptObj-template and convert Code to use it - maybe, just a thought. Syntax of the Library-File is probably way too special for doing so, and there are no real configs to save anyways
 ; separate library-files and settings-files, take a peek at ahk-rare to see what they store in settings
@@ -62,7 +87,6 @@ when 2+ snippets are located at the same url, concatenate them with "|" and trea
 finally, make sure toingest 'CreditsRaw' into the 'credits'-field of the template below.
 */
 
-
 #Include <ScriptObj\scriptObj>
 CreditsRaw=
 (LTRIM
@@ -71,7 +95,7 @@ Gewerd Strauss		- snippetName2|SnippetName3 (both at the same URL)								-	/
 Ixiko - AHK-Rare - https://github.com/Ixiko/AHK-Rare
 Paris - DateParse - https://github.com/Paris/AutoHotkey-Scripts/blob/master/DateParse.ahk
 tidbit - String Things - https://www.autohotkey.com/boards/viewtopic.php?t=53
-hi5 - tf - https://github.com/hi5/TF#TF_InsertPrefix
+hi5 - tf - https://github.com/hi5/TF#ALG_TF_InsertPrefix
 jballi - AddToolTip - https://www.autohotkey.com/boards/viewtopic.php?t=30079
 G33kdude - RichCode - https://github.com/G33kDude/RichCode.ahk
 )
@@ -144,7 +168,7 @@ if !script.Load(,1)
 	, bSetSearchresultAlphabetically:true
 	, Max_InDepth_Searchable:200
 	, bNotifyDependenciesOnCopy:false
-	, bShowOnStartup:true}
+	, bShowOnStartup:false}
 	,Map2:Map,Search_Descriptions:{Search_Code:"Check if you want to search code of snippets as well. Adds substantial overhead at bootup."
     , Search_Description:"Check if you want to search descriptions of snippets as well. Adds substantial overhead at bootup."
 	, Search_Examples:"Check if you want to search examples of snippets as well. Adds substantial overhead at bootup."
@@ -243,7 +267,7 @@ gosub, lGUICreate_1New
 ; clipboard:="WinGetPosEx"
 clipboard:="Window"
 ; Clipboard:="Au:anon na:1"
-
+CodeTimer("AutoExec")
 return
 
 
@@ -378,7 +402,8 @@ lGUICreate_1New: ;; Fully Parametric-form, TODO: functionalise this thing
 				AddToolTip(RC,"Test")
 			}
         	RC.HighlightBound:=Func("HighlightAHK")
-			fGuiShow_1(vGUIWidth,vGUIHeight,GuiNameMain)
+			if script.config.settings.bShowOnStartup
+				fGuiShow_1(vGUIWidth,vGUIHeight,GuiNameMain)
 			References:=fPrePopulateLV(SnippetsStructure)
 
 		}
@@ -420,7 +445,8 @@ lGUICreate_1New: ;; Fully Parametric-form, TODO: functionalise this thing
 			SB_SetText("Errors:/",5)
 		SB_SetText("About this script",4)
 		SB_SetText("NE:Update Script",3)
-		fGuiShow_1(vGUIWidth,vGUIHeight,GuiNameMain)
+		if script.config.settings.bShowOnStartup
+			fGuiShow_1(vGUIWidth,vGUIHeight,GuiNameMain)
         Hotkey, IfWinActive, % "ahk_id " MainGUI
 		Hotkey, ^Tab,fTabThroughTabControl
         Hotkey, ^f, fFocusSearchBar
@@ -464,6 +490,8 @@ lGUICreate_1New: ;; Fully Parametric-form, TODO: functionalise this thing
 		fSelectFirstLVEntry(SnippetsStructure,Matches)
 		LastScaledSize:=[vGUIWidth,vGUIHeight]
 		lCheckClipboardContents()
+		if !script.config.settings.bShowOnStartup
+			ttip(script.name " has finished initialisation.")
 return
 Func1(Param1)
 {
@@ -559,36 +587,36 @@ fCopyScript()
 		if script.config.Settings.CopyExampleToOutput
 		{
 			if (searchstr!="") && !Instr(Matches[1,SelectedLVEntry.3].Example,"Error 01: No example-file was found under the expected path")
-				Example:=TF_InsertPrefix(Matches[1,SelectedLVEntry.3].Example,1,, ";; ") ;; make sure the example is definitely a comment 
+				Example:=ALG_TF_InsertPrefix(Matches[1,SelectedLVEntry.3].Example,1,, ";; ") ;; make sure the example is definitely a comment 
 			else if !Instr(SnippetsStructure[1,SelectedLVEntry.3].Example,"Error 01: No example-file was found under the expected path")
-				Example:=TF_InsertPrefix(SnippetsStructure[1,SelectedLVEntry.3].Example,1,, ";; ") ;; make sure the example is definitely a comment 
+				Example:=ALG_TF_InsertPrefix(SnippetsStructure[1,SelectedLVEntry.3].Example,1,, ";; ") ;; make sure the example is definitely a comment 
 			if (Example!="")
 				Code:=PrependTextBeforeString(Code,";; Example:`n" Example)
 		}
 		else
 		{
 			if (searchstr!="") && !Instr(Matches[1,SelectedLVEntry.3].Example,"Error 01: No example-file was found under the expected path")
-				Example:=TF_InsertPrefix(Matches[1,SelectedLVEntry.3].Example,1,, ";; ") ;; make sure the example is definitely a comment 
+				Example:=ALG_TF_InsertPrefix(Matches[1,SelectedLVEntry.3].Example,1,, ";; ") ;; make sure the example is definitely a comment 
 			else if !Instr(SnippetsStructure[1,SelectedLVEntry.3].Example,"Error 01: No example-file was found under the expected path")
-				Example:=TF_InsertPrefix(SnippetsStructure[1,SelectedLVEntry.3].Example,1,, ";; ") ;; make sure the example is definitely a comment 
+				Example:=ALG_TF_InsertPrefix(SnippetsStructure[1,SelectedLVEntry.3].Example,1,, ";; ") ;; make sure the example is definitely a comment 
 			if (Example!="")
 				Code:=SnippetsStructure[1,SelectedLVEntry.3].Code
 		}
 		if script.config.Settings.CopyDescriptionToOutput
 		{
 			if (searchstr!="") && !Instr(Matches[1,SelectedLVEntry.3].Description,"Error 01: No description-file was found under the expected path")
-				Description:=TF_InsertPrefix(Matches[1,SelectedLVEntry.3].Description,1,, ";;; ") ;; make sure the example is definitely a comment 
+				Description:=ALG_TF_InsertPrefix(Matches[1,SelectedLVEntry.3].Description,1,, ";;; ") ;; make sure the example is definitely a comment 
 			else if !Instr(SnippetsStructure[1,SelectedLVEntry.3].Description,"Error 01: No description-file was found under the expected path")
-				Description:=TF_InsertPrefix(SnippetsStructure[1,SelectedLVEntry.3].Description,1,, ";;; ") ;; make sure the example is definitely a comment 
+				Description:=ALG_TF_InsertPrefix(SnippetsStructure[1,SelectedLVEntry.3].Description,1,, ";;; ") ;; make sure the example is definitely a comment 
 			if (Description!="")
 				Code:=PrependTextBeforeString(Code,";;; Description:`n" Description)
 		}
 		else
 		{
 			if (searchstr!="") && !Instr(Matches[1,SelectedLVEntry.3].Description,"Error 01: No description-file was found under the expected path")
-				Description:=TF_InsertPrefix(Matches[1,SelectedLVEntry.3].Description,1,, ";;; ") ;; make sure the example is definitely a comment 
+				Description:=ALG_TF_InsertPrefix(Matches[1,SelectedLVEntry.3].Description,1,, ";;; ") ;; make sure the example is definitely a comment 
 			else if !Instr(Matches[1,SelectedLVEntry.3].Description,"Error 01: No description-file was found under the expected path")
-				Description:=TF_InsertPrefix(SnippetsStructure[1,SelectedLVEntry.3].Description,1,, ";;; ") ;; make sure the example is definitely a comment 
+				Description:=ALG_TF_InsertPrefix(SnippetsStructure[1,SelectedLVEntry.3].Description,1,, ";;; ") ;; make sure the example is definitely a comment 
 			if (Description!="")
 				Code:=SnippetsStructure[1,SelectedLVEntry.3].Code
 		}
@@ -703,7 +731,7 @@ fLoadFillDetails()
 	if (A_GuiControlEvent="ColClick")
 		return
 	SelectedLVEntry:=f_GetSelectedLVEntries()
-	if (SelectedLVEntry="") && (A_ThisLabel!="lSearchSnippets") ;;TODO: create an edit-GUI to modify code, example, description and metadata - essentially the Importer, but _not as fugly_
+	if (SelectedLVEntry="") && (A_ThisLabel!="lSearchSnippets") 
 		SelectedLVEntry:=[,,1]
 	Data:=SnippetsStructure[1,SelectedLVEntry[3]] 
 	Path:=SubStr(DirectoryPath,1,StrLen(DirectoryPath)-1) Data["Metadata","Library"] "\" Data["MetaData","Hash"] ;SelectedLVEntry[1,1].Library "\" SelectedLVEntry[1,1].Hash
@@ -777,7 +805,7 @@ fLoadFillDetails()
 
 	SectionInd:=Data.Metadata.SectionInd
 	Library:=Data.Metadata.Library
-
+	KeyWords:=Data.Metadata.KeyWords
 	AHK_Version:=(Data.Metadata.AHK_Version!=""?Data.Metadata.AHK_Version:"/")
 	Dependencies:=(Data.Metadata.Dependencies!=""?Data.Metadata.Dependencies:"/")
 	; Changelog:=Data.Metadata.Changelog ;; this one is a maybe because I would probably have to include an additional TAB+RC-Control cuz this would likely have to be its own file.
@@ -807,38 +835,79 @@ fLoadFillDetails()
 
 		; hash
 		; lvind
-	InfoText=
-	(LTRIM
-	Snippet: %Name% (v.%Version%)
-	--------------------------------------------------------------
-	Author: %Author%
-	)
-	if (LicenseLink!="")
-	{
-			InfoText2=
-		(LTRIM
-		License: %License% (%LicenseLink%)
-		)
-	}
+		InfoText:=[]
+	if (Name!="")
+		InfoText.push("Snippet: " Name)
+	if (Version!="")
+		InfoText.push(" (v." Version ")`n")
 	else
-	{
-			InfoText2=
-			(LTRIM
-		License: %License%
-		)
-	}
-	InfoText3=
-	(LTRIM
-		Source: %URL% (%Date%)
-		--------------------------------------------------------------
-		Library: %Library%
-		Section: %SectionInd% - %Section%
-		--------------------------------------------------------------
-		Dependencies: %Dependencies%
-		AHK_Version: %AHK_Version%
-	)
+		InfoText.push("`n")
+	InfoText.push("--------------------------------------------------------------`n")
+	if (Author!="")
+		InfoText.push("Author: " Author "`n")
+	if (License!="")
+		InfoText.push("License " License ")")
+	if (LicenseLink!="")
+		InfoText.push(" (" LicenseLink ")`n")
+	Else if (License!="")
+		InfoText.Push("`n")
+	if (URL!="")
+		InfoText.Push("Source: " URL)
+	if (Date!="") && (URL!="")
+		InfoText.Push("(" Date ")`n")
+	else if (URL!="")
+		InfoText.Push("`n")
+	if !Instr(InfoText[InfoText.MaxIndex()],"--------------------------------------------------------------")
+		InfoText.push("--------------------------------------------------------------`n")
+	InfoText.push("Library: "Library "`n")
+	InfoText.push("Section: "SectionInd " - " Section "`n")
+	if (Dependencies!="")
+		InfoText.push("Dependencies: " Dependencies "`n")
+	if (AHK_Version!="")
+		InfoText.push("AHK_Version: " AHK_Version "`n")
+	if !Instr(InfoText[InfoText.MaxIndex()],"--------------------------------------------------------------")
+		InfoText.push("--------------------------------------------------------------`n")
+	if (KeyWords!="")
+		InfoText.push("Keywords: " Keywords)
+	FinalInfoText:=""
+	for k,v in InfoText
+		FinalInfoText.=v
+	
+; Clipboard:=FinalInfoText
+; 	InfoText=
+; 	(LTRIM
+; 	Snippet: %Name% (v.%Version%)
+; 	--------------------------------------------------------------
+; 	Author: %Author%
+; 	)
+; 	if (LicenseLink!="")
+; 	{
+; 			InfoText2=
+; 		(LTRIM
+; 		License: %License% (%LicenseLink%)
+; 		)
+; 	}
+; 	else
+; 	{
+; 			InfoText2=
+; 			(LTRIM
+; 		License: %License%
+; 		)
+; 	}
+; 	if (URL!="")
+	
+; 	InfoText3=
+; 	(LTRIM
+; 		Source: %URL% (%Date%)
+; 		--------------------------------------------------------------
+; 		Library: %Library%
+; 		Section: %SectionInd% - %Section%
+; 		--------------------------------------------------------------
+; 		Dependencies: %Dependencies%
+; 		AHK_Version: %AHK_Version%
+; 	)
 
-	FinalInfoText:=InfoText "`n" InfoText2 "`n" InfoText3
+; 	FinalInfoText:=InfoText "`n" InfoText2 "`n" InfoText3
 	guicontrol,1:, Edit2,% FinalInfoText
 		f_FillFields(Code,Description,Example)		;; using name as the identifier could be problematic when having multiple snippets  of same name
 	return
@@ -1669,7 +1738,31 @@ fPadIndex(snippet,aSnippets)
 		return ALG_st_pad(snippet,"0","",(StrLen(aSnippets)-StrLen(snippet))) ; + 0
 }
 
-
+CodeTimer(Description,x:=500,y:=500,ClipboardFlag:=0)
+{ ; adapted from https://www.autohotkey.com/boards/viewtopic.php?t=45263
+	
+	Global StartTimer
+	
+	If (StartTimer != "")
+	{
+		FinishTimer := A_TickCount
+		TimedDuration := FinishTimer - StartTimer
+		StartTimer := ""
+		If (ClipboardFlag=1)
+		{
+			Clipboard:=TimedDuration
+		}
+		tooltip, Timer %Description%`n%TimedDuration% ms have elapsed!, x,y
+		Settimer, lRemoveCodeTimer, -5000
+		Return TimedDuration
+	}
+	Else
+		StartTimer := A_TickCount
+	Return
+	lRemoveCodeTimer:
+	tooltip,
+	return
+}
 ALG_st_split(string, delim="`n", exclude="`r")
 {
    arr:=[]
@@ -2283,6 +2376,7 @@ ttip(text:="TTIP: Test",mode:=1,to:=4000,xp:="NaN",yp:="NaN",CoordMode:=-1,to2:=
 	static lastcall_tip
 	static currTip2
 	global ttOnOff
+	static timercount
 	currTip2:=currTip
 	cMode:=(CoordMode=1?"Screen":(CoordMode=2?"Window":cCoordModeTT))
 	CoordMode, % cMode
@@ -2351,10 +2445,7 @@ ttip(text:="TTIP: Test",mode:=1,to:=4000,xp:="NaN",yp:="NaN",CoordMode:=-1,to2:=
 
 	lRepeatedshow:
 	ToolTip, % ttip_text,,, % currTip2
-	if lUnevenTimers
-		sleep, % to2
-	Else
-		sleep, % to
+	sleep, % (mod(timercount,2)?to2:to)
 	return
 	lRemovettip:
 	ToolTip,,,,currTip2
