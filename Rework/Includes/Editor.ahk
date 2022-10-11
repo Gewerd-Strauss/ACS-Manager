@@ -185,17 +185,14 @@ fOpenSnippetInFolder(vName_Importer, vLibrary_Importer, vSnippet_Importer)
 lDelete:
 gui, ACSI: submit, NoHide 
 gui, 1: -Disabled
-if fDelete(snippetclone.Metadata.name, SnippetClone.Metadata.Library, SnippetClone.Code, SnippetClone)
+if fDelete(SnippetClone)
     reload
 else
     MsgBox 0x30, % script.name " - Snippet Editor", "Error:`n" scnippetclone.metadata.name " could not be deleted."
 return
-fDelete(vName_Importer, vLibrary_Importer, vSnippet_Importer,Snippet)
+fDelete(Snippet)
 { ;; deletes a snippet
     gui, ACSI: submit
-    ; Key:=vName_Importer . vLibrary_Importer . vSnippet_Importer ;; cuz the hash is no longer required to be translated, I can make it 
-    ; Hash:=Object_HashmapHash(Key) ; Issue: What to include in the hashed snippet name?
-    ; Path:=A_ScriptDir "\Sources\" vLibrary_Importer "\" Hash 
     Extensions:=[".ahk",".ini",".example",".description"]
     Success:=0
     Expected:=0
@@ -241,7 +238,7 @@ gui, ACSI: submit,
 if (snippetClone.Count()!=0) && (SnippetClone!="")
 {
     fBackup(snippetclone.Metadata.name, SnippetClone.Metadata.Library, SnippetClone.Code,SnippetClone)
-    fDelete(snippetclone.Metadata.name, SnippetClone.Metadata.Library, SnippetClone.Code,SnippetClone)
+    fDelete(SnippetClone)
 }
 ; global ConvertingAHKRARE:=ConvertingAHKRARE
 fSubmitImporter({Snippet:vSnippet_Importer,Description:vDesc_Importer, Example:vEx_Importer, Name:vName_Importer,Author:vAuthor_Importer, Version:vVersion_Importer,Date:vDate_Importer,License:vLicense_Importer,Section:vSection_Importer,URL:vURL_Importer,Library:vLibrary_Importer,Dependencies:vDependencies_Importer,AHK_Version:vAHK_Version_Importer,KeyWords:vKeywords_Importer}, SnippetClone,bIsEditing,ConvertingAHKRARE)
@@ -312,12 +309,12 @@ fSubmitImporter(SubmissionObj, Snippet,bIsEditing,ConvertingAHKRARE:=false)
     {
         if FileExist(A_ScriptDir "\Sources\" OldLib "\" OldHash v)
         {
-            FileCopy, % A_ScriptDir "\Sources\" OldLib "\" OldHash v,% BackupLoc:=A_ScriptDir "\Sources\000-BACKUP_" OldLib "_" OldHash v,1
+            FileCopy, % A_ScriptDir "\Sources\" OldLib "\" OldHash v,% BackupLocation:=A_ScriptDir "\Sources\000-BACKUP_" OldLib "_" OldHash v,1
             FileDelete, % A_ScriptDir "\Sources\" OldLib "\" OldHash v
         }
         if FileExist(A_ScriptDir "\Sources\" OldLib "\" snippet.Metadata.name v)
         {
-            FileCopy, % A_ScriptDir "\Sources\" OldLib "\" OldHash v,% BackupLoc:=A_ScriptDir "\Sources\000-BACKUP_" OldLib "_" Snippet.metadata.name v,1
+            FileCopy, % A_ScriptDir "\Sources\" OldLib "\" OldHash v,% BackupLocation:=A_ScriptDir "\Sources\000-BACKUP_" OldLib "_" Snippet.metadata.name v,1
             FileDelete, % A_ScriptDir "\Sources\" OldLib "\" snippet.Metadata.Name v
         }
     }
@@ -349,9 +346,9 @@ fSubmitImporter(SubmissionObj, Snippet,bIsEditing,ConvertingAHKRARE:=false)
         Expected++
     if (SubmissionObj.Description!="") && (RegExReplace(SubmissionObj.Description,"\s*","")!="") && !Instr(SubmissionObj.Description, "Error 01: No example-file was found under the expected path")
         Expected++
-   if (Expected>Success)
+    if (Expected>Success)
     {
-        SplitPath, BackupLoc, OutFileName
+        SplitPath, BackupLocation,,,,OutFileName
         MsgBox 0x30, % script.name " - Snippet Editor", "Error:`n" Expected " files were expected to be updated`, but only " Success " files could be written to file.`nBackup-files exist in the LibraryFolder under the name " OutFileName
     }
     if (ConvertingAHKRARE)
@@ -359,12 +356,10 @@ fSubmitImporter(SubmissionObj, Snippet,bIsEditing,ConvertingAHKRARE:=false)
         WinActivate, AHK-Rare_TheGui
         sleep, 400
     }
-    Clipboard:=BackupLoc "`nNewHash: " Hash
+    if script.config.settings.bDebugSwitch
+        MsgBox, % script.name, % "Old Hash:" Snippet.Metadata.Hash "`nNewHash: " Hash
     fGuiHide_2()
     SplitPath,% NewFile,, Dir, ,Name
-    ; OldHash:=Snippet.Metadata.Hash
-    ; OldLib:=Snippet.Metadata.Library
-
     Extensions:=[".ahk",".ini",".example",".description"]
     Restore:=0
     for k,v in Extensions
@@ -379,7 +374,7 @@ fSubmitImporter(SubmissionObj, Snippet,bIsEditing,ConvertingAHKRARE:=false)
             ; FileCopy, Source, Dest [, Flag (1 = overwrite)]
             FileCopy, % Dir "\000-BACKUP_" Snippet.Metadata.Hash v, % Dir "\" Snippet.Metadata.Hash v
             Restore++
-            ; TODO: add path for when new files do not exist - restore from backup, notify user of error
+            ; DONE: add path for when new files do not exist - restore from backup, notify user of error
         }
         if Restore
             MsgBox 0x30, % script.name " - Snippet Editor", "Error:`nOnly "  Restore " Files could be restored from the error, " k-Restore " files must be`nmanually recovered from the backup."
