@@ -185,7 +185,10 @@ fOpenSnippetInFolder(vName_Importer, vLibrary_Importer, vSnippet_Importer)
 lDelete:
 gui, ACSI: submit, NoHide 
 gui, 1: -Disabled
-fDelete(snippetclone.Metadata.name, SnippetClone.Metadata.Library, SnippetClone.Code, SnippetClone)
+if fDelete(snippetclone.Metadata.name, SnippetClone.Metadata.Library, SnippetClone.Code, SnippetClone)
+    reload
+else
+    MsgBox 0x30, % script.name " - Snippet Editor", "Error:`n" scnippetclone.metadata.name " could not be deleted."
 return
 fDelete(vName_Importer, vLibrary_Importer, vSnippet_Importer,Snippet)
 { ;; deletes a snippet
