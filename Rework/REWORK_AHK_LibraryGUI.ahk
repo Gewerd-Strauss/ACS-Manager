@@ -120,16 +120,16 @@ script.Update(,,1)
 FileDelete, % script.configfile ;; for testing purposes and keeping the settings updated when adding/changing keys
 if !script.Load(,1) 
 { ;; default settings
-Map:={AU:"Author" ;; For fetching data from 'Matches', the presorted object TODO: make this a 
-			,DA:"Date"
-					,Fi:"Library"
-					,Li:"License"
-					,Na:"Name"
-					,Se:"Section"
-					,Url:"URL"
-					,Ver:"Version"
-					,Key:"Keywords"
-					,Dep:"Dependencies"}
+	Map:={AU:"Author" ;; For fetching data from 'Matches', the presorted object TODO: make this a 
+		,DA:"Date"
+		,Fi:"Library"
+		,Li:"License"
+		,Na:"Name"
+		,Se:"Section"
+		,Url:"URL"
+		,Ver:"Version"
+		,Key:"Keywords"
+		,Dep:"Dependencies"}
 	script.config:={Settings:{Search_Code: false ;" " ";Check if you want to search code of snippets as well. Adds substantial overhead at bootup."
 	, Search_Description:false
 	, Search_Examples:false
