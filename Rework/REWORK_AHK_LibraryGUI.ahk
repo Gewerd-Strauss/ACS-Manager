@@ -1,6 +1,11 @@
  /*
 	TODO:::: ADD NAMESPACED VERSIONS OF FUNCTIONS FROM stringthings.ahk AND TF.AHK to this script
+	TODO:::: Integrate RichCode into the script properly or include it
+		- depends on whether or not I want to include the inisettingseditor or not, but probably not.
+	TODO:::: Make the script language-agnostic (replace ".ahk"-filetype references with any file of same name for any  ini-file in library-path)
 	Sections copied successfully from ahk-rare:
+	TODO:::: add a double map to translate any assumed ahk_Version's to unified
+				output: v1,v1.1,v2
 
 String/Array/Text
 gui - interacting
@@ -68,6 +73,7 @@ Paris - DateParse - https://github.com/Paris/AutoHotkey-Scripts/blob/master/Date
 tidbit - String Things - https://www.autohotkey.com/boards/viewtopic.php?t=53
 hi5 - tf - https://github.com/hi5/TF#TF_InsertPrefix
 jballi - AddToolTip - https://www.autohotkey.com/boards/viewtopic.php?t=30079
+G33kdude - RichCode - https://github.com/G33kDude/RichCode.ahk
 )
 FileGetTime, ModDate,%A_ScriptFullPath%,M
 FileGetTime, CrtDate,%A_ScriptFullPath%,C
@@ -97,6 +103,7 @@ CrtDate:=SubStr(CrtDate,7,  2) "." SubStr(CrtDate,5,2) "." SubStr(CrtDate,1,4)
                     ,donateLink	  : ""
                     ,resfolder    : A_ScriptDir "\res"
                     ,iconfile	  : A_ScriptDir "\res\sct.ico"
+					,reqInternet  : false
 					,rfile  	  : "https://github.com/Gewerd-Strauss/AHK-Code-Snippets/archive/refs/heads/Speed-Test.zip"
 					,vfile_raw	  : "https://raw.githubusercontent.com/Gewerd-Strauss/AHK-Code-Snippets/Speed-Test/version.ini" 
 					,vfile 		  : "https://raw.githubusercontent.com/Gewerd-Strauss/AHK-Code-Snippets/Speed-Test/version.ini" 
@@ -107,7 +114,7 @@ CrtDate:=SubStr(CrtDate,7,  2) "." SubStr(CrtDate,5,2) "." SubStr(CrtDate,1,4)
                     ,configfolder : A_ScriptDir "\INI-Files"}
 
 , f_CreateTrayMenu()
-
+script.Update(,,1)
 
 , global bSearchSnippets:=false
 FileDelete, % script.configfile ;; for testing purposes and keeping the settings updated when adding/changing keys
@@ -136,8 +143,9 @@ Map:={AU:"Author" ;; For fetching data from 'Matches', the presorted object TODO
 	, SoundAlertOnDebug:true
 	, bSetSearchresultAlphabetically:true
 	, Max_InDepth_Searchable:200
-	, Map2:Map}
-   ,Search_Descriptions:{Search_Code:"Check if you want to search code of snippets as well. Adds substantial overhead at bootup."
+	, bNotifyDependenciesOnCopy:false
+	, bShowOnStartup:true}
+	,Map2:Map,Search_Descriptions:{Search_Code:"Check if you want to search code of snippets as well. Adds substantial overhead at bootup."
     , Search_Description:"Check if you want to search descriptions of snippets as well. Adds substantial overhead at bootup."
 	, Search_Examples:"Check if you want to search examples of snippets as well. Adds substantial overhead at bootup."
 	, Search_InString_MetaFields:"Check if you want to search via In-String-matching in Metadata, instead of only allowing exact matches"
@@ -149,6 +157,8 @@ Map:={AU:"Author" ;; For fetching data from 'Matches', the presorted object TODO
 	, bDebugSwitch:"Set to true to expose additional information helpful for debugging issues."
 	, SoundAlertOnDebug:"Set true/false if you want to get an audio-ping whenever entering/exiting debug mode. Recommended to be on as db-mode can alter how the program behaves."
 	, Max_InDepth_Searchable:"Set the maximum number of snippets for which the script will also search all previously loaded Codes, Descriptions and Examples.`nFor more snippets, these searches will not be performed to not reduce performance too much."
+	, bNotifyDependenciesOnCopy:"Notify user of dependencies when notifying a snippet." ;; potentially only when the dependency also exists within?
+	, bShowOnStartup:"TODO: NOT IMPLEMENTEDSet whether or not to display the GUI on script startup or not."
 	, Map2:"The Map corresponding shorthand searchkeys with their longhand assignments within the metadata"}}
 	script.Save()
 }
@@ -308,7 +318,7 @@ lGUICreate_1New: ;; Fully Parametric-form, TODO: functionalise this thing
 					gui, add, button, x%xPos_DDL_SearchMode2% y%yPos_DDL_SearchMode% h%Height_DDL_SearchMode2%  w%Width_DDL_SearchMode% vvExtraButton2 glEditSnippet HwndExtraButton2HWND,%  "&Edit Snippet"
 					gui, font, s11 cWhite, Segoe 
 					
-					str:=Obj2Str(script.config.settings.map2)
+					str:=Obj2Str(script.config.map2)
 					AddToolTip(ExtraButtonHWND,"Press Enter to Search.`n" str)
 			; Define Parameters: Fuzzy-Search Checkbox
 					xPos_FuzzySearchCheckbox:=xPos_DDL_SearchMode + Width_DDL_SearchMode  +(WidthMargin_Global/2)
@@ -496,7 +506,7 @@ fFocusListView()
 fSuperviseSearchBar()
 {
 	if Instr(fGetSearchFunctionsString(),"?")
-		ttip(script.config.settings.map2)
+		ttip(script.config.map2)
 }
 fDeleteWordFromSearchBar()
 {
@@ -697,7 +707,7 @@ fLoadFillDetails()
 	SelectedLVEntry:=f_GetSelectedLVEntries()
 	if (SelectedLVEntry="") && (A_ThisLabel!="lSearchSnippets") ;;TODO: create an edit-GUI to modify code, example, description and metadata - essentially the Importer, but _not as fugly_
 		SelectedLVEntry:=[,,1]
-	Data:=SnippetsStructure[1,SelectedLVEntry[3]] ;;TODO: BUG: SelectedLVEntry[2] is not a valid key, because it maps to the element added  at that point, but not at the visually x'th 
+	Data:=SnippetsStructure[1,SelectedLVEntry[3]] 
 	Path:=SubStr(DirectoryPath,1,StrLen(DirectoryPath)-1) Data["Metadata","Library"] "\" Data["MetaData","Hash"] ;SelectedLVEntry[1,1].Library "\" SelectedLVEntry[1,1].Hash
 	,Code:= Data.Code ;SnippetStructure[1,SelectedLVEntry[3]].Code
 	,Description:=Data.Description ;SnippetsStructure[1,SelectedLVEntry[3]].Description
@@ -1018,7 +1028,7 @@ f_CollectMatches(Array,String,References,AllSections)
 	,Da:4
 	,Fi:5}
 	regex:="("
-	for k,v in script.config.settings.map2
+	for k,v in script.config.map2
 		regex.=k "|"
 	regex:=SubStr(regex,1,StrLen(regex)-1) "):(.+?)`n"
 
@@ -1039,19 +1049,10 @@ f_CollectMatches(Array,String,References,AllSections)
 	
 	;; make sure formatting is clean
 	; TODO: FIGURE OUT HOW TO this conversion automatically so that one doesn't have to adjust this for additional keytypes anymore
-	for k,v in script.config.settings.map2
+	for k,v in script.config.map2
 	{
 		String:=TRIM(strreplace(String,k ":","`n" k ":"))
 	}
-	; String:=TRIM(strreplace(String,"AU:","`nAU:"))
-	; String:=TRIM(strreplace(String,"DA:","`nDA:"))
-	; String:=TRIM(strreplace(String,"FI:","`nFI:"))
-	; String:=TRIM(strreplace(String,"LI:","`nLI:"))
-	; String:=TRIM(strreplace(String,"NA:","`nNA:"))
-	; String:=TRIM(strreplace(String,"SE:","`nSE:"))
-	; String:=TRIM(strreplace(String,"URL:","`nURL:"))
-	; String:=TRIM(strreplace(String,"VER:","`nVER:"))
-	; String:=TRIM(strreplace(String,"DEP:","`nDEP:"))
 
 	;; setup, get key-value pairs
 	while RegExMatch(String "`n", "im)" regex, match, pos)
@@ -1100,7 +1101,7 @@ f_CollectMatches(Array,String,References,AllSections)
 		Matches.push(Array[k])
 	}
 	
-	; ttip(";; this entire sectio	n is painful bs. #important#todo: figure out how to remove so that 'Fi:Libr AU:ano' will net 0 results in the current configuration","the issue is that the smarter solution above doesn't work flawlessly, and that","this is a flawed implementation of a fix")
+	
 	if (Matches.Count()=0)
 		Matches:=Array.Clone()
 
@@ -1113,7 +1114,7 @@ f_CollectMatches(Array,String,References,AllSections)
 			MatchCount:=0
 			for k,v in KeyVals
 			{
-				SearchedStr:=Matches[s,"MetaData",script.config.settings.map2[k]]
+				SearchedStr:=Matches[s,"MetaData",script.config.map2[k]]
 				Needle:=(k="DA")?DateParse(v):v
 				if script.config.settings.Search_InString_MetaFields
 				{
@@ -1157,7 +1158,7 @@ f_CollectMatches(Array,String,References,AllSections)
 					Matches2.push(w)
 					MatchedLibraries[Matches[s,"Metadata","Library"]]:=1
 					AddedOnes.=w.Metadata.Hash ", "
-					if Instr(w.Metadata[script.config.settings.map2[k]],v)
+					if Instr(w.Metadata[script.config.map2[k]],v)
 					{
 
 						; Matches2.
@@ -1176,7 +1177,7 @@ f_CollectMatches(Array,String,References,AllSections)
 				; 	{
 					;; Catcher for quicker testing	
 				; 	}
-				SearchedStr:=Matches[s,"MetaData",script.config.settings.map2[k]]
+				SearchedStr:=Matches[s,"MetaData",script.config.map2[k]]
 				Needle:=(k="DA")?DateParse(v):v
 				if script.config.settings.Search_InString_MetaFields
 				{
@@ -1205,7 +1206,7 @@ f_CollectMatches(Array,String,References,AllSections)
 	{
 		for x,y in KeyVals
 		{
-			PassedVal:=w.Metadata[script.config.settings.map2[x]]
+			PassedVal:=w.Metadata[script.config.map2[x]]
 			if !Instr(PassedVal,y)
 				Matches2.Remove(s)
 			
@@ -1498,9 +1499,6 @@ ControlIsFocused(ControlID)                                                     
 {
 	GuiControlGet, FControlID, 1:Focus
 	return (InStr(FControlID, ControlID)?true:false)
-	/*
-	TODO: fix this returning true when I _don't_ click on RC-fields, but f.e. on the disabled Description-Editfield or the bottom part of the LV-Control
-	*/
 }
 
 floadFolderLibraries(DirectoryPath)
