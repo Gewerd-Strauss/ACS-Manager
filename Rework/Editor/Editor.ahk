@@ -110,14 +110,6 @@ EditorImporter(Snippet:="",SnippetsStructure:="",ConvertingAHKRARE:=false)
         libstr:=strreplace(strreplace(str,"||","|"),snippet.metadata.Library,snippet.metadata.Library "|")
         gui, add, ComboBox, yp xp+100 w120 h%SmallFieldsHeight% R100 vvLibrary_Importer,% libstr
 
-    
-    ; static vName_Importer2
-    ; static vAuthor_Importer2
-    ; static vVersion_Importer2
-    ; static vDate_Importer2
-    ; static vLicense_Importer2
-    ; static vSection_Importer2
-    ; ; static vURL_Importer2
     gui, add, text, y%SmallFieldsStart% xp+200, Dependencies
     gui, add, edit, yp xp+100 w120 h%SmallFieldsHeight% vvDependencies_Importer, % snippet.metadata.dependencies
     gui, add, text, yp+%SmallFieldsHeight%+5 xp-100, AHK-Version
@@ -140,7 +132,7 @@ EditorImporter(Snippet:="",SnippetsStructure:="",ConvertingAHKRARE:=false)
     
     gui, add, button, y%SmallFieldsStart% xp+200 h%SmallFieldsHeight% glSubmitImporter, % bIsEditing?"Edit":"Ingest"
     gui, add, button, yp+30 xp h%SmallFieldsHeight% glOpenSnippetInFolder, % "Open in folder"
-    ; gui, add, button, yp+30 xp h%SmallFieldsHeight% glDelete, % "Delete"
+    gui, add, button, yp+30 xp h%SmallFieldsHeight% glDelete, % "Delete"
     ; gui, add, edit, y%SmallFieldsStart% xp+80 w%EditWidth2% h%LicenseFieldsHeight% r12  vvLicense_ImporterInsert, %  bIsEditing?"[[Insert License if not found in DDL]]":"[[Insert License if not found in DDL]]"
     gui, font, s9 cWhite, Segoe UI
     if !ConvertingAHKRARE
@@ -157,6 +149,7 @@ EditorImporter(Snippet:="",SnippetsStructure:="",ConvertingAHKRARE:=false)
     }
     return
 }
+
 fGuiHide_2()
 {
     global
@@ -173,11 +166,13 @@ fGuiShow_2(Width,Height)
     gui, ACSI: show, w%Width% h%Height%, % GuiNameMain
     return
 }
+
 lOpenSnippetInFolder:
 gui, ACSI: submit, NoHide 
 gui, 1: -Disabled
 fOpenSnippetInFolder(vName_Importer, vLibrary_Importer, vSnippet_Importer)
 return
+
 fOpenSnippetInFolder(vName_Importer, vLibrary_Importer, vSnippet_Importer)
 { ;; open the code file already selected in the explorer if one wants to navigate there.
     Key:=vName_Importer . vLibrary_Importer . vSnippet_Importer ;; cuz the hash is no longer required to be translated, I can make it 
@@ -186,46 +181,64 @@ fOpenSnippetInFolder(vName_Importer, vLibrary_Importer, vSnippet_Importer)
     Run Explorer.exe /select`,%Path%.ahk
     return
 }
+
 lDelete:
 gui, ACSI: submit, NoHide 
 gui, 1: -Disabled
-fDelete(snippetclone.Metadata.name , SnippetClone.Metadata.Library , SnippetClone.Code,SnippetClone)
+fDelete(snippetclone.Metadata.name, SnippetClone.Metadata.Library, SnippetClone.Code, SnippetClone)
 return
-fDelete(vName_Importer , vLibrary_Importer , vSnippet_Importer,Snippet)
-{
+fDelete(vName_Importer, vLibrary_Importer, vSnippet_Importer,Snippet)
+{ ;; deletes a snippet
     gui, ACSI: submit
-    Key:=vName_Importer . vLibrary_Importer . vSnippet_Importer ;; cuz the hash is no longer required to be translated, I can make it 
-    Hash:=Object_HashmapHash(Key) ; Issue: What to include in the hashed snippet name?
-    Path:=A_ScriptDir "\Sources\" vLibrary_Importer "\" Hash 
-    loops:=[".ahk",".ini",".example",".description"]
-    for k,v in loops
+    ; Key:=vName_Importer . vLibrary_Importer . vSnippet_Importer ;; cuz the hash is no longer required to be translated, I can make it 
+    ; Hash:=Object_HashmapHash(Key) ; Issue: What to include in the hashed snippet name?
+    ; Path:=A_ScriptDir "\Sources\" vLibrary_Importer "\" Hash 
+    Extensions:=[".ahk",".ini",".example",".description"]
+    Success:=0
+    Expected:=0
+    for k,v in Extensions
     {
         if FileExist(A_ScriptDir "\Sources\" Snippet.Metadata.Library "\" Snippet.Metadata.Hash v)
+        {
+            Expected++
             FileRecycle, % A_ScriptDir "\Sources\" Snippet.Metadata.Library "\" Snippet.Metadata.Hash v
+            if !FileExist(A_ScriptDir "\Sources\" Snippet.Metadata.Library "\" Snippet.Metadata.Hash v)
+                Success++
+        }
     }
-    return
+    return (Success>=Expected)?1:0
 }
-fBackup(vName_Importer , vLibrary_Importer , vSnippet_Importer,Snippet)
-{
+
+fBackup(vName_Importer, vLibrary_Importer, vSnippet_Importer,Snippet)
+{ ;; back up a snippet
     gui, ACSI: submit
-    Key:=vName_Importer . vLibrary_Importer . vSnippet_Importer ;; cuz the hash is no longer required to be translated, I can make it 
-    Hash:=Object_HashmapHash(Key) ; Issue: What to include in the hashed snippet name?
-    Path:=A_ScriptDir "\Sources\" vLibrary_Importer "\" Hash 
-    loops:=[".ahk",".ini",".example",".description"]
-    for k,v in loops
+    ; Key:=vName_Importer . vLibrary_Importer . vSnippet_Importer ;; cuz the hash is no longer required to be translated, I can make it 
+    ; Hash:=Object_HashmapHash(Key) ; Issue: What to include in the hashed snippet name?
+    Extensions:=[".ahk",".ini",".example",".description"]
+    Success:=0
+    Expected:=0
+    for k,v in Extensions
     {
-        if FileExist(A_ScriptDir "\Sources\" Snippet.Metadata.Library "\" Snippet.Metadata.Hash v)
-            FileCopy,% A_ScriptDir "\Sources\" Snippet.Metadata.Library "\" Snippet.Metadata.Hash v,% BackupLoc:=A_ScriptDir "\Sources\" Snippet.Metadata.Library "\000-BACKUP_" Snippet.Metadata.Hash v,1
+        Source:=A_ScriptDir "\Sources\" Snippet.Metadata.Library "\" Snippet.Metadata.Hash v
+        Destination:=A_ScriptDir "\Sources\" Snippet.Metadata.Library "\000-BACKUP_" Snippet.Metadata.Hash v
+        if FileExist(Source)
+        {
+            FileCopy,% Source,% Destination,1
+            Expected++
+        }
+        if FileExist(Destination)
+            Success++
     }
-    return
+    return (Success>=Expected)?1:0
 }
+
 lSubmitImporter: ;; fucking hell I cannot bind it, I _must_ use a label here cuz I cannot bind to the button itself?
 gui, ACSI: submit, 
 ; SnippetClone
 if (snippetClone.Count()!=0) && (SnippetClone!="")
 {
-    fBackup(snippetclone.Metadata.name , SnippetClone.Metadata.Library , SnippetClone.Code,SnippetClone)
-    fDelete(snippetclone.Metadata.name , SnippetClone.Metadata.Library , SnippetClone.Code,SnippetClone)
+    fBackup(snippetclone.Metadata.name, SnippetClone.Metadata.Library, SnippetClone.Code,SnippetClone)
+    fDelete(snippetclone.Metadata.name, SnippetClone.Metadata.Library, SnippetClone.Code,SnippetClone)
 }
 ; global ConvertingAHKRARE:=ConvertingAHKRARE
 fSubmitImporter({Snippet:vSnippet_Importer,Description:vDesc_Importer, Example:vEx_Importer, Name:vName_Importer,Author:vAuthor_Importer, Version:vVersion_Importer,Date:vDate_Importer,License:vLicense_Importer,Section:vSection_Importer,URL:vURL_Importer,Library:vLibrary_Importer,Dependencies:vDependencies_Importer,AHK_Version:vAHK_Version_Importer,KeyWords:vKeywords_Importer}, SnippetClone,bIsEditing,ConvertingAHKRARE)
@@ -245,9 +258,9 @@ fSubmitImporter(SubmissionObj, Snippet,bIsEditing,ConvertingAHKRARE:=false)
             missingStr:=""
             for k,v in SubmissionObject
             {
-                i++
+                
                 if (v="")
-                    missingStr.= k ":" v (mod(3,i)?",`n":", ")
+                    missingStr.= k ":" v (mod(3,++i)?",`n":", ")
             }
             MsgBox 0x40030, `% script.name " - Snippet Editor", "The contents fed to be edited do not resemble a valid snippet object.`n`nPlease check for errors in the data structure`, as well as the source code.`nFaulty Values:`n" missingStr "`nReturning to Main GUI"
             return
@@ -272,7 +285,6 @@ fSubmitImporter(SubmissionObj, Snippet,bIsEditing,ConvertingAHKRARE:=false)
     Key:=SubmissionObj.Name . SubmissionObj.Library . SubmissionObj.Snippet ;; cuz the hash is no longer required to be translated, I can make it 
     Hash:=Object_HashmapHash(Key) ; Issue: What to include in the hashed snippet name?
     Obj:={Name:SubmissionObj.Name,Author:SubmissionObj.Author,Date:DateParse(SubmissionObj.Date),License:SubmissionObj.Licens,URL:SubmissionObj.URL,Section:SubmissionObj.Section,Version:SubmissionObj.Version,Hash:Hash} ;; decide if we actually want to     if (Code="")  ;; do not write to disc
-    
     IniSave:=SubmissionObj.Clone()
     IniSave.Hash:=Hash
     IniSave.Remove("Code")
@@ -291,10 +303,9 @@ fSubmitImporter(SubmissionObj, Snippet,bIsEditing,ConvertingAHKRARE:=false)
             IniSave.Remove(k)
         if (k="Snippet")
             IniSave.Remove(k)
-        
     }
-    loops:=[".ahk",".ini",".example",".description"]
-    for k,v in loops
+    Extensions:=[".ahk",".ini",".example",".description"]
+    for k,v in Extensions
     {
         if FileExist(A_ScriptDir "\Sources\" OldLib "\" OldHash v)
         {
@@ -303,7 +314,6 @@ fSubmitImporter(SubmissionObj, Snippet,bIsEditing,ConvertingAHKRARE:=false)
         }
         if FileExist(A_ScriptDir "\Sources\" OldLib "\" snippet.Metadata.name v)
         {
-            
             FileCopy, % A_ScriptDir "\Sources\" OldLib "\" OldHash v,% BackupLoc:=A_ScriptDir "\Sources\000-BACKUP_" OldLib "_" Snippet.metadata.name v,1
             FileDelete, % A_ScriptDir "\Sources\" OldLib "\" snippet.Metadata.Name v
         }
@@ -321,7 +331,6 @@ fSubmitImporter(SubmissionObj, Snippet,bIsEditing,ConvertingAHKRARE:=false)
     {
         if fWriteTextToFile(SubmissionObj.Example,A_ScriptDir "\Sources\" SubmissionObj.Library "\" Hash ".example")
             Success++
-
     }
     if (SubmissionObj.Description!="") && (RegExReplace(SubmissionObj.Description,"\s*","")!="") && !Instr(SubmissionObj.Description, "Error 01: No example-file was found under the expected path")
     {
@@ -340,7 +349,7 @@ fSubmitImporter(SubmissionObj, Snippet,bIsEditing,ConvertingAHKRARE:=false)
    if (Expected>Success)
     {
         SplitPath, BackupLoc, OutFileName
-        MsgBox 0x30, % script.name " - Snippet Editor", "Error:`n" Expected " files were expected to be updated`, but only " Success " files could be written to file.`nBackfiles exist in the LibraryFolder under the name " OutFileName
+        MsgBox 0x30, % script.name " - Snippet Editor", "Error:`n" Expected " files were expected to be updated`, but only " Success " files could be written to file.`nBackup-files exist in the LibraryFolder under the name " OutFileName
     }
     if (ConvertingAHKRARE)
     {
@@ -350,17 +359,28 @@ fSubmitImporter(SubmissionObj, Snippet,bIsEditing,ConvertingAHKRARE:=false)
     Clipboard:=BackupLoc "`nNewHash: " Hash
     fGuiHide_2()
     SplitPath,% NewFile,, Dir, ,Name
- OldHash:=Snippet.Metadata.Hash
-    OldLib:=Snippet.Metadata.Library
+    ; OldHash:=Snippet.Metadata.Hash
+    ; OldLib:=Snippet.Metadata.Library
 
-    loops:=[".ahk",".ini",".example",".description"]
-    for k,v in loops
-    { ;TODO: backup files are not deleted once the others are checked to exist
+    Extensions:=[".ahk",".ini",".example",".description"]
+    Restore:=0
+    for k,v in Extensions
+    {
         if FileExist(NewFile) && FileExist(Dir "\000-BACKUP_" Snippet.Metadata.Hash v)
         {
             FileDelete,% Dir "\000-BACKUP_" Snippet.Metadata.Hash v
             ; FileDelete, FilePattern
         }
+        else if !FileExist(NewFile) && FileExist(Dir "\000-BACKUP_" Snippet.Metadata.Hash v)
+        {
+            ; FileCopy, Source, Dest [, Flag (1 = overwrite)]
+            FileCopy, % Dir "\000-BACKUP_" Snippet.Metadata.Hash v, % Dir "\" Snippet.Metadata.Hash v
+            Restore++
+            ; TODO: add path for when new files do not exist - restore from backup, notify user of error
+        }
+        if Restore
+            MsgBox 0x30, % script.name " - Snippet Editor", "Error:`nOnly "  Restore " Files could be restored from the error, " k-Restore " files must be`nmanually recovered from the backup."
+        
     }
     reload
     return
