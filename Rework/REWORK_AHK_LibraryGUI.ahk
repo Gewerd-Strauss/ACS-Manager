@@ -1,11 +1,11 @@
  /*
-	TODO:::: Integrate RichCode into the script properly or include it
-		- depends on whether or not I want to include the inisettingseditor or not, but probably not.
 	TODO:::: Make the script language-agnostic (replace ".ahk"-filetype references with any file of same name for any  ini-file in library-path)
 	Sections copied successfully from ahk-rare:
-	TODO:::: add a double map to translate any assumed ahk_Version's to unified
+				Done:::: add a double map to translate any assumed ahk_Version's to unified
 				output: v1,v1.1,v2
 	TODO:::: replace information edit field with a URL-formatting Textfield
+	Idea:::: execute dependency-search in snippets when searching, and check if snippets covering those exist
+		→ might be thrown out as too complex/ressource-heavy/pointless, just food for thought so far.
 
 String/Array/Text
 gui - interacting
@@ -138,9 +138,10 @@ CrtDate:=SubStr(CrtDate,7,  2) "." SubStr(CrtDate,5,2) "." SubStr(CrtDate,1,4)
                     ,configfolder : A_ScriptDir "\INI-Files"}
 
 , f_CreateTrayMenu()
-script.Update(,,1)
-
+, script.Update(,,1)
 , global bSearchSnippets:=false
+FileGetVersion, Version, %A_ProgramFiles%\AutoHotkey\AutoHotkey.exe
+; m(A_AhkVersion,Version)
 FileDelete, % script.configfile ;; for testing purposes and keeping the settings updated when adding/changing keys
 if !script.Load(,1) 
 { ;; default settings
@@ -154,6 +155,10 @@ if !script.Load(,1)
 		,Ver:"Version"
 		,Key:"Keywords"
 		,Dep:"Dependencies"}
+	AHKVERSION:={AHK_Classic:"v1"
+		,L:"v1.1"
+		,v2:"v2"
+		,H:"vH"} ;; TODO: CHECK WHICH VERSION THIS IS.
 	script.config:={Settings:{Search_Code: false ;" " ";Check if you want to search code of snippets as well. Adds substantial overhead at bootup."
 	, Search_Description:false
 	, Search_Examples:false
@@ -380,7 +385,7 @@ lGUICreate_1New: ;; Fully Parametric-form, TODO: functionalise this thing
 													; Width_DescriptionBox:=vGuiWidth*(0.135+0.02+0.005)
 													; Height_DescriptionBox:=vGuiHeight*0.275
 					gui, font, s12, Segoe UI
-					gui, add, edit, y%yPos_DescriptionBox% x%xPos_DescriptionBox% w%Width_DescriptionBox% h%Height_DescriptionBox% vvEdit1 disabled, Edit1
+					gui, add, Link, y%yPos_DescriptionBox% x%xPos_DescriptionBox% w%Width_DescriptionBox% h%Height_DescriptionBox% vvEdit1, Edit1
 			; Define Parameters - Tab3
 
 					xPos_Tab3:=xPos_DescriptionBox+Width_DescriptionBox+(WidthMargin_Global/1)
@@ -667,7 +672,7 @@ fEditSnippet(SnippetsStructure:="")
 
 fCallBack_StatusBarMainWindow(Path:="")
 {
-; not implemented yet
+	; not implemented yet
 	gui, submit, NoHide
 	if (((A_GuiEvent="DoubleClick") && (A_EventInfo=4))) || (Path=1) ;; trigger About
 		script.About()
@@ -852,7 +857,7 @@ fLoadFillDetails()
 	Else if (License!="")
 		InfoText.Push("`n")
 	if (URL!="")
-		InfoText.Push("Source: " URL)
+		InfoText.Push("<a href=""" URL """>Source</a>")
 	if (Date!="") && (URL!="")
 		InfoText.Push("(" Date ")`n")
 	else if (URL!="")
@@ -872,43 +877,9 @@ fLoadFillDetails()
 	FinalInfoText:=""
 	for k,v in InfoText
 		FinalInfoText.=v
-	
-; Clipboard:=FinalInfoText
-; 	InfoText=
-; 	(LTRIM
-; 	Snippet: %Name% (v.%Version%)
-; 	--------------------------------------------------------------
-; 	Author: %Author%
-; 	)
-; 	if (LicenseLink!="")
-; 	{
-; 			InfoText2=
-; 		(LTRIM
-; 		License: %License% (%LicenseLink%)
-; 		)
-; 	}
-; 	else
-; 	{
-; 			InfoText2=
-; 			(LTRIM
-; 		License: %License%
-; 		)
-; 	}
-; 	if (URL!="")
-	
-; 	InfoText3=
-; 	(LTRIM
-; 		Source: %URL% (%Date%)
-; 		--------------------------------------------------------------
-; 		Library: %Library%
-; 		Section: %SectionInd% - %Section%
-; 		--------------------------------------------------------------
-; 		Dependencies: %Dependencies%
-; 		AHK_Version: %AHK_Version%
-; 	)
 
 ; 	FinalInfoText:=InfoText "`n" InfoText2 "`n" InfoText3
-	guicontrol,1:, Edit2,% FinalInfoText
+	guicontrol,1:, vEdit1,% FinalInfoText
 		f_FillFields(Code,Description,Example)		;; using name as the identifier could be problematic when having multiple snippets  of same name
 	return
 }
@@ -1115,7 +1086,6 @@ f_CollectMatches(Array,String,References,AllSections)
 		;; 5. Combined? 
 	
 	;; make sure formatting is clean
-	; TODO: FIGURE OUT HOW TO this conversion automatically so that one doesn't have to adjust this for additional keytypes anymore
 	for k,v in script.config.map2
 	{
 		String:=TRIM(strreplace(String,k ":","`n" k ":"))
