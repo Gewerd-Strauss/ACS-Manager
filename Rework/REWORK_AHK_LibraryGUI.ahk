@@ -3,7 +3,6 @@
 	Sections copied successfully from ahk-rare:
 				Done:::: add a double map to translate any assumed ahk_Version's to unified
 				output: v1,v1.1,v2
-	TODO:::: replace information edit field with a URL-formatting Textfield
 	Idea:::: execute dependency-search in snippets when searching, and check if snippets covering those exist
 		→ might be thrown out as too complex/ressource-heavy/pointless, just food for thought so far.
 
@@ -40,35 +39,34 @@ gui - customise
 
 */
 #NoEnv
-		#Persistent
-		#SingleInstance, Force
-		#InstallKeybdHook
-		#MaxThreads, 250
-		#MaxThreadsBuffer, On
-		#MaxHotkeysPerInterval 99000000
-		#HotkeyInterval 99000000
-		#KeyHistory 1
-		ListLines Off
+#Persistent
+#SingleInstance, Force
+#InstallKeybdHook
+#MaxThreads, 250
+#MaxThreadsBuffer, On
+#MaxHotkeysPerInterval 99000000
+#HotkeyInterval 99000000
+#KeyHistory 1
+ListLines Off
 
-		SetTitleMatchMode     	, 2
-		SetTitleMatchMode     	, Fast
-		DetectHiddenWindows	, Off
-		CoordMode                 	, Mouse, Screen
-		CoordMode                 	, Pixel, Screen
-		CoordMode                 	, ToolTip, Screen
-		CoordMode                 	, Caret, Screen
-		CoordMode                 	, Menu, Screen
-		SetKeyDelay                	, -1, -1
-		SetBatchLines           		, -1
-		SetWinDelay                	, -1
-		SetControlDelay          	, -1
-		SendMode                   	, Input
-		AutoTrim                     	, On
-		FileEncoding                	, UTF-8
+SetTitleMatchMode     	, 2
+SetTitleMatchMode     	, Fast
+DetectHiddenWindows	, Off
+CoordMode                 	, Mouse, Screen
+CoordMode                 	, Pixel, Screen
+CoordMode                 	, ToolTip, Screen
+CoordMode                 	, Caret, Screen
+CoordMode                 	, Menu, Screen
+SetKeyDelay                	, -1, -1
+SetBatchLines           		, -1
+SetWinDelay                	, -1
+SetControlDelay          	, -1
+SendMode                   	, Input
+AutoTrim                     	, On
+FileEncoding                	, UTF-8
 
 ; ttip("Comb through ahkrare-content and move example and description comment blocks to their respective files","add all metadata-fields to be used in the editor, and figure out how to do the editor metadata-adjustable")
-#SingleInstance, Force
-#Warn,,Off 
+; #Warn,,Off 
 
 ; some performance stuff
 
@@ -589,6 +587,10 @@ fCopyScript()
 			fLoadFillDetails() ;(Matches,DirectoryPath)
 		else if (Code="") && (searchstr="")
 			fLoadFillDetails() ;(SnippetsStructure,DirectoryPath)
+		if script.config.Settings.CopyMetadataToOutput
+		{
+			;;;;TODO: add metadata to output, make it a properly formatted table.
+		}
 		if script.config.Settings.CopyExampleToOutput
 		{
 			if (searchstr!="") && !Instr(Matches[1,SelectedLVEntry.3].Example,"Error 01: No example-file was found under the expected path")
@@ -630,7 +632,7 @@ fCopyScript()
 		Clipboard:=Code
 		nameStr:=SnippetsStructure[1,SelectedLVEntry.3,"MetaData","Name"]
 		; nameStr:="abcdefghijklmno#pqrstuvwxyz1234567890"
-		Str:="On Clipboard: " SubStr(nameStr,1,20) " (v." SnippetsStructure[1,SelectedLVEntry.3,"MetaData","Version"] ")"
+		Str:="On Clipboard: " SubStr(nameStr,1,20) (SnippetsStructure[1,SelectedLVEntry.3,"MetaData","Version"]!=""?" (v." SnippetsStructure[1,SelectedLVEntry.3,"MetaData","Version"] ")":"")
 		SB_SetText(Str , 1)
 
 	}
@@ -1463,7 +1465,17 @@ fPopulateLVNew(Snippets,SectionNames,LibraryCount)
 			v.MetaData.AdditionIndex:=fPadIndex(k,Snippets.Count())
 		}
 		Addition.AdditionIndex:=v.MetaData.AdditionIndex
-		LV_Add("-E0x200",		Addition.LVSection,		Addition.Name,		Addition.Hash,		Addition.LibraryName,		Addition.LVIdentifier, Addition.AdditionIndex, Addition.License, Addition.Version,Addition.Author,Addition.LVIdentifier		)
+		LV_Add("-E0x200"
+		, Addition.LVSection
+		, Addition.Name
+		, Addition.Hash
+		, Addition.LibraryName
+		, Addition.LVIdentifier
+		, Addition.AdditionIndex
+		, Addition.License
+		, Addition.Version
+		, Addition.Author
+		, Addition.LVIdentifier                 )
 	}
 	; m(d,Snippets.Count())
 	guicontrol,,vSearchFunctions,% Snippets.count() " snippets loaded from " LibraryCount  ((LibraryCount>1)?" libraries":" library")
@@ -2752,6 +2764,23 @@ ALG_TF_CountLines(Text)
 	 StringReplace, Text, Text, `n, `n, UseErrorLevel
 	 Return ErrorLevel + 1
 	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
 #Include %A_ScriptDir%\Includes\RichCode.ahk
 #Include %A_ScriptDir%\Includes\Editor.ahk
 
