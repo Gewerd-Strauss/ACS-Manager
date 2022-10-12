@@ -170,6 +170,7 @@ fGuiShow_2(Width,Height)
 lOpenSnippetInFolder:
 gui, ACSI: submit, NoHide 
 gui, 1: -Disabled
+gui, 1: -AlwaysOnTop
 fOpenSnippetInFolder(vName_Importer, vLibrary_Importer, vSnippet_Importer)
 return
 
@@ -179,6 +180,7 @@ fOpenSnippetInFolder(vName_Importer, vLibrary_Importer, vSnippet_Importer)
     Hash:=Object_HashmapHash(Key) ; Issue: What to include in the hashed snippet name?
     Path:=substr(DirectoryPath,1,Strlen(DirectoryPath)-1)  vLibrary_Importer "\" Hash
     Run Explorer.exe /select`,%Path%.ahk
+    gui, 1: +AlwaysOnTop
     return
 }
 
