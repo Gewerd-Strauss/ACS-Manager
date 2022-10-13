@@ -187,7 +187,7 @@ if !script.Load(,1)
 	, SoundAlertOnDebug:"Set true/false if you want to get an audio-ping whenever entering/exiting debug mode. Recommended to be on as db-mode can alter how the program behaves."
 	, Max_InDepth_Searchable:"Set the maximum number of snippets for which the script will also search all previously loaded Codes, Descriptions and Examples.`nFor more snippets, these searches will not be performed to not reduce performance too much."
 	, bNotifyDependenciesOnCopy:"Notify user of dependencies when notifying a snippet." ;; potentially only when the dependency also exists within?
-	, bShowOnStartup:"TODO: NOT IMPLEMENTEDSet whether or not to display the GUI on script startup or not."
+	, bShowOnStartup:"Set whether or not to display the GUI on script startup or not."
 	, Map2:"The Map corresponding shorthand searchkeys with their longhand assignments within the metadata"}}
 	script.Save()
 }
@@ -591,7 +591,6 @@ fCopyScript()
 			fLoadFillDetails() ;(SnippetsStructure,DirectoryPath)
 		if script.config.Settings.CopyMetadataToOutput
 		{
-			;;;;TODO: add metadata to output, make it a properly formatted table.
 			Author:=Data.Metadata.Author
 			FormatTime, Date,% Data.Metadata.Date, % script.config.Settings.DateFormat
 			License:=Data.Metadata.License
@@ -605,7 +604,7 @@ fCopyScript()
 			KeyWords:=Data.Metadata.KeyWords
 			AHK_Version:=(Data.Metadata.AHK_Version!=""?Data.Metadata.AHK_Version:"/")
 			Dependencies:=(Data.Metadata.Dependencies!=""?Data.Metadata.Dependencies:"/")
-			LicenseLink:=Data.Metadata.LicenseLink
+			licenseURL:=Data.Metadata.licenseURL
 			InfoText:=[]
 			if (Name!="")
 				InfoText.push("Snippet: " Name)
@@ -618,8 +617,8 @@ fCopyScript()
 				InfoText.push("Author: " Author "`n")
 			if (License!="")
 				InfoText.push("License: " License )
-			if (LicenseLink!="")
-				InfoText.push(" (" LicenseLink ")`n")
+			if (licenseURL!="")
+				InfoText.push(" (" licenseURL ")`n")
 			Else if (License!="")
 				InfoText.Push("`n")
 			if (URL!="")
@@ -687,7 +686,7 @@ fCopyScript()
 		Code:=ALG_st_Insert(";--uID:" SnippetsStructure[1,SelectedLVEntry.3].Metadata.Hash "`n",Code,StrLen(Code)+StrLen(";--uID:" SnippetsStructure[1,SelectedLVEntry.3].Metadata.Hash "`n")) ;; append uID-token
 		Clipboard:=Code
 		nameStr:=SnippetsStructure[1,SelectedLVEntry.3,"MetaData","Name"]
-		; nameStr:="abcdefghijklmno#pqrstuvwxyz1234567890"
+		; nameStr:="abcdefghijklmnopqrstuvwxyz1234567890"
 		Str:="On Clipboard: " SubStr(nameStr,1,20) (SnippetsStructure[1,SelectedLVEntry.3,"MetaData","Version"]!=""?" (v." SnippetsStructure[1,SelectedLVEntry.3,"MetaData","Version"] ")":"")
 		SB_SetText(Str , 1)
 
@@ -865,7 +864,6 @@ fLoadFillDetails()
 	Section:=Data.Metadata.Section
 	URL:=Data.Metadata.URL
 	Version:=Data.Metadata.Version
-
 	SectionInd:=Data.Metadata.SectionInd
 	Library:=Data.Metadata.Library
 	KeyWords:=Data.Metadata.KeyWords
@@ -873,7 +871,7 @@ fLoadFillDetails()
 	Dependencies:=(Data.Metadata.Dependencies!=""?Data.Metadata.Dependencies:"/")
 	; Changelog:=Data.Metadata.Changelog ;; this one is a maybe because I would probably have to include an additional TAB+RC-Control cuz this would likely have to be its own file.
 	; KeyWords:=Data.Metadata.KeyWords
-	LicenseLink:=Data.Metadata.LicenseLink
+	licenseURL:=Data.Metadata.licenseURL
 		; missing: 
 		; 						name
 		; 						version
@@ -894,7 +892,7 @@ fLoadFillDetails()
 		; Changelog:=Data.Metadata.Changelog ;; this one is a maybe because I would probably have to include an additional TAB+RC-Control cuz this would likely have to be its own file.
 			; Dependencies:=Data.Metadata.Dependencies
 			; KeyWords:=Data.Metadata.KeyWords
-		; LicenseLink:=Data.Metadata.LicenseLink
+		; licenseURL:=Data.Metadata.licenseURL
 
 		; hash
 		; lvind
@@ -909,11 +907,21 @@ fLoadFillDetails()
 	if (Author!="")
 		InfoText.push("Author: " Author "`n")
 	if (License!="")
-		InfoText.push("License: " License )
-	if (LicenseLink!="")
-		InfoText.push(" (" LicenseLink ")`n")
-	Else if (License!="")
-		InfoText.Push("`n")
+	{
+		if (licenseURL="")
+			InfoText.push("License: " License )
+	}
+	if (licenseURL!="")
+	{
+		InfoText.Push("License: <a href=""" LicenseURL """>" (License=""?"License":License) "</a>`n")
+
+	}
+	else
+	{
+		if (InfoText!="")
+			InfoText.Push("`n")
+	}
+	
 	if (URL!="")
 		InfoText.Push("<a href=""" URL """>Source</a> ")
 	if (Date!="") && (URL!="")

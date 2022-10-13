@@ -88,11 +88,14 @@ EditorImporter(Snippet:="",SnippetsStructure:="",ConvertingAHKRARE:=false)
     gui, add, edit, yp xp+100 w120 h%SmallFieldsHeight% vvVersion_Importer, % snippet.metadata.version
     gui, add, text, yp+%SmallFieldsHeight%+5 xp-100, Date
     gui, add, edit, yp xp+100 w120 h%SmallFieldsHeight% vvDate_Importer, % Date
-    gui, add, text, yp+24 xp-100, License
+    gui, add, text, yp+%SmallFieldsHeight% xp-100, License
     gui, add, ComboBox, yp xp+100 w120 r5 h%SmallFieldsHeight% vvLicense_Importer, % strreplace("MIT|BSD3|Unlicense|WTFPL|none|paste",snippet.metadata.License,snippet.metadata.License "|")
-    gui, add, text, yp+%SmallFieldsHeight%+5 xp-100, Section
+    gui, add, text, yp+%SmallFieldsHeight% xp-100, License URL
+    gui, add, edit, yp xp+100 w120 h%SmallFieldsHeight% vvLicenseURL_Importer, % snippet.metadata.licenseURL
+    
+    gui, add, text, y%SmallFieldsStart% xp+200, Section
     gui, add, ComboBox, yp xp+100 w120 r5 h%SmallFieldsHeight% vvSection_Importer, % FoundSection
-    gui, add, text, yp+%SmallFieldsHeight%+5 xp-100, URL
+    gui, add, text, yp+%SmallFieldsHeight%+5 xp-100, Source URL
     gui, add, edit, yp xp+100 w120 h%SmallFieldsHeight% vvURL_Importer, % snippet.metadata.URL
     gui, add, text, yp+%SmallFieldsHeight%+5 xp-100, Library
     
@@ -110,7 +113,7 @@ EditorImporter(Snippet:="",SnippetsStructure:="",ConvertingAHKRARE:=false)
         libstr:=strreplace(strreplace(str,"||","|"),snippet.metadata.Library,snippet.metadata.Library "|")
         gui, add, ComboBox, yp xp+100 w120 h%SmallFieldsHeight% R100 vvLibrary_Importer,% libstr
 
-    gui, add, text, y%SmallFieldsStart% xp+200, Dependencies
+    gui, add, text, yp+%SmallFieldsHeight%+5 xp-100, Dependencies
     gui, add, edit, yp xp+100 w120 h%SmallFieldsHeight% vvDependencies_Importer, % snippet.metadata.dependencies
     gui, add, text, yp+%SmallFieldsHeight%+5 xp-100, AHK-Version
     gui, add, edit, yp xp+100 w120 h%SmallFieldsHeight% vvAHK_Version_Importer, % snippet.metadata.AHK_Version
@@ -243,7 +246,7 @@ if (snippetClone.Count()!=0) && (SnippetClone!="")
     fDelete(SnippetClone)
 }
 ; global ConvertingAHKRARE:=ConvertingAHKRARE
-fSubmitImporter({Snippet:vSnippet_Importer,Description:vDesc_Importer, Example:vEx_Importer, Name:vName_Importer,Author:vAuthor_Importer, Version:vVersion_Importer,Date:vDate_Importer,License:vLicense_Importer,Section:vSection_Importer,URL:vURL_Importer,Library:vLibrary_Importer,Dependencies:vDependencies_Importer,AHK_Version:vAHK_Version_Importer,KeyWords:vKeywords_Importer}, SnippetClone,bIsEditing,ConvertingAHKRARE)
+fSubmitImporter({Snippet:vSnippet_Importer,Description:vDesc_Importer, Example:vEx_Importer, Name:vName_Importer,Author:vAuthor_Importer, Version:vVersion_Importer,Date:vDate_Importer,License:vLicense_Importer,LicenseURL:vLicenseURL_Importer,Section:vSection_Importer,URL:vURL_Importer,Library:vLibrary_Importer,Dependencies:vDependencies_Importer,AHK_Version:vAHK_Version_Importer,KeyWords:vKeywords_Importer}, SnippetClone,bIsEditing,ConvertingAHKRARE)
 return
 ; ACSISubmit:
 ; return
