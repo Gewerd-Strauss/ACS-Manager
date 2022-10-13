@@ -202,11 +202,11 @@ fDelete(Snippet)
     Expected:=0
     for k,v in Extensions
     {
-        if FileExist(A_ScriptDir "\Sources\" Snippet.Metadata.Library "\" Snippet.Metadata.Hash v)
+        if FileExist(strreplace(DirectoryPath,"*") Snippet.Metadata.Library "\" Snippet.Metadata.Hash v)
         {
             Expected++
-            FileRecycle, % A_ScriptDir "\Sources\" Snippet.Metadata.Library "\" Snippet.Metadata.Hash v
-            if !FileExist(A_ScriptDir "\Sources\" Snippet.Metadata.Library "\" Snippet.Metadata.Hash v)
+            FileRecycle, % strreplace(DirectoryPath,"*") Snippet.Metadata.Library "\" Snippet.Metadata.Hash v
+            if !FileExist(strreplace(DirectoryPath,"*") Snippet.Metadata.Library "\" Snippet.Metadata.Hash v)
                 Success++
         }
     }
@@ -223,8 +223,8 @@ fBackup(vName_Importer, vLibrary_Importer, vSnippet_Importer,Snippet)
     Expected:=0
     for k,v in Extensions
     {
-        Source:=A_ScriptDir "\Sources\" Snippet.Metadata.Library "\" Snippet.Metadata.Hash v
-        Destination:=A_ScriptDir "\Sources\" Snippet.Metadata.Library "\000-BACKUP_" Snippet.Metadata.Hash v
+        Source:=strreplace(DirectoryPath,"*") Snippet.Metadata.Library "\" Snippet.Metadata.Hash v
+        Destination:=strreplace(DirectoryPath,"*") Snippet.Metadata.Library "\000-BACKUP_" Snippet.Metadata.Hash v
         if FileExist(Source)
         {
             FileCopy,% Source,% Destination,1
@@ -311,34 +311,34 @@ fSubmitImporter(SubmissionObj, Snippet,bIsEditing,ConvertingAHKRARE:=false)
     Extensions:=[".ahk",".ini",".example",".description"]
     for k,v in Extensions
     {
-        if FileExist(A_ScriptDir "\Sources\" OldLib "\" OldHash v)
+        if FileExist(strreplace(DirectoryPath,"*") OldLib "\" OldHash v)
         {
-            FileCopy, % A_ScriptDir "\Sources\" OldLib "\" OldHash v,% BackupLocation:=A_ScriptDir "\Sources\000-BACKUP_" OldLib "_" OldHash v,1
-            FileDelete, % A_ScriptDir "\Sources\" OldLib "\" OldHash v
+            FileCopy, % strreplace(DirectoryPath,"*") OldLib "\" OldHash v,% BackupLocation:=A_ScriptDir "\Sources\000-BACKUP_" OldLib "_" OldHash v,1
+            FileDelete, % strreplace(DirectoryPath,"*") OldLib "\" OldHash v
         }
-        if FileExist(A_ScriptDir "\Sources\" OldLib "\" snippet.Metadata.name v)
+        if FileExist(strreplace(DirectoryPath,"*") OldLib "\" snippet.Metadata.name v)
         {
-            FileCopy, % A_ScriptDir "\Sources\" OldLib "\" OldHash v,% BackupLocation:=A_ScriptDir "\Sources\000-BACKUP_" OldLib "_" Snippet.metadata.name v,1
-            FileDelete, % A_ScriptDir "\Sources\" OldLib "\" snippet.Metadata.Name v
+            FileCopy, % strreplace(DirectoryPath,"*") OldLib "\" OldHash v,% BackupLocation:=A_ScriptDir "\Sources\000-BACKUP_" OldLib "_" Snippet.metadata.name v,1
+            FileDelete, % strreplace(DirectoryPath,"*") OldLib "\" snippet.Metadata.Name v
         }
     }
     Success:=Expected:=0
     if (IniSave.Count()>0) && (IniSave.Count()!="")
-        if ACSI_fWriteIni({Info:IniSave},A_ScriptDir "\Sources\" SubmissionObj.Library "\" Hash ".ini")
+        if ACSI_fWriteIni({Info:IniSave},strreplace(DirectoryPath,"*") SubmissionObj.Library "\" Hash ".ini")
             Success++
     if (SubmissionObj.Snippet!="") && (RegExReplace(SubmissionObj.Snippet,"\s*","")!="") && !Instr(SubmissionObj.Snippet,"Error 01: No code-file was found under the expected path ")
     {
-        if fWriteTextToFile(SubmissionObj.Snippet,NewFile:=A_ScriptDir "\Sources\" SubmissionObj.Library "\" Hash ".ahk")
+        if fWriteTextToFile(SubmissionObj.Snippet,NewFile:=strreplace(DirectoryPath,"*") SubmissionObj.Library "\" Hash ".ahk")
             Success++
     }
     if (SubmissionObj.Example!="") && (RegExReplace(SubmissionObj.Example,"\s*","")!="") && !Instr(SubmissionObj.Example, "Error 01: No example-file was found under the expected path")
     {
-        if fWriteTextToFile(SubmissionObj.Example,A_ScriptDir "\Sources\" SubmissionObj.Library "\" Hash ".example")
+        if fWriteTextToFile(SubmissionObj.Example,strreplace(DirectoryPath,"*") SubmissionObj.Library "\" Hash ".example")
             Success++
     }
     if (SubmissionObj.Description!="") && (RegExReplace(SubmissionObj.Description,"\s*","")!="") && !Instr(SubmissionObj.Description, "Error 01: No example-file was found under the expected path")
     {
-        if fWriteTextToFile(SubmissionObj.Description,A_ScriptDir "\Sources\" SubmissionObj.Library "\" Hash ".description")
+        if fWriteTextToFile(SubmissionObj.Description,strreplace(DirectoryPath,"*") SubmissionObj.Library "\" Hash ".description")
             Success++
 
     }
@@ -364,19 +364,21 @@ fSubmitImporter(SubmissionObj, Snippet,bIsEditing,ConvertingAHKRARE:=false)
         MsgBox,, % script.name, % "Old Hash:" Snippet.Metadata.Hash "`nNewHash: " Hash
     fGuiHide_2()
     SplitPath,% NewFile,, Dir, ,Name
+    SplitPath,% NewFile,, Dir, ,Name
+
     Extensions:=[".ahk",".ini",".example",".description"]
     Restore:=0
     for k,v in Extensions
-    {
-        if FileExist(NewFile) && FileExist(Dir "\000-BACKUP_" Snippet.Metadata.Hash v)
+    { ;FileExist(strreplace(DirectoryPath,"*") OldLib "\" snippet.Metadata.name v)
+        if FileExist(NewFile) && FileExist(DeletePath:=strreplace(DirectoryPath,"*") OldLib "\000-BACKUP_" Snippet.Metadata.Hash v)
         {
-            FileDelete,% Dir "\000-BACKUP_" Snippet.Metadata.Hash v
+            FileDelete,% DeletePath
             ; FileDelete, FilePattern
         }
-        else if !FileExist(NewFile) && FileExist(Dir "\000-BACKUP_" Snippet.Metadata.Hash v)
+        else if !FileExist(NewFile) && FileExist(DeletePath:=strreplace(DirectoryPath,"*") OldLib "\000-BACKUP_" Snippet.Metadata.Hash v)
         {
             ; FileCopy, Source, Dest [, Flag (1 = overwrite)]
-            FileCopy, % Dir "\000-BACKUP_" Snippet.Metadata.Hash v, % Dir "\" Snippet.Metadata.Hash v
+            FileCopy, % DeletePath, % Dir "\" Snippet.Metadata.Hash v
             Restore++
             ; DONE: add path for when new files do not exist - restore from backup, notify user of error
         }
