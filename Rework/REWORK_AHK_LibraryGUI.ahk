@@ -646,7 +646,7 @@ fCopyScript()
 			FinalInfoText:=""
 			for k,v in InfoText
 			{
-				FinalInfoText.= ((v!="`n")?", ":"") v
+				FinalInfoText.= ((v!="`n")?"; ":"") v
 			}
 			Code:=PrependTextBeforeString(Code,"; Metadata:`n" FinalInfoText)
 		}
@@ -884,22 +884,22 @@ fLoadFillDetails()
 	if (Version!="")
 		InfoText.push(" (v." Version ")`n")
 	else
-		InfoText.push("`n")
+		InfoText[InfoText.MaxIndex()].="`n"
 	InfoText.push("--------------------------------------------------------------`n")
 	if (Author!="")
 		InfoText.push("Author: " Author "`n")
 	if (License!="")
 	{
 		if (licenseURL="")
-			InfoText.push("License: " License )
+			InfoText.push("License: " License "`n")
 	}
 	if (licenseURL!="")
 		InfoText.Push("License: <a href=""" LicenseURL """>" (License=""?"License":License) "</a>`n")
-	else
-	{
-		if (InfoText!="")
-			InfoText.Push("`n")
-	}
+	; else
+	; {
+	; 	if (License="")
+	; 		InfoText.Push("`n")
+	; }
 	
 	if (URL!="")
 		InfoText.Push("<a href=""" URL """>Source</a> ")
@@ -907,7 +907,7 @@ fLoadFillDetails()
 		InfoText.Push("(" Date ")`n")
 	else if (URL!="")
 		InfoText.Push("`n")
-	if !Instr(InfoText[InfoText.MaxIndex()],"--------------------------------------------------------------")
+	if !Instr(InfoText[InfoText.MaxIndex()],"--------------------------------------------------------------") &&  !(Instr(InfoText[InfoText.MaxIndex()-1],"--------------------------------------------------------------") && InfoText[InfoText.MaxIndex()]="`n")
 		InfoText.push("--------------------------------------------------------------`n")
 	InfoText.push("Library: "Library "`n")
 	InfoText.push("Section: "SectionInd " - " Section "`n")
@@ -915,7 +915,7 @@ fLoadFillDetails()
 		InfoText.push("Dependencies: " Dependencies "`n")
 	if (AHK_Version!="")
 		InfoText.push("AHK_Version: " AHK_Version "`n")
-	if !Instr(InfoText[InfoText.MaxIndex()],"--------------------------------------------------------------")
+	if !Instr(InfoText[InfoText.MaxIndex()],"--------------------------------------------------------------") &&  !(Instr(InfoText[InfoText.MaxIndex()-1],"--------------------------------------------------------------") && InfoText[InfoText.MaxIndex()]="`n")
 		InfoText.push("--------------------------------------------------------------`n")
 	if (KeyWords!="")
 		InfoText.push("Keywords: " Keywords)
