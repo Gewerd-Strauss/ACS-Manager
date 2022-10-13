@@ -872,31 +872,7 @@ fLoadFillDetails()
 	; Changelog:=Data.Metadata.Changelog ;; this one is a maybe because I would probably have to include an additional TAB+RC-Control cuz this would likely have to be its own file.
 	; KeyWords:=Data.Metadata.KeyWords
 	licenseURL:=Data.Metadata.licenseURL
-		; missing: 
-		; 						name
-		; 						version
-								
-		; 						Author
-								
-		; 						library
-
-		; 						section
-		; 						sectionind
-								
-		; 						url
-		; 						date
-
-		; 						license
-
-			; AHK_Version:=Data.Metadata.AHK_Version
-		; Changelog:=Data.Metadata.Changelog ;; this one is a maybe because I would probably have to include an additional TAB+RC-Control cuz this would likely have to be its own file.
-			; Dependencies:=Data.Metadata.Dependencies
-			; KeyWords:=Data.Metadata.KeyWords
-		; licenseURL:=Data.Metadata.licenseURL
-
-		; hash
-		; lvind
-		InfoText:=[]
+	InfoText:=[]
 	if (Name!="")
 		InfoText.push("Snippet: " Name)
 	if (Version!="")
@@ -912,10 +888,7 @@ fLoadFillDetails()
 			InfoText.push("License: " License )
 	}
 	if (licenseURL!="")
-	{
 		InfoText.Push("License: <a href=""" LicenseURL """>" (License=""?"License":License) "</a>`n")
-
-	}
 	else
 	{
 		if (InfoText!="")
@@ -944,7 +917,6 @@ fLoadFillDetails()
 	for k,v in InfoText
 		FinalInfoText.=v
 
-; 	FinalInfoText:=InfoText "`n" InfoText2 "`n" InfoText3
 	guicontrol,1:, vEdit1,% FinalInfoText
 		f_FillFields(Code,Description,Example)		;; using name as the identifier could be problematic when having multiple snippets  of same name
 	return

@@ -33,7 +33,7 @@ EditorImporter(Snippet:="",SnippetsStructure:="",ConvertingAHKRARE:=false)
     , cPurple := "c" . "b294bb"
     , vLastCreationScreenHeight:=vGuiHeight2  
     , vLastCreationScreenWidth:=vGUIWidth2
-    gui, font, s9 cRed, Segoe UI
+    gui, font, s9 , Segoe UI
     SysGet, Mon,MonitorWorkArea 
     Height:=MonBottom
     if (!vGUIWidth2 and !vGuiHeight2) || (((vGUIWidth2!=(A_ScreenWidth-20)) || (vGuiHeight2!=(A_ScreenHeight))) && !bSwitchSize) ; assign outer gui dimensions either if they don't exist or if the resolution of the active screen has changed - f.e. when undocking or docking to a higher resolution display. The lGuiCreate_1-subroutine is also invoked in total if the resolution changes, but this is the necessary inner check to reassign dimensions.
