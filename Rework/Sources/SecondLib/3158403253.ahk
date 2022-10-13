@@ -1,4 +1,4 @@
-﻿Object_HashmapHash(Key)
+﻿GenerateHash(Key)
 {		
 	if !StrLen(Key)
 		throw Exception("No key provided", -2)

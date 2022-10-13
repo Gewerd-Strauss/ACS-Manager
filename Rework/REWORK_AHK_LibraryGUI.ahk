@@ -139,19 +139,22 @@ CrtDate:=SubStr(CrtDate,7,  2) "." SubStr(CrtDate,5,2) "." SubStr(CrtDate,1,4)
 , global bSearchSnippets:=false
 FileGetVersion, Version, %A_ProgramFiles%\AutoHotkey\AutoHotkey.exe
 ; m(A_AhkVersion,Version)
-; FileDelete, % script.configfile ;; for testing purposes and keeping the settings updated when adding/changing keys
+FileDelete, % script.configfile ;; for testing purposes and keeping the settings updated when adding/changing keys
 if !script.Load(,1) 
 { ;; default settings
 	Map:={AU:"Author" ;; For fetching data from 'Matches', the presorted object 
 		,DA:"Date"
+		,Dep:"Dependencies"
 		,Fi:"Library"
+		,Ha:"Hash"
+		,Key:"Keywords"
 		,Li:"License"
+		,Lic:"License"
 		,Na:"Name"
 		,Se:"Section"
+		,Sec:"Section"
 		,Url:"URL"
-		,Ver:"Version"
-		,Key:"Keywords"
-		,Dep:"Dependencies"}
+		,Ver:"Version"		}
 	AHKVERSION:={AHK_Classic:"v1"
 		,L:"v1.1"
 		,v2:"v2"
@@ -271,7 +274,7 @@ gosub, lGUICreate_1New
 ; clipboard:="PostMessageUn"
 ; clipboard:="controlgettabs"
 ; clipboard:="WinGetPosEx"
-clipboard:="Window"
+clipboard:="Ha:10550"
 ; Clipboard:="Au:anon na:1"
 CodeTimer("AutoExec")
 return
@@ -1129,6 +1132,7 @@ f_CollectMatches(Array,String,References,AllSections)
 	AddedOnes:=""
 	Map:={AU:1 ;; For fetching data from 'References'
 	,Se:2
+	,Sec:2
 	,Li:3
 	,Da:4
 	,Fi:5}
@@ -1180,7 +1184,12 @@ f_CollectMatches(Array,String,References,AllSections)
 			}
 			else
 			{
-				if Instr(s,v)
+				if RegexMatch(v,"\d+")
+				{
+					if Instr(s,AllSections[v])
+						str.=", " w
+				}
+				else if Instr(s,v)
 					str.="," w ;; for each KeyVal-Pair, add the locations of those snippets which are referenced to the string.
 			}
 		}
@@ -1211,7 +1220,6 @@ f_CollectMatches(Array,String,References,AllSections)
 
 	if (Matches.Count()=Array.Count())
 	{
-		Matches1:=[]
 		Threshold:=KeyVals.Count()
 		for s,w in Matches
 		{
@@ -1225,7 +1233,7 @@ f_CollectMatches(Array,String,References,AllSections)
 					if InStr(SearchedStr,needle)
 					{
 						MatchCount++
-						; Matches2.push(w)
+						; Matches2.push(w) ;; moved below into matchcount-check
 						; MatchedLibraries[Matches[s,"Metadata","Library"]]:=1
 					}
 				}
@@ -1238,34 +1246,35 @@ f_CollectMatches(Array,String,References,AllSections)
 						; MatchedLibraries[Matches[s,"Metadata","Library"]]:=1
 					}
 				}
-				if MatchCount=Threshold
-				{
-
-				}
+				; if MatchCount=Threshold
+				; {
+				; 	; yes I need a catcher here 
+				; }
 			}
-				if (MatchCount=Threshold)
-				{
+			if (MatchCount=Threshold)
+			{
+				if !Instr(AddedOnes,w.Metadata.Hash)
 					Matches2.push(w)
-					MatchedLibraries[Matches[s,"Metadata","Library"]]:=1
-				}
+				MatchedLibraries[Matches[s,"Metadata","Library"]]:=1
+				AddedOnes.=w.Metadata.Hash ", " ;; repeats here is not a problem, the string is only checked with instr anyways. 
+			}
 		}
 	}
 	else
 	{
-
 		for k,v in KeyVals  ;; and finally, remove the faultily-added entry which does not conform in LI
 		{
-			if Instr("AU,SE",k) ;; pre-handled already
+			if Instr("AU,SEC",k) ;; pre-handled already
 			{
 				for s,w in Matches
 				{
-					Matches2.push(w)
+					if !Instr(AddedOnes,w.Metadata.Hash)
+						Matches2.push(w)
 					MatchedLibraries[Matches[s,"Metadata","Library"]]:=1
 					AddedOnes.=w.Metadata.Hash ", "
 					if Instr(w.Metadata[script.config.map2[k]],v)
 					{
 
-						; Matches2.
 					}
 					else
 					{
@@ -1282,7 +1291,9 @@ f_CollectMatches(Array,String,References,AllSections)
 					;; Catcher for quicker testing	
 				; 	}
 				SearchedStr:=Matches[s,"MetaData",script.config.map2[k]]
-				Needle:=(k="DA")?DateParse(v):v
+				Needle:=(k="DA")?DateParse(v):(Instr(k,"Se")?AllSections[v]:v)
+				; if Instr(k,"Se")
+				; 	Needle:=AllSections[v]
 				if script.config.settings.Search_InString_MetaFields
 				{
 					if InStr(SearchedStr,needle)
@@ -1306,22 +1317,19 @@ f_CollectMatches(Array,String,References,AllSections)
 			}
 		}
 	}
+	if (Matches.Count()=Array.Count()) && (Matches2.Count()="")
+		Matches2:=Matches.Clone()
 	for s,w in Matches2
 	{
 		for x,y in KeyVals
 		{
+			Needle:=(x="DA")?DateParse(y):(Instr(x,"Se")?AllSections[y]:y)
 			PassedVal:=w.Metadata[script.config.map2[x]]
-			if !Instr(PassedVal,y)
-				Matches2.Remove(s)
-			
+			; if !Instr(PassedVal,y)
+			if !Instr(PassedVal,Needle)
+				Matches2.Delete(s)
 		}
-			; if w.
 	}
-	; m(Matches2)
-	; for k,v in Matches2
-	; {
-	; 	; for s,w in KeyVals
-	; }
  	return (Matches2.Count()>0 && Matches2.Count()!="")?[Matches2,AllSections,MatchedLibraries.Count()]:-1 ;; throw a -1 if something went wrong.
 }
 
