@@ -143,7 +143,7 @@ FileGetVersion, Version, %A_ProgramFiles%\AutoHotkey\AutoHotkey.exe
 FileDelete, % script.configfile ;; for testing purposes and keeping the settings updated when adding/changing keys
 if !script.Load(,1) 
 { ;; default settings
-	Map:={AU:"Author" ;; For fetching data from 'Matches', the presorted object TODO: make this a 
+	Map:={AU:"Author" ;; For fetching data from 'Matches', the presorted object 
 		,DA:"Date"
 		,Fi:"Library"
 		,Li:"License"
@@ -156,7 +156,7 @@ if !script.Load(,1)
 	AHKVERSION:={AHK_Classic:"v1"
 		,L:"v1.1"
 		,v2:"v2"
-		,H:"vH"} ;; TODO: CHECK WHICH VERSION THIS IS.
+		,H:"vH"} 
 	script.config:={Settings:{Search_Code: false ;" " ";Check if you want to search code of snippets as well. Adds substantial overhead at bootup."
 	, Search_Description:false
 	, Search_Examples:false
@@ -447,7 +447,7 @@ lGUICreate_1New: ;; Fully Parametric-form, TODO: functionalise this thing
 		; f_SB_Set()
 		SB_SetText("No Code from " script.name " on clipboard.", 1)
 		if (SnippetsStructure[4,"ahk"]!=SnippetsStructure[4,"ini"]) 
-			script.Error:="Critical Error: Metadata for " SnippetsStructure[4,"ini"] " files has been found, but code is only present for " SnippetsStructure[4,"ahk"] " snippets."
+			script.Error:="Critical Error: Metadata for " SnippetsStructure[4,"ini"] " files has been found, but code is present for " SnippetsStructure[4,"ahk"] " snippets."
 		if (script.error!="")
 			SB_SetText(script.error,5)
 		else
@@ -602,12 +602,13 @@ fCopyScript()
 			Section:=Data.Metadata.Section
 			URL:=Data.Metadata.URL
 			Version:=Data.Metadata.Version
-
 			SectionInd:=Data.Metadata.SectionInd
 			Library:=Data.Metadata.Library
 			KeyWords:=Data.Metadata.KeyWords
 			AHK_Version:=(Data.Metadata.AHK_Version!=""?Data.Metadata.AHK_Version:"/")
 			Dependencies:=(Data.Metadata.Dependencies!=""?Data.Metadata.Dependencies:"/")
+			; Changelog:=Data.Metadata.Changelog ;; this one is a maybe because I would probably have to include an additional TAB+RC-Control cuz this would likely have to be its own file.
+			; KeyWords:=Data.Metadata.KeyWords
 			licenseURL:=Data.Metadata.licenseURL
 			InfoText:=[]
 			if (Name!="")
@@ -615,23 +616,29 @@ fCopyScript()
 			if (Version!="")
 				InfoText.push(" (v." Version ")`n")
 			else
-				InfoText.push("`n")
+				InfoText[InfoText.MaxIndex()].="`n"
 			InfoText.push("--------------------------------------------------------------`n")
 			if (Author!="")
 				InfoText.push("Author: " Author "`n")
 			if (License!="")
-				InfoText.push("License: " License )
-			if (licenseURL!="")
-				InfoText.push(" (" licenseURL ")`n")
-			Else if (License!="")
-				InfoText.Push("`n")
+			{
+					InfoText.push("License: " License "`n")
+				if (licenseURL!="")
+					InfoText.Push("LicenseURL:  " LicenseURL "`n")
+			}
+			; else
+			; {
+			; 	if (License="")
+			; 		InfoText.Push("`n")
+			; }
+			
 			if (URL!="")
-				InfoText.Push("URL: " Source)
+				InfoText.Push("Source: " URL "`n")
 			if (Date!="") && (URL!="")
 				InfoText.Push("(" Date ")`n")
 			else if (URL!="")
 				InfoText.Push("`n")
-			if !Instr(InfoText[InfoText.MaxIndex()],"--------------------------------------------------------------")
+			if !Instr(InfoText[InfoText.MaxIndex()],"--------------------------------------------------------------") &&  !(Instr(InfoText[InfoText.MaxIndex()-1],"--------------------------------------------------------------") && InfoText[InfoText.MaxIndex()]="`n")
 				InfoText.push("--------------------------------------------------------------`n")
 			InfoText.push("Library: "Library "`n")
 			InfoText.push("Section: "SectionInd " - " Section "`n")
@@ -639,15 +646,13 @@ fCopyScript()
 				InfoText.push("Dependencies: " Dependencies "`n")
 			if (AHK_Version!="")
 				InfoText.push("AHK_Version: " AHK_Version "`n")
-			if !Instr(InfoText[InfoText.MaxIndex()],"--------------------------------------------------------------")
+			if !Instr(InfoText[InfoText.MaxIndex()],"--------------------------------------------------------------") &&  !(Instr(InfoText[InfoText.MaxIndex()-1],"--------------------------------------------------------------") && InfoText[InfoText.MaxIndex()]="`n")
 				InfoText.push("--------------------------------------------------------------`n")
 			if (KeyWords!="")
 				InfoText.push("Keywords: " Keywords)
 			FinalInfoText:=""
 			for k,v in InfoText
-			{
-				FinalInfoText.= ((v!="`n")?"; ":"") v
-			}
+				FinalInfoText.="; " v
 			Code:=PrependTextBeforeString(Code,"; Metadata:`n" FinalInfoText)
 		}
 		if script.config.Settings.CopyExampleToOutput
@@ -1526,7 +1531,7 @@ fPopulateLVNew(Snippets,SectionNames,LibraryCount)
 }
 
 f_RescaleLV(OverWriteShow:=false,SearchResultSort:=false)
-{ ;; makes sure the ListView is correctly scaled. ;;TODO: change the order/settings here to hide 
+{ ;; makes sure the ListView is correctly scaled. 
 	bIsAuthor:=(script.computername==script.authorID)
 	bIsDebug:=script.config.settings.bDebugSwitch
 	if   (!bIsAuthor & !bIsDebug) || (bIsAuthor & !bIsDebug)
@@ -1546,24 +1551,25 @@ f_RescaleLV(OverWriteShow:=false,SearchResultSort:=false)
 		, LV_ModifyCol(7,"AutoHdr") 
 		, LV_ModifyCol(9,"AutoHdr") 
 		, LV_ModifyCol(8,"AutoHdr") 
-    	, LV_ModifyCol(10,"Left")
-		if !SearchResultSort
-			LV_ModifyCol(10,"Sort")
-		else
-			LV_ModifyCol(2,"Sort")
-		, LV_ModifyCol(10,"AutoHdr")
+    	; , LV_ModifyCol(10,"Left")
 	}
-	LV_ModifyCol(4,"Right")
-    , LV_ModifyCol(1,"AutoHdr")
-	, LV_ModifyCol(4,"AutoHdr")
-    , LV_ModifyCol(2,"AutoHDr")
-    , LV_ModifyCol(10,"Right")
 	if !SearchResultSort
 		LV_ModifyCol(10,"Sort")
 	else
 		LV_ModifyCol(2,"Sort")
-	, LV_ModifyCol(9,"AutoHdr")
+    LV_ModifyCol(1,"AutoHdr")
+    , LV_ModifyCol(2,"AutoHDr")
+	, LV_ModifyCol(4,"AutoHdr")
+	, LV_ModifyCol(4,"Right")
 	, LV_ModifyCol(10,"AutoHdr")
+    , LV_ModifyCol(10,"Right")
+	; if !SearchResultSort
+	; 	LV_ModifyCol(10,"Sort")
+	; else
+	; 	LV_ModifyCol(2,"Sort")
+	; , LV_ModifyCol(9,"AutoHdr")
+	; , LV_ModifyCol(10,"AutoHdr")
+	; , LV_ModifyCol(10,"Left")
 
 }
 
