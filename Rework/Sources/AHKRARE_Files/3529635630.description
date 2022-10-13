@@ -1,0 +1,17 @@
+average width of a character in pixels
+
+AUTHOR:
+jeeswg
+
+DATE:
+30 Aug 2017
+
+DEPENDENCIES:
+FontClone() ID: 08.01.00008
+
+KEYWORDS:
+Font, Width, DllCall, Gdi
+
+LINK:
+https://autohotkey.com/boards/viewtopic.php?t=36461
+

@@ -1,0 +1,41 @@
+Using this function you can send keystrokes or launch a Label by pressing a key several times.
+
+AHK-VERSION:
+AHK_L
+
+AUTHOR:
+HotkeyIt
+
+DATE:
+02.06.2010
+
+DEPENDENCIES:
+Morse()
+
+KEYWORDS:
+hotkey, typing
+
+LICENSE:
+?
+
+LINK:
+https://autohotkey.com/board/topic/35566-rapidhotkey/
+
+SYNTAX:
+Key::RapidHotkey("keystrokes" ;Enter keystrokes here. E.g.: "^o"
+, times          ;optional. The number of times the key must be pressed to execute.  E.g.: 3
+, delay          ;optional. How quick the key must be pressed to execute. E.g.: 0.2
+, IsLabel)        ;optional. specify 1 to indicate that parameter 1 is a label.
+E.g.
+~o::RapidHotkey("^o") open file dialog if o pressed twice
+
+To specify several actions , use " as separator and leave times parameter empty.
+If press times parameter is omitted, first action would be triggered on 2 presses.
+
+~e::RapidHotkey("#r""#e""#f")  #r if pressed twice, #e 3 times and so on
+You can specify also one (can be also 1) or separated value for times
+~s::RapidHotkey("^s""{F12}""^+s", 5) so pressing 5 times = ^s, 6 times = {F12} and so on
+You can also specify separated times value
+$x::RapidHotkey("x""#r""#e", "1""5""3")
+use same separator for delay and islabel parameter
+

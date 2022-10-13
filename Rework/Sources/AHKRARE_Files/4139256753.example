@@ -1,0 +1,52 @@
+MenuDefinitionVar=
+(
+File
+	New
+	Open
+	Save
+	Save as...
+	Exit
+Edit
+	Undo
+	Cut
+	Copy
+	Paste
+	Delete
+View
+	Full screen
+	Zoom
+		100
+		200
+Help
+)
+CreateMenu(MenuDefinitionVar)
+Menu, MyMenu, show
+return
+MButton::Menu, MyMenu, show
+MenuSub:
+MsgBox,, You selected:, % "Item:`n" A_ThisMenuItem "`n`nFrom menu:`n" A_ThisMenu
+return
+MenuDefinitionVar=
+(
+AHK						%A_AhkPath%|1
+	Suspend				%A_AhkPath%|-206
+	Pause				%A_AhkPath%|-207
+	Suspend and pause	%A_AhkPath%|-208
+	---
+	Big exe				%A_AhkPath%|1|48
+	Big file			%A_AhkPath%|2|48
+Favorites				C:\Your icon.ico
+	File 1
+	File 2
+	---
+	Folder 1
+	Folder 2
+Help					C:\Your icon.ico||32
+)
+CreateMenu(MenuDefinitionVar, "Test", "TestSub")
+Menu, Test, show
+return
+MButton::Menu, Test, show
+TestSub:
+MsgBox,, You selected:, % "Item:`n" A_ThisMenuItem "`n`nFrom menu:`n" A_ThisMenu
+return

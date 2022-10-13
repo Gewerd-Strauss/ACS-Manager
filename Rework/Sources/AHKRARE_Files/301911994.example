@@ -1,0 +1,22 @@
+#NoEnv
+Gui, Margin, 100, 50
+Gui, Add, Button, gShowCallstack, Show Callstack
+Gui, Show, , Test
+Return
+GuiClose:
+ExitApp
+ShowCallstack:
+   Gosub, Start
+Return
+Start:
+   Func1()
+Return
+Func1() {
+   Func2()
+}
+Func2() {
+   Func3()
+}
+Func3() {
+   GetCallStack(1)
+}

@@ -1,0 +1,58 @@
+<i n='AutoHotkey' o='expand'>
+ <i n='Hello World'/>
+</i>
+<i n='TreeView Item'/>
+<i n='Another Item' o='-bold expand'>
+ <excluded>
+  <i n='The quick brown fox'/>
+ </excluded>
+ <i n='Child Item'>
+  <i n='Descendant'/>
+ </i>
+ <i n='Sibling Item' o='-bold'/>
+</i>
+/TREEVIEW>
+"
+v2 := "
+Join
+TREEVIEW name='name/text()' options='options/text()' match='//i' global='expand'>
+<i>
+ <name><![CDATA[AutoHotkey]]></name>
+ <options>bold</options>
+ <i>
+  <name><![CDATA[Child Item]]></name>
+  <options/>
+ </i>
+</i>
+<i>
+ <name><![CDATA[<XML STRING/>]]></name>
+ <options/>
+</i>
+<i>
+ <name><![CDATA[Sibling Item]]></name>
+ <options>check</options>
+ <i>
+  <name><![CDATA[Hello World]]></name>
+  <options/>
+  <i>
+<name><![CDATA[Descendant]]></name>
+<options>check</options>
+  </i>
+ </i>
+</i>
+<i>
+ <name><![CDATA[Items automatcially expanded]]></name>
+ <options/>
+</i>
+/TREEVIEW>
+"
+ui, Margin, 0, 0
+ui, Font, s9, Consolas
+ui, Add, TreeView, w250 r15
+V_Load(tv1)
+ui, Add, TreeView, x+5 yp w250 r15 Checked
+V_Load(tv2)
+ui, Show
+eturn
+uiClose:
+xitApp

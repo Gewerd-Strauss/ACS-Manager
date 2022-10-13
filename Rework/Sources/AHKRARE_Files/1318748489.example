@@ -1,0 +1,11 @@
+NoEnv
+   WM_GETFONT := 0x31
+   Gui, Margin, 20, 20
+   Gui, Add, Edit, w400 r5 hwndHED, Edit
+   Gui, Show, , Test
+   SendMessage, %WM_GETFONT%, 0, 0, , ahk_id %HED%
+   Font := GetFontProperties(ErrorLevel)
+   MsgBox, 0, % Font.FaceName, % "Height: " . Font.Height . " - Width: " . Font.Width
+Return
+GuiClose:
+ExitApp

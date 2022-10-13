@@ -1,0 +1,5 @@
+Number=21.3263
+NumStr(Number,10,2,"_") returns "_____21.33"
+NumStr(Number,10,0,"0") returns "0000000021"
+NumStr(Number,10,2) returns "21.33" (Note: 21.33 is leaded by 5 spaces which I am not able to reproduce)
+FileAppend, % "ItemCode" NumStr(Number,5,0,0) , Temp.txt outputs "ItemCode00021" to temp.txt

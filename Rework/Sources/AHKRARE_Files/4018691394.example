@@ -1,0 +1,20 @@
+; example for adding icons to listview columns > the first
+; after Drugwash: http://www.autohotkey.com/forum/post-234198.html#234198
+Gui, add, ListView,	w600 h400		+LV0x2 HwndHLV, Name|Size|Ext
+ImageListID := IL_Create(10)
+LV_SetImageList(ImageListID)
+Loop 10
+	IL_Add(ImageListID, "shell32.dll", A_Index)
+Loop, %A_WinDir%\*.*				; fill Listview
+{	if a_Index > 100
+		break
+	i := Mod(a_index,10)+1			; since I only added 10 icons
+	LV_Add("icon" i, A_LoopFileName, A_LoopFileSize, A_LoopFileExt)
+	LV_SetSI(hLV, A_Index, 3, i)	; now add icons (i) to the rows of the third column
+			; can also call function later for individual cells
+}
+LV_ModifyCol()
+Gui, Show,	, Icons in more than 1 Listview column
+return
+GuiClose:
+ExitApp

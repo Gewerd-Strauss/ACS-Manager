@@ -1,0 +1,2 @@
+writes data to a memory area in a specified process. the entire area to be written must be accessible or the operation will fail
+

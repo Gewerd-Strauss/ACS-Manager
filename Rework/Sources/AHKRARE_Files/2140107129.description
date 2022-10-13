@@ -1,0 +1,10 @@
+Post a message to the window underneath the mouse cursor, can be used to do things involving the mouse scroll wheel
+
+	/*                              	DESCRIPTION
+
+			 Func: PostMessageUnderMouse
+			 Post a message to the window underneath the mouse cursor. I mostly uses to do things involving the mouse
+			 scroll wheel. Note you should only call this from a hotkey.
+			 All the parameters are the same as for PostMessage.
+			 See \c SendMessage in AHK Help.
+	*/

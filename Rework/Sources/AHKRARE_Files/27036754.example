@@ -1,0 +1,9 @@
+CoordMode, Mouse, Screen
+#SingleInstance Force
+Sleep 1000 ; ms
+KeyWait, LControl, D
+KeyWait, LButton, D
+MouseGetPos x, y
+MoveMouse_Spiral(x, y, 20, 36, 6) ; 36 steps per arm, 6 arms
+MouseClick, Left, cx, cy,, 0, U
+return

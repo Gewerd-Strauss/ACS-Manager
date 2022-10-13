@@ -1,0 +1,35 @@
+phonetic algorithm for indexing names by sound
+
+AHK-VERSION:
+AHK_L
+
+AUTHOR:
+SKAN (SoundEx Classic Version)
+
+DATE:
+--
+
+DEPENDENCIES:
+none
+
+KEYWORDS:
+natural language processing, fuzzy search
+
+LICENSE:
+--
+
+LINK:
+https://autohotkey.com/board/topic/7984-ahk-functions-incache-cache-list-of-recent-items/page-8
+
+PARAMETER(S):
+--
+
+REMARK(S):
+Leading spaces, if any, should be trimmed out before passing it to SoundExC()
+
+RETURN VALUE:
+--
+
+SYNTAX:
+--
+

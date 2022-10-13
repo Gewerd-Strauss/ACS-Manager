@@ -1,0 +1,15 @@
+;-- center a window or set position optional by using Top, Left, Right, Bottom or a combination of it
+/*                              	DESCRIPTION
+
+			Syntax: CenterWindow ([ID], [Position])
+			Position: can be combined
+			Center = center window.
+				Top | Bottom = position up. position down.
+				Left | Right = position to the left. position to the right.
+			Notes:
+			• if the window is maximized, the width or height is modified depending on the position.
+					--> if it is positioned up or down, the height is modified	(A_ScreenHeight/2-10%).
+					--> if it is positioned to the left or to the right, the width is modified (A_ScreenWidth/2-10%).
+			• the window fits the visible screen, regardless of the position of the taskbar (the window is not blocked by the taskbar)
+
+*/

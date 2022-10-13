@@ -1,0 +1,17 @@
+Run, calc.exe
+WinWait, Calculator
+Process, Exist, calc.exe
+PID := ErrorLevel
+Process, Priority, %PID%, Low
+MsgBox, 64, Process Priority [CALC.EXE], % GetPriority("calc.exe")
+Process, Priority, %PID%, BelowNormal
+MsgBox, 64, Process Priority [CALC.EXE], % GetPriority("calc.exe")
+Process, Priority, %PID%, AboveNormal
+MsgBox, 64, Process Priority [CALC.EXE], % GetPriority("calc.exe")
+Process, Priority, %PID%, High
+MsgBox, 64, Process Priority [CALC.EXE], % GetPriority("calc.exe")
+Process, Priority, %PID%, Realtime
+MsgBox, 64, Process Priority [CALC.EXE], % GetPriority("calc.exe")
+Process, Priority, %PID%, Normal
+MsgBox, 64, Process Priority [CALC.EXE], % GetPriority("calc.exe")
+Return

@@ -1,0 +1,8 @@
+MsgBox % StrDiff( "A H K", "A H Kn" )
+MsgBox % StrDiff( "A H K", "A H K" )
+MsgBox % StrDiff( "A H K", "A h K" )
+MsgBox % StrDiff( "AHK", "" )
+MsgBox % StrDiff( "He", "Ben" )
+MsgBox % StrDiff( "Toralf", "ToRalf" )
+MsgBox % StrDiff( "Toralf", "esromneb" )
+MsgBox % StrDiff( "Toralf", "RalfLaDuce" )

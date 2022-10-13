@@ -1,0 +1,29 @@
+returns resized bitmap
+
+AHK-VERSION:
+AHK_L
+
+AUTHOR:
+Learning one
+
+DATE:
+Nov 14 2012
+
+DEPENDENCIES:
+GDIP.ahk
+
+LICENSE:
+unknown
+
+LINK1:
+https://autohotkey.com/board/topic/86978-rotate-gui-picture/
+
+LINK2:
+http://www.autohotkey.com/community/viewtopic.php?p=477333#p477333
+
+PARAMETER(S):
+see examples
+
+REMARK(S):
+none
+

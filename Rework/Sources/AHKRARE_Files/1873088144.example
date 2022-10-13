@@ -1,0 +1,3 @@
+OldPP := ProcessPriority("","High")
+; Do things
+ProcessPriority("",OldPP)

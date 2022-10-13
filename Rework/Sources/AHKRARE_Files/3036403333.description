@@ -1,0 +1,10 @@
+show a custom MsgBox with arbitrarily named buttons
+;-------------------------------------------------------------------------------
+    ; show a custom MsgBox with arbitrarily named buttons
+    ; return the text of the button pressed
+    ;
+    ; Title is the title for the GUI
+    ; Prompt is the text to display
+    ; List is a pipe delimited list of captions for the buttons
+    ; Seconds is the time in seconds to wait before timing out
+    ;---------------------------------------------------------------------------

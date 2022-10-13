@@ -1,0 +1,20 @@
+shows your array as an interactive TreeView
+
+AHK-VERSION:
+AHK-V1, AHK_L
+
+AUTHOR:
+GeekDude
+
+DATE:
+28 Jul 2017, 09:43
+
+DEPENDENCIES:
+none
+
+KEYWORDS:
+array, gui, debug, treeview
+
+LINK:
+https://autohotkey.com/boards/viewtopic.php?f=6&t=35124&p=162012#p162012
+

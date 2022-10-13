@@ -1,0 +1,6 @@
+Winget, PM_PID, PID, ahk_class Progman
+cTime := ProcessCreationTime( PM_PID )
+MsgBox, 0, ProcessCreationTime(), % cTime
+FormatTime, cTime, % cTime
+MsgBox, 0, Program Manager created on , % cTime
+Return

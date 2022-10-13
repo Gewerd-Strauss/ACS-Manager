@@ -1,0 +1,31 @@
+get stack trace
+
+AHK-VERSION:
+AHK_L
+
+AUTHOR:
+Coco
+
+DATE:
+18 Jan 2015
+
+DEPENDENCIES:
+none
+
+KEYWORDS:
+stack, trace
+
+LINK:
+https://autohotkey.com/boards/viewtopic.php?t=6001
+
+RETURN VALUE:
+This function returns an array of objects representing a stack trace entry. Each object has the following fields:
+offset 	- negative offset from the top of the call stack.
+file   	- the script file (I'm not sure if this is equivalent to A_LineFile or if it's the file that contains the function, I suspect the former)
+line     	- the line number at which the function is called
+caller 	- function name
+
+SYNTAX:
+tb := Traceback( [ actual := false ] )
+If actual is true, the actual stack trace is returned which includes Traceback() itself
+

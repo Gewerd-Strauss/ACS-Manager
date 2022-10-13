@@ -1,0 +1,2 @@
+by opening a msgbox you lost focus and caret pos in any editor - this func will restore the previous positions of the caret
+

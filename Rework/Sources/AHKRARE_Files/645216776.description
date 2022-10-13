@@ -1,0 +1,11 @@
+get state if window ist maximized or minimized
+
+LINK:
+https://autohotkey.com/board/topic/13020-how-to-maximize-a-childdocument-window/
+
+REMARK(S):
+it's also work on MDI Windows - use hwnd you can get from FindChildWindow()
+
+RETURN VALUE:
+it returns z for maximized("zoomed") or i for minimized("iconic")
+

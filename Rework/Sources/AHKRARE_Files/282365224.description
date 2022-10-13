@@ -1,0 +1,23 @@
+Drop Shadow On Borderless Window, (DWM STYLE)
+
+AHK-VERSION:
+v1 and ?v2?
+
+AUTHOR:
+DRocks and justme
+
+DATE:
+18.02.2019
+
+DEPENDENCIES:
+GetGuiClassStyle(), SetGuiClassStyle(HGUI, Style)
+
+KEYWORDS:
+gui, style, shadow
+
+LINK:
+https://www.autohotkey.com/boards/viewtopic.php?f=6&p=264108#p264108
+
+REMARK(S):
+tested on Windows 7
+

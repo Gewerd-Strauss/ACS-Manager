@@ -1,0 +1,2 @@
+if a .exe file really requires its command line to be encoded as UTF-8, the following might work (a lexikos function)
+

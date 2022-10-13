@@ -1,0 +1,2 @@
+MsgBox, % "72`n" WrapText(Clipboard, 72) "`n`n80`n" WrapText(Clipboard, 80)
+return

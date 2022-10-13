@@ -1,0 +1,51 @@
+gets the current number of key-value pairs stored in the passed AHK 'basic object'
+
+AHK-VERSION:
+AHK_L
+
+AUTHOR:
+just me
+
+DATE:
+25.08.2017
+
+DEPENDENCIES:
+none
+
+KEYWORDS:
+object,keys
+
+LICENSE:
+---
+
+LINK:
+https://www.autohotkey.com/boards/viewtopic.php?f=6&t=36284
+
+PARAMETER(S):
+Obj                  	-  An AHK basic object.
+KeyType           	-  One of the following values:
+Empty/omitted  	-  return the total number of keys.
+I                          	-  return the number of integer keys.
+O                       	-  return the number of object keys.
+S                      	-  return the number of string keys.
+
+REMARK(S):
+Based on the current (2017-08-26) AHK object layout defined in script_object.h (all fields are pointer-sized):
+vTbl pointer
+RefCount
+mFields                	-  Array of pointers to the object's keys.
+mFieldCount        	-  Current number of key-value pairs.
+mFieldCountMax  	-  Current capacity of the object as returned by Obj.GetCapacity().
+mKeyOffsetObject  	-  Index of the first possible object key in mFields.
+This is equal to the current number of integer keys.
+mKeyOffsetString  	-  Index of the first possible string key in mFields.
+The current number of object keys is: mKeyOffsetString - mKeyOffsetObject.
+The current number of string keys is: mFieldCount - mKeyOffsetString.
+
+RETURN VALUE:
+On success the function returns the number of the specified keys.
+Otherwise (e.g. if the passed value isn't an AHK basic object) the function returns an empty string.
+
+SYNTAX:
+---
+

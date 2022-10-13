@@ -1,0 +1,1 @@
+MsgBox % vNote: to check if a font exists, use the parameters lfCharSet and FontName, if it is not found, return an empty string.

@@ -1,0 +1,28 @@
+wm_command wrapper for FoxitReader Version:  9.1
+
+AHK-VERSION:
+AHK_L
+
+AUTHOR:
+Ixiko
+
+DATE:
+28.11.2018
+
+DEPENDENCIES:
+non
+
+KEYWORDS:
+wm_command, wrapper, application remote
+
+PARAMETER(S):
+using a valid Foxit handle, the command is sent to the FoxitReader
+otherwise this function returns the command code
+Remark: 	You have to control the success of the sendmessage command yourself!
+and there is no error handling on wrong FoxitID
+
+REMARK(S):
+I intentionally use a text first and then convert it to a key:value object
+so you can swap out the object data to a file if needed
+not all commands are listed at now!
+

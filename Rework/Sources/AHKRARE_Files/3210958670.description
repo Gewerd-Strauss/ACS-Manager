@@ -1,0 +1,2 @@
+sub of SetTaskbarProgress, different approach to IsWindow in gui + window - get/find section
+

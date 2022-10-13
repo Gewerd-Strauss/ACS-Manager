@@ -1,0 +1,58 @@
+ascertains the creation time for an existing process and returns a time string
+
+AHK-VERSION:
+AHK_L
+
+AUTHOR:
+SKAN
+
+DATE:
+04-Nov-2009
+
+DEPENDENCIES:
+none
+
+KEYWORDS:
+string,formatting
+
+LICENSE:
+--
+
+LINK:
+https://autohotkey.com/board/topic/7984-ahk-functions-incache-cache-list-of-recent-items/page-3
+
+PARAMETER(S):
+--
+
+REMARK(S):
+* If an invalid PID or a null is passed, the function returns a standard timestamp in
+UTC : 16010101000000 i.e., Zero hour on 1st January 1601. But, for me it will be
+16010101053000 as my timezone is UTC+ 5hr 30m
+* Does not return correctly for Windows Explorer instances. It will be creation time of
+explorer.exe
+* Ask-for-Help Topic : Window (or process) creation time? - evl, Micha, shimanov ( Thanks! )
+https://autohotkey.com/board/topic/6647-window-or-process-creation-time/
+* Ask-for-Help Post : VBS_ProcessCreationTime() - Skan ( Slow and ugly :evil: )
+http://www.autohotkey.com/forum/viewtopic.php?p=96929#96929
+* MSDN Reference :
+GetProcessTimes() :
+- http://msdn2.microsoft.com/en-us/library/ms683223.aspx
+FileTimeToLocalFileTime , FILETIME Structure :
+- http://msdn2.microsoft.com/en-us/library/ms724277.aspx
+- http://msdn2.microsoft.com/en-us/library/ms724284.aspx
+FileTimeToSystemTime , SYSTEMTIME Structure :
+- http://msdn2.microsoft.com/en-us/library/ms724280.aspx
+- http://msdn2.microsoft.com/en-us/library/ms724950.aspx
+OpenProcess() :
+- https://msdn.microsoft.com/library/default.asp?url=/library/en-us/dllproc/base/openprocess.asp
+CloseHandle() :
+- https://msdn.microsoft.com/library/default.asp?url=/library/en-us/sysinfo/base/closehandle.asp
+Process Security and Access Rights :
+- https://msdn.microsoft.com/library/default.asp?url=/library/en-us/dllproc/base/process_security_and_access_rights.asp
+
+RETURN VALUE:
+string in YYYYMMDD24MISS format
+
+SYNTAX:
+ProcessCreationTime( ProcessID )
+

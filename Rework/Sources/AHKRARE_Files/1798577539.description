@@ -1,0 +1,2 @@
+makes sure the same window stays active after showing the InputBox. Otherwise you might get the text pasted into another window unexpectedly.
+

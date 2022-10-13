@@ -1,0 +1,5 @@
+F1::
+CoordMode, Caret, Screen
+GetCaretPos(x, y)
+MsgBox, % "MY :`t" x ", " y "`nAHK:`t" A_CaretX ", " A_CaretY
+return

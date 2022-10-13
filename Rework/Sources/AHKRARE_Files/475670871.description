@@ -1,0 +1,2 @@
+sets a different font to a Listview header (it's need CreateFont() function)
+

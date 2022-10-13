@@ -1,0 +1,36 @@
+disabling fade effect on gui animations
+
+AHK-VERSION:
+AHK_L
+
+AUTHOR:
+tmplinshi
+
+DATE:
+February 04, 2017
+
+DEPENDENCIES:
+none
+
+KEYWORDS:
+gui
+
+LICENSE:
+--
+
+LINK:
+https://gist.github.com/tmplinshi/70a8f7879d94b20a42a9d94ca12c1a82
+https://www.autohotkey.com/boards/viewtopic.php?t=27743
+
+PARAMETER(S):
+--
+
+REMARK(S):
+--
+
+RETURN VALUE:
+--
+
+SYNTAX:
+--
+

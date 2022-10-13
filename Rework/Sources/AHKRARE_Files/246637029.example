@@ -1,0 +1,5 @@
+ImageFile := A_ScriptDir "\logo.gif"
+if !FileExist(ImageFile)
+	UrlDownloadToFile, http://www.autohotkey.com/docs/images/AutoHotkey_logo.gif, % ImageFile
+GetImageDimensions(ImageFile, w, h)
+msgbox % "Width:`t" w "`nHeight:`t" h

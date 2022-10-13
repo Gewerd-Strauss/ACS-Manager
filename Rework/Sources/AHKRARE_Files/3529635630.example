@@ -1,0 +1,6 @@
+q:: ;control get font, font get average character width
+     	SendMessage, 0x31, 0, 0, Edit1, ahk_class Notepad ;WM_GETFONT := 0x31
+     	hFont := ErrorLevel
+     	hFont2 := JEE_FontClone(hFont)
+     	MsgBox, % JEE_StrGetDimAvgCharWidth(hFont2)*8
+     	return

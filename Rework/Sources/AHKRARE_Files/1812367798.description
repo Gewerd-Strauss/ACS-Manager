@@ -1,0 +1,39 @@
+Loads a picture and returns an HBITMAP or HICON to the caller
+
+AHK-VERSION:
+AHK_L
+
+AUTHOR:
+just me
+
+DATE:
+May 07, 2016
+
+DEPENDENCIES:
+ReadUShortBE(), ReadULongBE(), ReadUTF16BE
+
+KEYWORDS:
+font
+
+LICENSE:
+--
+
+LINK:
+https://www.autohotkey.com/boards/viewtopic.php?p=85114#p85114
+
+PARAMETER(S):
+--
+
+REMARK(S):
+only tested for .ttf files as yet
+www.microsoft.com/en-us/Typography/SpecificationsOverview.aspx
+.otf -> www.microsoft.com/typography/otspec/otff.htm
+Platform ID: 0: Apple Unicode, 1: Macintosh, 2: ISO, 3: Microsoft}
+Name ID: 1: family name, 2: subfamily name (style), 4: full name}
+
+RETURN VALUE:
+--
+
+SYNTAX:
+--
+

@@ -1,0 +1,18 @@
+#NoEnv
+AddrOrName := "www.berlin.de"
+Addr := DNSQuery(AddrOrName, Results, Name)
+MsgBox, 0, %AddrOrName%, % "Result: " . Addr . "`nError: " . ErrorLevel
+Msg := ""
+For I, V In Results {
+   Msg .= V . "`r`n"
+}
+MsgBox, 0, Results, %Msg%
+MsgBox, 0, CNAME, %Name%
+Name := DNSQuery(Addr, Results)
+MsgBox, 0, %Addr%, % "Result: " . Name . "`nError: " . ErrorLevel
+Msg := ""
+For I, V In Results {
+   Msg .= V . "`r`n"
+}
+MsgBox, 0, Results, %Msg%
+ExitApp

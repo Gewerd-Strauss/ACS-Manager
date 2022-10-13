@@ -1,0 +1,20 @@
+returns the dimensions of the scaled source rectangle that fits within the destination rectangle
+
+AHK-VERSION:
+V1
+
+AUTHOR:
+LinearSpoon
+
+DATE:
+May, 14., 2014
+
+DEPENDENCIES:
+none
+
+KEYWORDS:
+Math, Gui, Graphic
+
+LINK:
+https://www.autohotkey.com/boards/viewtopic.php?t=3514
+

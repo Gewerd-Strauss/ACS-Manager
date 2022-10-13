@@ -1,0 +1,2 @@
+returns HWND's class name without its instance number, e.g. "Edit" or "SysListView32"
+

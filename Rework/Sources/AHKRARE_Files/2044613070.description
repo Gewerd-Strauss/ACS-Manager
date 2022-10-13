@@ -1,0 +1,36 @@
+Adjust Luminance for a given RGB color
+
+AHK-VERSION:
+AHK_L
+
+AUTHOR:
+SKAN
+
+DATE:
+--
+
+DEPENDENCIES:
+none
+
+KEYWORDS:
+gdi,graphic,color
+
+LICENSE:
+--
+
+LINK:
+https://autohotkey.com/board/topic/7984-ahk-functions-incache-cache-list-of-recent-items/page-8
+
+PARAMETER(S):
+Luminance	- Value between 1 - 239 ( 0 is black and 240 is White )
+RGB         	- The RGB color to be adjusted. If ignored, a random color will be generated and used
+
+REMARK(S):
+--
+
+RETURN VALUE:
+--
+
+SYNTAX:
+--
+

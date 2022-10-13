@@ -1,0 +1,4 @@
+FormatTime, time,
+Gui, Add, Text, HwndTimeHwnd vcTime,
+SetTextAndResize(TimeHwnd, time)
+Gui, Show, NoActivate Center AutoSize

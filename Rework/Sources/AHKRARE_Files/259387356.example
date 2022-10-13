@@ -1,0 +1,1 @@
+OnMessage(0x46, "WM_WINDOWPOSCHANGING")

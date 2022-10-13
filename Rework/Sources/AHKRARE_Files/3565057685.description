@@ -1,0 +1,27 @@
+Executes the context menu item of the given path
+
+	/*											Description
+
+		Executes the context menu item of the given path.
+
+		Remarks
+		This should be used with #Persistent since closing the script causes an unexpected termination of the invoked action, such as when invoking
+		the Copy menu item, if the script exits, the copied item will be canceled. Invoking Properties behaves similarly.
+
+		Requirements
+		AutoHotkey_L Revision 53 or later.
+
+		License
+		Public Domain.
+
+		Format
+		InvokeVerb(path, menu, validate=True)
+		Parameters
+		path: the path of the file / directory to invoke the context menu.
+		menu: the menu item to invoke.
+		validate: if this is set to True, the function checks if the given menu item exists. It's True by default.
+
+		Return Value
+		True if the menu item is invoked; otherwise, False. If the validate option is set to False, nothing will be returned.
+
+	*/

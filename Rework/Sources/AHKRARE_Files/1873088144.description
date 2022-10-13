@@ -1,0 +1,35 @@
+Useful inside a library function to save/set/reset script's Process priority
+
+AHK-VERSION:
+AHK_L
+
+AUTHOR:
+By SKAN on D2A1 @ bit.ly/2mIlZRy
+
+DATE:
+01.10.2019
+
+DEPENDENCIES:
+none
+
+KEYWORDS:
+System,runtime,process
+
+LICENSE:
+-
+
+LINK:
+https://www.autohotkey.com/boards/viewtopic.php?f=6&t=68471&sid=a9e2447ccaf812e44e8c29ba845fb263
+
+PARAMETER(S):
+-
+
+REMARK(S):
+--
+
+RETURN VALUE:
+string
+
+SYNTAX:
+-
+

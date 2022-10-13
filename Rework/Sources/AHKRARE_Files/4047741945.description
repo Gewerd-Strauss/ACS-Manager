@@ -1,0 +1,20 @@
+calculate the height and width of the text in the specified font
+
+AHK-VERSION:
+AHK_L
+
+AUTHOR:
+?jeeswg?
+
+DEPENDENCIES:
+GetStockObject() ID: 08.01.00007
+
+LINK:
+;https://msdn.microsoft.com/en-us/library/dd144938(v=vs.85).aspx
+
+REMARK(S):
+use CreateFont() to get hFont
+
+SYNTAX:
+GetFontTextDimension( [hFont], [Text], [out Width], [out Height] )
+

@@ -1,0 +1,5 @@
+pResizedBitmap := Gdip_ResizeBitmap(pBitmap, 120) ; resizes to 120%. Disposes of pBitmap.
+pResizedBitmap := Gdip_ResizeBitmap(pBitmap, 50, 0) ; resizes to 50%. Does not dispose pBitmap.
+pResizedBitmap := Gdip_ResizeBitmap(pBitmap, "w180 h80") ; resizes to width: 180 height: 80 (does not maintain aspect ratio). Disposes of pBitmap.
+pResizedBitmap := Gdip_ResizeBitmap(pBitmap, "w200") ; resizes to width: 200, automatically adjusts height (maintains aspect ratio). Disposes of pBitmap.
+pResizedBitmap := Gdip_ResizeBitmap(pBitmap, "h50") ; resizes to height: 50, automatically adjusts width (maintains aspect ratio). Disposes of pBitmap.

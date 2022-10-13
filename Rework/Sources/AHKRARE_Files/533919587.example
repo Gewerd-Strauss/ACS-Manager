@@ -1,0 +1,10 @@
+NoEnv
+SetBatchLines,-1
+MsgBox % "Count days from 12 May until 15 May`n"
+		. Time("May-15","12.May","d")
+MsgBox % "Working hours from 01.05.2009 00:00:00   to   10.05.09 09:30:00`n"
+		. "Count only working hours from 09 to 17 and consider weekends and 01.May bank holiday`n"
+		. Time("20090504093000","20090501000000","h","W1.7 H9-17 B0105")
+MsgBox % "Days to work till end of 2009`n" . Time("01.01.2010","","d","W1.7")
+MsgBox % "Hours to work till end of 2009 from 09 - 17`n" . Time("01.01.2010","","h","W1.7 H9-17")
+ExitApp

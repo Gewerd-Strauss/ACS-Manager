@@ -1,0 +1,35 @@
+get PID from any ID
+
+AHK-VERSION:
+AHK_L
+
+AUTHOR:
+SKAN
+
+DATE:
+10-MAy-2014
+
+DEPENDENCIES:
+none
+
+KEYWORDS:
+process,system
+
+LICENSE:
+--
+
+LINK:
+http://ahkscript.org/boards/viewtopic.php?p=17974#p17974
+
+PARAMETER(S):
+--
+
+REMARK(S):
+--
+
+RETURN VALUE:
+ProcessID
+
+SYNTAX:
+--
+

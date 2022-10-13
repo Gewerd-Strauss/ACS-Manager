@@ -1,0 +1,9 @@
+MsgBox % PIDfromAnyID()                                     	; Own PID
+MsgBox % PIDfromAnyID( "winlogon.exe" )            	; process name
+MsgBox % PIDfromAnyID( 4 )                                  	; validating raw PID
+MsgBox % PIDfromAnyID( "MyScript.ahk" )            	; PID of a running script
+MsgBox % PIDfromAnyID( "MyScript.ahk ahk_class AutoHotkey" )  ; precise than above
+MsgBox % PIDfromAnyID( "Torrent" )                     	; part of window title
+MsgBox % PIDfromAnyID( A_ScripthWnd )             	; Own PID
+MouseGetPos,,, OutputVarWin
+MsgBox % PIDfromAnyID( OutputVarWin )            	; PID of Window under mouse

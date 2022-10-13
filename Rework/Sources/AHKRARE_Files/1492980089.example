@@ -1,0 +1,37 @@
+Gui, Margin, 5, 5
+  Gui, Add, Text, xm ym, Multiple URLs in one GUI
+  Gui, Add, Text, xp( yp"5 cBlue gLink1 v[color=red]URL[/color]_Link1, www.autohotkey.com
+  Gui, Add, Text, xp   yp"0 cBlue gLink2 v[color=red]URL[/color]_Link2, de.autohotkey.com
+  Gui, Add, Text, xp   yp"0 cBlue gLink3 v[color=red]URL[/color]_Link3, www.google.com
+  Gui, Add, Text, xp   yp"0 cBlue gLink4 v[color=red]URL[/color]_Link4, www.msdn.com
+  Gui, Font, norm
+  Gui, Show,, URL
+  ; Retrieve scripts PID
+  Process, Exist
+  pid_this := ErrorLevel
+  ; Retrieve unique ID number (HWND/handle)
+  WinGet, hw_gui, ID, ahk_class AutoHotkeyGUI ahk_pid %pid_this%
+  ; Call "HandleMessage" when script receives WM_SETCURSOR message
+  WM_SETCURSOR = 0x20
+  OnMessage(WM_SETCURSOR, "URLPrefGui")
+  ; Call "HandleMessage" when script receives WM_MOUSEMOVE message
+  WM_MOUSEMOVE = 0x200
+  OnMessage(WM_MOUSEMOVE, "URLPrefGui")
+Return
+GuiClose:
+  ExitApp
+;End of GUI
+;GUI glabels
+Link1:
+  Run, http://www.autohotkey.com/forum
+Return
+Link2:
+  Run, http://de.autohotkey.com
+Return
+Link3:
+  Run, http://www.google.com
+Return
+Link4:
+  Run, http://www.msdn.com
+Return
+;End Of GUI glabels

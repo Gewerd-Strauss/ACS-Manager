@@ -1,0 +1,23 @@
+immediate update of the window content when using a scrollbar
+
+AHK-VERSION:
+AHK_L
+
+AUTHOR:
+Lexikos
+
+DATE:
+July 13, 2013
+
+DEPENDENCIES:
+OnScroll
+
+KEYWORDS:
+gui,scrollbar,OnMessage
+
+LINK:
+https://autohotkey.com/board/topic/95488-help-with-gui-window-scrollingresizing/
+
+REMARK(S):
+there are libraries can do the same like Scroller.ahk
+

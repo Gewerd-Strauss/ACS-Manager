@@ -1,0 +1,29 @@
+save the status of checkboxes in other apps
+
+AHK-VERSION:
+AHK_L V1*
+
+AUTHOR:
+Ixiko
+
+DATE:
+01.12.2018
+
+DEPENDENCIES:
+GetButtonType()  ID: 06.04.02.00027, KeyValueObjectFromLists()  ID: 12.01.00004, List2Array() ID: 13.01.05.00010
+
+KEYWORDS:
+get info from Gui, Checkbox
+
+LICENSE:
+none
+
+LINK:
+https://autohotkey.com/boards/viewtopic.php?f=6&t=59542
+
+PARAMETER(S):
+only the handle to the window
+
+REMARK(S):
+returns an key-value object with key is ClassNN name of checkbox and value is 1 or 0 (for is checked or not)
+

@@ -1,0 +1,49 @@
+extract user function and helps to write it to userAhk.api
+
+/*	                                        	DESCRIPTION
+
+			 The script extracts AHK function declarations from the clipboard and opens
+			 user.ahk.api file where you can paste the function declarations.
+			 Example usage:
+			 - open an AHK library file you've downloaded,
+			 - copy all code from within the file to the clipboard,
+			 - run the script (parse clipboard contents, open user.ahk.api file)
+			 - paste function declarations to user.ahk.api file
+			 - restart SciTE.
+			 Notes:
+			 - modify the path variables below if needed
+			 - good practice: rescan library catalog every time this script gets updated
+				(vide script 1.0.0 skipped function declarations that had comments at
+				the end)
+
+			 TODO:
+				- enable/disable sorting option?
+				- if @ found in string, pick other sign
+				- import constants
+				- check if any of fn names are AHK built-in function names - if yes, warn
+					user (see my GetTypeInfo.ahk)
+				- option to skip comments in file
+				- GUI window?
+
+			 Version 1.0.4 (20120402)
+
+			 Changes since version 1.0.3 (20120402)
+				- regular expressions upgraded thanks to rvcv32's Regex Sandbox
+
+			 Changes since version 1.0.2 (20120402)
+				- remove duplicate entries
+				- inform user if duplicate function names found (dup fn names, but not fn
+					params / comments)
+				- bug: ? changed to  - comment sign has to be present if text after
+					trailing { (or '(')
+
+			 Changes since version 1.0.1 (20120401)
+				- look for `n if `r`n not found in clipboard
+				- display a warning if both `n and `r`n not found in clipboard
+				- small tweaking of the script
+
+			 Changes since version 1.0.0 (20120327)
+				- there can be comment sign and comments behind { sign. Updated RegEx
+					pattern to handle that. Comment text is added to tooltip.
+
+	*/

@@ -1,0 +1,11 @@
+NoEnv
+SingleInstance Force
+Include, MoveTogether.ahk
+    Handles := []
+    Loop, 3
+        Gui, %A_Index%: New, hwndhWin%A_Index%, Window %A_Index%
+        Gui, Show, % "x" A_Index * 280 " y100 w250 h200"
+        Handles.Push(hWin%A_Index%)
+Return
+GuiClose:
+ExitApp

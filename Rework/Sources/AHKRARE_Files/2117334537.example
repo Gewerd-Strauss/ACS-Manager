@@ -1,0 +1,8 @@
+MsgBox % "StartAddr of first Thread:`t" GetThreadStartAddr(2280)[1].StartAddr
+; Tested with PID of notepad
+; 0x000000003c5aa2
+for k, v in GetThreadStartAddr(2280)
+    MsgBox % "ThreadID:`t`t" v.ThreadID "`nStartAddr:`t`t" v.StartAddr
+; Tested with PID of notepad
+; ThreadID:     8052              |  1460              |  12116             |  8668              |  5376
+; StartAddr:    0x000000003c5aa2  |  0x000000777ac6d0  |  0x0000000032c660  |  0x000000748875f0  |  0x000000777ac6d0

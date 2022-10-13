@@ -1,0 +1,8 @@
+;EXAMPLE
+#SingleInstance, force
+Gui, new, +hwndguiId
+Dwm_SetWindowAttributeTransistionDisable(guiId,1)
+Gui, show, w300 h200
+Sleep,2000
+Gui,destroy
+Exitapp

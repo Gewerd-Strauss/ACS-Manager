@@ -1,0 +1,30 @@
+sets the maximum number of additional text lines in each tile, not counting the title
+
+AHK-VERSION:
+AHK_L
+
+AUTHOR:
+kczx3
+
+DATE:
+03 Mar 2017
+
+DEPENDENCIES:
+none
+
+KEYWORDS:
+gui, listview
+
+LICENSE:
+--
+
+LINK:
+https://www.autohotkey.com/boards/viewtopic.php?f=6&t=28792
+
+PARAMETER(S):
+Lines - 	Maximum number of text lines in each item label, not counting the title
+One line is added internally because the item might be wrapped to two lines!
+
+SYNTAX:
+--
+

@@ -1,0 +1,35 @@
+generates a string containing only spaces
+
+AHK-VERSION:
+AHK_L
+
+AUTHOR:
+SKAN
+
+DATE:
+--
+
+DEPENDENCIES:
+none
+
+KEYWORDS:
+string,formatting
+
+LICENSE:
+--
+
+LINK:
+https://autohotkey.com/board/topic/7984-ahk-functions-incache-cache-list-of-recent-items/
+
+PARAMETER(S):
+width is number of Space chars
+
+REMARK(S):
+--
+
+RETURN VALUE:
+string
+
+SYNTAX:
+--
+

@@ -1,0 +1,2 @@
+subfunction for CaptureScreen() - converts from one picture format to another one, depending on Gdip restriction only .bmp, .jpg, .png is possible
+

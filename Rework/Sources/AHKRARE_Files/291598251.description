@@ -1,0 +1,4 @@
+Clipboard function. Retrieves if files in clipboard comes from an explorer cut or copy operation.
+/*                              	DESCRIPTION
+		Parameters	:		explorer copy = 5, explorer cut = 2
+*/

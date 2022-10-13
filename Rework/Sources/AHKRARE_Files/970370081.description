@@ -1,0 +1,37 @@
+Generates a CheckSum for a region of pixels in Screen/Window
+
+AHK-VERSION:
+AHK_L
+
+AUTHOR:
+SKAN
+
+DATE:
+31.08.2014
+
+DEPENDENCIES:
+none
+
+KEYWORDS:
+gdi,graphics,checksum
+
+LICENSE:
+--
+
+LINK:
+https://autohotkey.com/board/topic/7984-ahk-functions-incache-cache-list-of-recent-items/page-8
+http://ahkscript.org/boards/viewtopic.php?&t=4431
+
+PARAMETER(S):
+--
+
+REMARK(S):
+Credit: Thanks to Sean. Screen Capture with Transparent Windows and Mouse Cursor
+http://www.autohotkey.com/forum/viewtopic.php?t=18146&start=0&postdays=0&postorder=asc&highlight=screencapture
+
+RETURN VALUE:
+--
+
+SYNTAX:
+--
+

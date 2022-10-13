@@ -1,0 +1,3 @@
+;for k, v in MouseGetText()
+	;	MsgBox % k ": " v
+	;ExitApp

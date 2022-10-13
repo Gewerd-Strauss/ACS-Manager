@@ -1,0 +1,35 @@
+Use to format a float or to pad leading characters (any character!) to a numeric string
+
+AHK-VERSION:
+AHK_L
+
+AUTHOR:
+SKAN
+
+DATE:
+--
+
+DEPENDENCIES:
+SPACE(13.05.000016)
+
+KEYWORDS:
+string,formatting,leading characters,numeric
+
+LICENSE:
+--
+
+LINK:
+https://autohotkey.com/board/topic/7984-ahk-functions-incache-cache-list-of-recent-items/
+
+PARAMETER(S):
+--
+
+REMARK(S):
+--
+
+RETURN VALUE:
+string (formated)
+
+SYNTAX:
+--
+

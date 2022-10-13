@@ -1,0 +1,30 @@
+#Include Traceback.ahk
+f()
+return
+a() {
+	b()
+}
+b() {
+	c()
+}
+c() {
+	out := "Stack trace:"
+	for i, info in Traceback()
+	{
+		out .= Format("
+		(LTrim Join`r`n
+		`r`n
+		Offset: {}
+		File:   {}
+		Line:   {}
+		Caller: {}
+		)", info.offset, info.file, info.line, info.caller)
+	}
+	ListVars
+	WinWait ahk_id %A_ScriptHwnd%
+	ControlSetText Edit1, %out%
+	WinWaitClose
+}
+f() {
+	a()
+}

@@ -1,0 +1,36 @@
+Gui with ActiveX - Internet Explorer - Control
+
+AHK-VERSION:
+AutoHotkey_L 1.1.04+
+
+AUTHOR:
+-
+
+DATE:
+-
+
+DEPENDENCIES:
+none
+
+KEYWORDS:
+gui, activeX, html
+
+LICENSE:
+-
+
+LINK:
+-
+
+PARAMETER(S):
+Timeout : The seconds to make the HTML window disappear.
+Permanent : if this is True, closing the GUI window does not destroy it but it is hidden.
+
+REMARK(S):
+-
+
+RETURN VALUE:
+the handle of the created window(Hwnd)
+
+SYNTAX:
+-
+

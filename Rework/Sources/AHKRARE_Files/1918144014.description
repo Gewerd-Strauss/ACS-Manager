@@ -1,0 +1,8 @@
+retrieves the current size limits for the working set of the system cache
+
+/*                              	DESCRIPTION
+
+		Syntax: GetSystemFileCacheSize ([min, in bytes], [max, in bytes], [FILE_CACHE_MAX_HARD_ENABLE = 1
+		Example: MsgBox % GetSystemFileCacheSize(Min, Max, Flags) "`nMin: " Round(Min/(1024**2), 1) " MB" "`nMax: " Round(Max/(1024**2), 1) " MB" "`nFlags: " Flags
+		Link:  https://msdn.microsoft.com/en-us/library/windows/desktop/aa965224(v=vs.85).aspx
+*/

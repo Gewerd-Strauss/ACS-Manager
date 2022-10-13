@@ -1,0 +1,2 @@
+gets the IP address for the given host directly using the WinSock 2.0 dll, without using temp files or third party utilities
+

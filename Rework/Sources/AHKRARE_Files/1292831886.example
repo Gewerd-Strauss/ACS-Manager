@@ -1,0 +1,17 @@
+;Example 1 - Numerical value
+;Code:
+MsgBox % GetUserInput(0,"Window=Numerical Value,Description=Enter a numerical value,Ok=Ok","Value=Num,Size=xCenter yCenter w250 h80")
+;Example 2 - File Selection
+;Code:
+MsgBox % GetUserInput("Hello World.txt","Window=File-Selection,Select=Select a file:,Ok=Ok","Gui=+ToolWindow,Value=File")
+;Example 3 - List of Control Definitions
+;Code:
+Definition =
+(
+GroupBox,, x5 y45 w330 h75, +BackgroundTrans
+Button, Help, x10 y55 w100 h20, -Theme, Dialog_Handler
+)
+MsgBox % GetUserInput("","","Gui=-Theme,Size=xCenter yCenter w340 h150,NoEmptyStr",Definition)
+Dialog_Handler:
+  MsgBox User pressed "Dialog Button-%A_GuiControl%"
+  Return

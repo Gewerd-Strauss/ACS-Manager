@@ -1,0 +1,16 @@
+copies a selected PDF file to memory - it needs xpdf - pdftotext.exe
+
+;  This function copies a selected PDF file to memory.  This function was written by kon at AHK forums
+;  and is origionally published in the AHK forums as post 23 in the following thread:
+;  https://www.autohotkey.com/boards/viewtopic.php?f=76&t=15880&start=20#p81126
+;  please note:  the word " -table" below was origionally " -nopgprk"
+
+ ;--------- Building CmdString (look in the .txt docs incuded with xpdf):
+ ; From the xpdf docs in [ScriptDir]\xpdfbin-win-3.04\doc\pdftotext.txt:
+ ;   SYNOPSIS
+ ;       pdftotext [options] [PDF-file [text-file]]
+ ;   ...
+ ;       If text-file is '-', the text is sent to stdout.
+ ; Options (Example option. Look in the xpdf docs for more):
+ ;   -nopgbrk    Don't insert page breaks (form feed characters)  between  pages.
+ ;---------

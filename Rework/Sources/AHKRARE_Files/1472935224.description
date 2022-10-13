@@ -1,0 +1,36 @@
+Restart "Local area connection" without admin privileges
+
+AHK-VERSION:
+AHK_L
+
+AUTHOR:
+tmplinshi
+
+DATE:
+June 29, 2019
+
+DEPENDENCIES:
+none
+
+KEYWORDS:
+Lan, network, COM, connection
+
+LICENSE:
+--
+
+LINK:
+https://gist.github.com/tmplinshi/431bc80dbbbf93715f4bd3fb704d8eec
+https://www.autohotkey.com/boards/viewtopic.php?f=6&t=65822
+
+PARAMETER(S):
+--
+
+REMARK(S):
+If ConnectionName is omited, the adapter name that contains "Realtek PCIe" will be selected.
+
+RETURN VALUE:
+--
+
+SYNTAX:
+--
+

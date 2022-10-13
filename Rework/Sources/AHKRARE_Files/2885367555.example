@@ -1,0 +1,4 @@
+words=crazy|crazie|craezie|crazi|crasie|cracie|crecie|crazee|crezie|crraazziiee
+Loop, Parse, words, |
+	List .= A_LoopField "`t=  " SoundExC( A_LoopField ) "`n"
+MsgBox, % List

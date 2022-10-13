@@ -1,0 +1,95 @@
+;This example shows that the size of the ListView control can change as needed.
+	#NoEnv
+	#SingleInstance Force
+	ListLines Off
+	;-- GUI options
+	gui -DPIScale +hWndhGUI -MinimizeBox
+	;-- GUI objects
+	gui Add,Text,xm,Current ListView size
+	gui Add,Text,xm+20,W:%A_Space%
+	gui Add,Text,x+0 vLVPosW Section,99999
+	gui Add,Text,xm+20 y+0,H:
+	gui Add,Text,xs yp vLVPosH,99999
+	gui Add,CheckBox,xm Checked gToggleColumnHeader,Show Column Header
+	gui Add,Button,xm w150 gAdd5,Add 5 rows
+	gui Add,Button,xm y+0 wp gAdjust1,Adjust using defaults
+	gui Font,Bold
+	gui Add,Button,xm y+0 wp gAdjust2,Adjust
+	gui Font
+	gui Add,Button,xm y+0 wp gHelp,Help
+	gui Add,Button,xm y+0 wp gReload,Rebuild example...
+	;-- Add ListView control
+	Random FontSize,8,14
+	gui Font,s%FontSize%
+	gui Add
+	   ,ListView
+	   ,% ""
+			. "ym "
+			. "Report "
+			. "hWndhLV "
+			. "vMyListView "
+	   ,Column 1|Column 2|Column 3|Column 4|Column 5
+	gui Font
+	gosub UpdateDisplay
+	;-- Show
+	SplitPath A_ScriptName,,,,$ScriptTitle
+	gui Show,x0 y0,%$ScriptTitle%
+return
+GUIClose:
+GUIEscape:
+	ExitApp
+Add5:
+	Loop 5
+		{
+		Random RandomNumber,100000,999999
+		LV_Add("",RandomNumber,"Dummy data " . A_TickCount,"c3","c4","c5")
+		}
+return
+Adjust1:
+	LVM_ApproximateViewRect(hLV,-1,AVRWidth,AVRHeight)
+	ControlMove,,,,%AVRWidth%,%AVRHeight%,ahk_id %hLV%
+	gosub UpdateDisplay
+	gui Show,AutoSize
+return
+;-- The methodology (extracted from the AutoHotkey source) is simple.  For the
+;   "number of items" parameter of the LVM_APPROXIMATEVIEWRECT message, the
+;   actual or projected number of items is used minus 1.  After the call, 4 is
+;   added to both the Width and Height return values.  The final result is a
+;   ListView control that is just large enough to not show the horizontal and
+;   vertical scroll bars.  This method seems to work for most fonts.
+Adjust2:
+	LVM_ApproximateViewRect(hLV,LV_GetCount()-1,AVRWidth,AVRHeight)
+;-- Add 4 to the Width and Height
+	AVRWidth+=4
+	AVRHeight+=4
+;-- Adjust
+	ControlMove,,,,%AVRWidth%,%AVRHeight%,ahk_id %hLV%
+	gosub UpdateDisplay
+	gui Show,AutoSize
+return
+Help:
+	gui +OwnDialogs
+	MsgBox
+		,0x40
+		,Help,
+		   (ltrim join`s
+			Instructions:
+			`n`n1) Press the "Add 5..." button as needed to add 5 additional dummy
+			rows to the ListView control.
+			`n`n2) Change the width of any column as needed.
+			`n`n3) Press any of the "Adjust..." buttons at any time to calculate and
+			show the new size of the ListView control.
+		   )
+return
+Reload:
+	Reload
+return
+ToggleColumnHeader:
+	LVS_NOCOLUMNHEADER :=0x4000
+	Control Style,^%LVS_NOCOLUMNHEADER%,,ahk_id %hLV%
+return
+UpdateDisplay:
+	ControlGetPos,,,W,H,,ahk_id %hLV%
+	GUIControl,,LVPosW,%W%
+	GUIControl,,LVPosH,%H%
+return

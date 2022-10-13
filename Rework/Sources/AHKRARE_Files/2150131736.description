@@ -1,0 +1,2 @@
+copy a pBitmap of a specific width and height to the Gdip graphics container (pGraphics)
+

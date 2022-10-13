@@ -1,0 +1,26 @@
+get icon dimensions
+
+AHK-VERSION:
+AHK V1 and ??V2??
+
+AUTHOR:
+swagfag
+
+DATE:
+Last edited by swagfag on 01 Dec 2018, 21:32, edited 2 times in total.
+
+DEPENDENCIES:
+none
+
+KEYWORDS:
+icon, hIcon, gdip, dimensions
+
+LICENSE:
+unknown
+
+LINK:
+https://autohotkey.com/boards/viewtopic.php?f=6&t=59456
+
+REMARK:
+Width and Height set to 0, if an error occurred
+

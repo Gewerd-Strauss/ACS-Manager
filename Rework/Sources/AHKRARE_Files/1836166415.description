@@ -1,0 +1,14 @@
+subfunction of GetFontTextDimension()
+
+AUTHOR:
+?jeeswg?
+
+DEPENDENCIES:
+GetStockObject() ID: 08.01.00007
+
+REMARK(S):
+use CreateFont() to get hFont
+
+SYNTAX:
+GetFontTextDimension( [hFont], [Text], [out Width], [out Height] )
+

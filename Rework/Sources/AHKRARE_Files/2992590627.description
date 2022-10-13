@@ -1,0 +1,2 @@
+returns the HWND of the currently focused control, or 0 if there was a problem
+

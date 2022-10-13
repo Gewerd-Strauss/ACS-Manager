@@ -1,0 +1,15 @@
+#NoEnv
+i, Add, ListView, w800 r30, File|Family|Style|FullName
+op, Files, %A_WinDir%\Fonts\*.ttf
+
+ If !IsObject(FontName := GetFontNamesFromFile(A_LoopFileLongPath))
+ MsgBox, 16, Error!, Couldn't retrieve font names form file %A_LoopFileName%!
+ Else
+ LV_Add("", A_LoopFileName, FontName.Family, FontName.Style, FontName.FullName)
+
+op, 4
+ LV_ModifyCol(A_Index, "AutoHdr")
+i, Show, , % "Font names from files (" . LV_GetCount() . ")"
+turn
+iCLose:
+itApp

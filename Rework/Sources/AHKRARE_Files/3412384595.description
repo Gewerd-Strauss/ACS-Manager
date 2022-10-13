@@ -1,0 +1,26 @@
+its an alternative to Menu, Show, which can display menu without blocking monitored messages
+
+AHK-VERSION:
+AHK_L
+
+AUTHOR:
+SKAN
+
+DATE:
+13 Dec 2013, 07:01
+
+DEPENDENCIES:
+non
+
+KEYWORDS:
+menu, show
+
+LINK:
+https://autohotkey.com/boards/viewtopic.php?t=971
+http://ahkscript.org/boards/viewtopic.php?p=7088#p7088
+
+REMARK(S):
+..but the catch is: To get handle ( hMenu ) for a Menuname, it has to be attached to a MenuBar.
+There already is a function from lexikos, which does this: MI_GetMenuHandle(), and can be used as follows
+hViewmenu := MI_GetMenuHandle( "view" ) ; Get it from: http://www.autohotkey.net/~Lexikos/lib/MI.ahk
+

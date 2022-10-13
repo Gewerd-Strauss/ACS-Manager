@@ -1,0 +1,17 @@
+this function retrieves the configuration settings of a given serial port
+
+/*                              	DESCRIPTION
+
+			this function retrieves the configuration settings of a given serial port.
+			Having hardly any C\C experience it took me some time to find out that there is a bitmask in the DCB (Device Configuration Block) structure.
+
+			Using BuildCommDCB and SetCommState functions it should also be possible to configure a serial port.
+			Data can be written to a serial port using one of the binary writing functions on this forum.
+			I appologize for the script not beeing commented at all, also I am not sure if I did everything right. Comments and suggestions are welcome.
+
+			Regards, 	olfen
+
+			Dependencies:				DecToBin()
+												ExtractInteger()
+
+	*/

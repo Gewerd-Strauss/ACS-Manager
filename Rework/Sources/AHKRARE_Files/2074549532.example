@@ -1,0 +1,22 @@
+~+::RapidHotkey("Plus")
+~h::RapidHotkey("{Raw}Hello World!", 3) ;Press h 3 times rapidly to send Hello World!
+~o::RapidHotkey("^o", 4, 0.2) ;be careful, if you use this hotkey, above will not work properly
+~Esc::RapidHotkey("exit", 4, 0.2, 1) ;Press Esc 4 times rapidly to exit this script
+~LControl::RapidHotkey("!{TAB}",2) ;Press LControl rapidly twice to AltTab
+~RControl::RapidHotkey("+!{TAB}",2) ;Press RControl rapidly twice to ShiftAltTab
+~LShift::RapidHotkey("^{TAB}", 2) ;Switch back in internal windows
+~RShift::RapidHotkey("^+{TAB}", 2) ;Switch between internal windows
+~e::RapidHotkey("#e""#r",3) ;Run Windows Explorer
+~^!7::RapidHotkey("{{}{}}{Left}", 2)
+~a::RapidHotkey("test", 2, 0.3, 1) ;You Can also specify a Label to be launched
+test:
+MsgBox, Test
+Return
+Exit:
+ExitApp
+~LButton & RButton::RapidHotkey("Menu1""Menu2""Menu3",1,0.3,1)
+Menu1:
+Menu2:
+Menu3:
+MsgBox % A_ThisLabel
+Return

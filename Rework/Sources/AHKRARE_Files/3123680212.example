@@ -1,0 +1,29 @@
+;Gui with various controls for quick testing...
+;Borders are added for convenience to show control bounds
+Gui, Add, Picture, w200 h50 +Border, image.jpg
+Gui, Add, Text, w200 h50 +Border, This is a text control
+Gui, Add, Edit, w200 h50 +Border, This is an edit control
+Gui, Add, Checkbox, w200 h50 +Border, This is a checkbox control
+Gui, Add, Radio, w200 h50 +Border, This is a radio control
+Gui, Add, Button, w200 h50 +Border, This is a button control
+Gui, Add, Groupbox, w200 h50 +Border, This is a groupbox control
+Gui, Show
+SetTimer, UpdateTooltip, 75
+return
+GuiClose:
+  ExitApp
+return
+UpdateTooltip:
+  MouseGetPos, x, y,, controlHwnd, 2
+  if (controlHwnd = "")
+  {
+	tooltip No control
+	return
+  }
+  ;Get class name (could have done it with MouseGetPos directly, but that appends the control number..)
+  WinGetClass, controlClass, ahk_id %controlHwnd%
+  if (controlClass = "Button")
+	tooltip % "Type: " GetButtonType(controlHwnd)
+  else
+	tooltip % "Type: " controlClass
+return

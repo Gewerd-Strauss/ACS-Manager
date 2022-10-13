@@ -1,0 +1,6 @@
+; Holding down left Control key to lock, release to unlock.
+~LControl::
+	LockCursorToPrimaryMonitor(true)
+	KeyWait, LControl
+	LockCursorToPrimaryMonitor(false)
+return

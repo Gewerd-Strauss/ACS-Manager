@@ -1,0 +1,2 @@
+Provides RegRead64() function that do not redirect to Wow6432Node on 64-bit machines (for ansi- and unicode)
+

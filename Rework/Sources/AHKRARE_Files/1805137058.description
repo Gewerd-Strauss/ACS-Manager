@@ -1,0 +1,2 @@
+creates an instance of a named pipe and returns a handle for subsequent pipe operations
+

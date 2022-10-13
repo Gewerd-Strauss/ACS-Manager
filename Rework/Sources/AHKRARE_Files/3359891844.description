@@ -1,0 +1,2 @@
+Checks if a specific control is under the cursor and returns its ClassNN if it is.
+

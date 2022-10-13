@@ -1,0 +1,2 @@
+retrieves the ahk_id (HWND) of the active window's focused control.
+

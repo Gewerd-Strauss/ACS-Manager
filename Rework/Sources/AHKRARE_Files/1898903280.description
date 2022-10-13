@@ -1,0 +1,17 @@
+retrieves the text of tabs in a tab control
+
+https://autohotkey.com/board/topic/70727-ahk-l-controlgettabs/
+a Lexikos function
+
+Parameters:
+Control - the HWND, ClassNN or text of the control.
+inTitle - same as ControlGet, but unused if Control is a HWND.
+WinText - as above.
+
+Returns:
+An array of strings on success.
+an empty string on failure.
+
+Requirements:
+AutoHotkey v1.1.
+A compatible tab control

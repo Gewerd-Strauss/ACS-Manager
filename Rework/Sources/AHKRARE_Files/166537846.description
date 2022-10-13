@@ -1,0 +1,2 @@
+close all open popup (childwindows), without knowing their names, of a parent window
+

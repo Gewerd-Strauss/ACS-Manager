@@ -1,0 +1,3 @@
+/*			EXAMPLE
+		MsgBox % MeasureText(0,"Hello world","Consolas",14, "italic")
+*/

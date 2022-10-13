@@ -1,0 +1,36 @@
+write directly to stderr for custom error messages
+
+AHK-VERSION:
+AHK_L
+
+AUTHOR:
+"Lexikos" (edited by Holle: "Use the same format like the other error messages" ...testet with SciTE4AutoHotkey Version 3.0.04)
+Original thread: http://www.autohotkey.com/board/topic/50306-can-a-script-write-to-stderr/?hl=errorstdout#entry314658
+
+DATE:
+2013 / 12 / 12
+
+DEPENDENCIES:
+StdErr_Write_
+
+KEYWORDS:
+stderr, debug
+
+LICENSE:
+--
+
+LINK:
+https://www.autohotkey.com/boards/viewtopic.php?f=6&t=978
+
+PARAMETER(S):
+--
+
+REMARK(S):
+testet with SciTE4Autohotkey Version 3.0.04
+
+RETURN VALUE:
+---
+
+SYNTAX:
+--
+

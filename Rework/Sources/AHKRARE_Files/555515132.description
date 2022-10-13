@@ -1,0 +1,15 @@
+assign bitmap to any item in any AHk menu
+
+/*                              	DESCRIPTION
+
+		Thanks to shimanov for this function
+		    Details under http://www.autohotkey.com/forum/viewtopic.php?p=44577
+		    p_menu            = "MenuName" (e.g., Tray, etc.)
+		    p_item            = "MenuItemNumber" (e.g. 1, ...)
+		    p_bm_unchecked,
+		    p_bm_checked      = path to bitmap for unchecked 'n' checked menu entry/false
+		    p_unchecked_face,
+		    p_checked_face    = true/false (i.e., true = pixels with same color as
+		                                    first pixel are transparent)
+
+*/

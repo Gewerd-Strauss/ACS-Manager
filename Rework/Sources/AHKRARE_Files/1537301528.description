@@ -1,0 +1,25 @@
+the common File Dialog lets you add controls to it
+
+AHK-VERSION:
+AHK_L
+
+AUTHOR:
+qwerty12 and just me
+
+DATE:
+04/01/2017
+
+DEPENDENCIES:
+none
+
+KEYWORDS:
+dialog,gui,file,save,interface
+
+LINK:
+https://www.autohotkey.com/boards/viewtopic.php?t=29934
+
+REMARK(S):
+Common Item Dialog -> msdn.microsoft.com/en-us/library/bb776913%28v=vs.85%29.aspx
+IFileDialog        -> msdn.microsoft.com/en-us/library/bb775966%28v=vs.85%29.aspx
+IShellItem         -> msdn.microsoft.com/en-us/library/bb761140%28v=vs.85%29.aspx
+

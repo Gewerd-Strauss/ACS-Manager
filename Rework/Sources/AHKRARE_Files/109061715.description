@@ -1,0 +1,26 @@
+scale down a picture to fit the given width and height of a picture control
+
+AUTHOR:
+just me
+
+DATE:
+Nov 14 2012
+
+LINK:
+https://autohotkey.com/board/topic/86978-rotate-gui-picture/
+
+PARAMETER:
+HCTRL     -  HWND or VarName of the picture control
+PicPath   -  	Path of the image
+Rotate    -  	Rotate the image:
+1 :   90 degrees right
+2 :   Flip vertically
+3 :   90 degrees left
+4 :   Flip horizontally
+Default: "" : no rotation
+
+REMARK:
+You have to set the maximum width and height in the global variables PicW and PicH before calling it.
+Also you have to call Gdip_Startup() prior in your script. The control must have the style SS_BITMAP := 0x000E set
+
+

@@ -1,0 +1,14 @@
+basic function to wrap a text-string to a given length
+
+AHK-VERSION:
+AHK_V1
+
+DEPENDENCIES:
+none
+
+KEYWORDS:
+string, text, string manipulation
+
+LINK:
+https://rosettacode.org/wiki/Word_wrap#AutoHotkey
+

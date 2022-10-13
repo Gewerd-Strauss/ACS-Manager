@@ -1,0 +1,5 @@
+MsgBox % type("")     ; String
+MsgBox % type(1)      ; Integer
+MsgBox % type(1/1)    ; Float
+MsgBox % type("1")    ; String
+MsgBox % type(2**42)  ; Integer
