@@ -107,7 +107,7 @@ CrtDate:=SubStr(CrtDate,7,  2) "." SubStr(CrtDate,5,2) "." SubStr(CrtDate,1,4)
                     ,dbgLevel	  : 1
                     ,computername : A_ComputerName
                     ,author       : "Gewerd Strauss"
-					,authorID	  : "LAPTOP-Cd"
+					,authorID	  : "LAPTOP-C"
 					,authorlink   : ""
                     ,email        : ""
                     ,credits      : CreditsRaw
@@ -431,13 +431,15 @@ lGUICreate_1New: ;; Fully Parametric-form, TODO: functionalise this thing
 		gui, add, statusbar, -Theme vStatusBarMainWindow  gfCallBack_StatusBarMainWindow ; finish up statusbar - settings, updating library/adding additional libraries
 
 		SB_SetParts(370,273,70,80)
-		if ((!(script.computername==script.authorID)) && !script.config.settings.bDebugSwitch)
+		bIsAuthor:=(script.computername==script.authorID)
+		bIsDebug:=script.config.settings.bDebugSwitch
+		if (!bIsAuthor & !bIsDebug) || (bIsAuthor & !bIsDebug)
 		{ ;; public display
 			SB_SetText("Standard Mode Engaged. Click to enter debug-mode",2)
 			ListLines, Off
 			; KeyHistory
 		}
-		else if ((script.computername==script.authorID) || (!(script.computername==script.authorID) && script.config.settings.bDebugSwitch))
+		else if (!bIsAuthor && bIsDebug) || (bIsAuthor && bIsDebug)
 		{
 			SB_SetText("Author/Debug Mode Engaged. Click to exit debug-mode",2)
 			ListLines, On
@@ -740,7 +742,9 @@ fCallBack_StatusBarMainWindow(Path:="")
 	if ((A_GuiEvent="DoubleClick") && (A_EventInfo=2)) || (Path=2) ;; toggle debug mode
 	{
 		script.config.settings.bDebugSwitch:= !script.config.settings.bDebugSwitch
-		if ((!(script.computername==script.authorID)) && !script.config.settings.bDebugSwitch) || ((script.computername==script.authorID) && !script.config.settings.bDebugSwitch)
+		bIsAuthor:=(script.computername==script.authorID)
+		bIsDebug:=script.config.settings.bDebugSwitch
+		if (!bIsAuthor & !bIsDebug) || (bIsAuthor & !bIsDebug)
 		{ ;; public display
 			if script.config.settings.SoundAlertOnDebug
 			{
@@ -751,7 +755,7 @@ fCallBack_StatusBarMainWindow(Path:="")
 				
 			}
 		}
-		else if ((script.computername==script.authorID) || (!(script.computername==script.authorID) && script.config.settings.bDebugSwitch))
+		else if (!bIsAuthor & bIsDebug) || (bIsAuthor & bIsDebug)
 		{
 			if script.config.settings.SoundAlertOnDebug
 			{
@@ -1523,19 +1527,18 @@ fPopulateLVNew(Snippets,SectionNames,LibraryCount)
 
 f_RescaleLV(OverWriteShow:=false,SearchResultSort:=false)
 { ;; makes sure the ListView is correctly scaled. ;;TODO: change the order/settings here to hide 
-	if ((!(script.computername==script.authorID)) && !script.config.settings.bDebugSwitch) || ((script.computername==script.authorID) && !script.config.settings.bDebugSwitch)
+	bIsAuthor:=(script.computername==script.authorID)
+	bIsDebug:=script.config.settings.bDebugSwitch
+	if   (!bIsAuthor & !bIsDebug) || (bIsAuthor & !bIsDebug)
 	{
 		LV_ModifyCol(5,0)
 		, LV_ModifyCol(3,0)
 		, LV_ModifyCol(6,0) 
-		; , LV_ModifyCol(7,0) 
-		; , LV_ModifyCol(8,0) 
-		; , LV_ModifyCol(9,0) 
 		, LV_ModifyCol(7,"AutoHdr") 
 		, LV_ModifyCol(8,"AutoHdr") 
 		, LV_ModifyCol(9,"AutoHdr") 
 	}
-	if ((script.computername==script.authorID) || (!(script.computername==script.authorID) && script.config.settings.bDebugSwitch)) || OverWriteShow
+	if (!bIsAuthor && bIsDebug) || (bIsAuthor && bIsDebug) || OverWriteShow
 	{
 		LV_ModifyCol(5,"AutoHdr")
 		, LV_ModifyCol(3,"AutoHdr") 
@@ -1543,16 +1546,13 @@ f_RescaleLV(OverWriteShow:=false,SearchResultSort:=false)
 		, LV_ModifyCol(7,"AutoHdr") 
 		, LV_ModifyCol(9,"AutoHdr") 
 		, LV_ModifyCol(8,"AutoHdr") 
-
     	, LV_ModifyCol(10,"Left")
 		if !SearchResultSort
 			LV_ModifyCol(10,"Sort")
 		else
 			LV_ModifyCol(2,"Sort")
-	, LV_ModifyCol(10,"AutoHdr")
-
+		, LV_ModifyCol(10,"AutoHdr")
 	}
-	; , LV_ModifyCol(3,"AutoHdr")
 	LV_ModifyCol(4,"Right")
     , LV_ModifyCol(1,"AutoHdr")
 	, LV_ModifyCol(4,"AutoHdr")
@@ -1562,7 +1562,7 @@ f_RescaleLV(OverWriteShow:=false,SearchResultSort:=false)
 		LV_ModifyCol(10,"Sort")
 	else
 		LV_ModifyCol(2,"Sort")
-	LV_ModifyCol(9,"AutoHdr")
+	, LV_ModifyCol(9,"AutoHdr")
 	, LV_ModifyCol(10,"AutoHdr")
 
 }
@@ -1578,7 +1578,7 @@ f_FillFields(Code,Description,Example)
 }
 
 f_FindSectionName(ThisSec)
-{
+{ 
     return SectionNames[strsplit(ThisSec,".").1]
 }
 
