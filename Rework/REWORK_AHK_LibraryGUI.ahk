@@ -164,6 +164,7 @@ if !script.Load(,1)
 	, DateFormat:"dd.MM.yyyy"
 	, CopyDescriptionToOutput:true
 	, CopyExampleToOutput:true
+	, CopyMetadataToOutput:true
 	, LibraryRelativeSI:false
 	, ShowRedraw:false
 	, bDebugSwitch:false
@@ -179,6 +180,7 @@ if !script.Load(,1)
 	, DateFormat:"Set the format with which to display dates."
 	, CopyDescriptionToOutput:"Decide if you want to include the documentation when copying a snippet"
 	, CopyExampleToOutput:"Decide if you want to include the example when copying a snippet"
+	, CopyMetadataToOutput:"Decide if you want to include the metadata when copying a snippet"
 	, LibraryRelativeSI:"TODO:NOT IMPLEMENTED:Set SnippetIdentifier relative to its own library"
 	, ShowRedraw:"Display the redrawing of the LV-Control. Can reduce performance."
 	, bDebugSwitch:"Set to true to expose additional information helpful for debugging issues."
@@ -590,6 +592,60 @@ fCopyScript()
 		if script.config.Settings.CopyMetadataToOutput
 		{
 			;;;;TODO: add metadata to output, make it a properly formatted table.
+			Author:=Data.Metadata.Author
+			FormatTime, Date,% Data.Metadata.Date, % script.config.Settings.DateFormat
+			License:=Data.Metadata.License
+			Name:=Data.Metadata.Name
+			Section:=Data.Metadata.Section
+			URL:=Data.Metadata.URL
+			Version:=Data.Metadata.Version
+
+			SectionInd:=Data.Metadata.SectionInd
+			Library:=Data.Metadata.Library
+			KeyWords:=Data.Metadata.KeyWords
+			AHK_Version:=(Data.Metadata.AHK_Version!=""?Data.Metadata.AHK_Version:"/")
+			Dependencies:=(Data.Metadata.Dependencies!=""?Data.Metadata.Dependencies:"/")
+			LicenseLink:=Data.Metadata.LicenseLink
+			InfoText:=[]
+			if (Name!="")
+				InfoText.push("Snippet: " Name)
+			if (Version!="")
+				InfoText.push(" (v." Version ")`n")
+			else
+				InfoText.push("`n")
+			InfoText.push("--------------------------------------------------------------`n")
+			if (Author!="")
+				InfoText.push("Author: " Author "`n")
+			if (License!="")
+				InfoText.push("License: " License )
+			if (LicenseLink!="")
+				InfoText.push(" (" LicenseLink ")`n")
+			Else if (License!="")
+				InfoText.Push("`n")
+			if (URL!="")
+				InfoText.Push("URL: " Source)
+			if (Date!="") && (URL!="")
+				InfoText.Push("(" Date ")`n")
+			else if (URL!="")
+				InfoText.Push("`n")
+			if !Instr(InfoText[InfoText.MaxIndex()],"--------------------------------------------------------------")
+				InfoText.push("--------------------------------------------------------------`n")
+			InfoText.push("Library: "Library "`n")
+			InfoText.push("Section: "SectionInd " - " Section "`n")
+			if (Dependencies!="")
+				InfoText.push("Dependencies: " Dependencies "`n")
+			if (AHK_Version!="")
+				InfoText.push("AHK_Version: " AHK_Version "`n")
+			if !Instr(InfoText[InfoText.MaxIndex()],"--------------------------------------------------------------")
+				InfoText.push("--------------------------------------------------------------`n")
+			if (KeyWords!="")
+				InfoText.push("Keywords: " Keywords)
+			FinalInfoText:=""
+			for k,v in InfoText
+			{
+				FinalInfoText.= ((v!="`n")?", ":"") v
+			}
+			Code:=PrependTextBeforeString(Code,"; Metadata:`n" FinalInfoText)
 		}
 		if script.config.Settings.CopyExampleToOutput
 		{
@@ -597,7 +653,7 @@ fCopyScript()
 				Example:=ALG_TF_InsertPrefix(Matches[1,SelectedLVEntry.3].Example,1,, ";; ") ;; make sure the example is definitely a comment 
 			else if !Instr(SnippetsStructure[1,SelectedLVEntry.3].Example,"Error 01: No example-file was found under the expected path")
 				Example:=ALG_TF_InsertPrefix(SnippetsStructure[1,SelectedLVEntry.3].Example,1,, ";; ") ;; make sure the example is definitely a comment 
-			if (Example!="")
+			if (Example!="") && !Instr(Example, "Error 01: No example-file was found under the expected path") ;; make sure the contents are not appended if they are already loaded but still contain the error-string
 				Code:=PrependTextBeforeString(Code,";; Example:`n" Example)
 		}
 		else
@@ -606,7 +662,7 @@ fCopyScript()
 				Example:=ALG_TF_InsertPrefix(Matches[1,SelectedLVEntry.3].Example,1,, ";; ") ;; make sure the example is definitely a comment 
 			else if !Instr(SnippetsStructure[1,SelectedLVEntry.3].Example,"Error 01: No example-file was found under the expected path")
 				Example:=ALG_TF_InsertPrefix(SnippetsStructure[1,SelectedLVEntry.3].Example,1,, ";; ") ;; make sure the example is definitely a comment 
-			if (Example!="")
+			if (Example!="") && !Instr(Example, "Error 01: No example-file was found under the expected path") 
 				Code:=SnippetsStructure[1,SelectedLVEntry.3].Code
 		}
 		if script.config.Settings.CopyDescriptionToOutput
@@ -615,7 +671,7 @@ fCopyScript()
 				Description:=ALG_TF_InsertPrefix(Matches[1,SelectedLVEntry.3].Description,1,, ";;; ") ;; make sure the example is definitely a comment 
 			else if !Instr(SnippetsStructure[1,SelectedLVEntry.3].Description,"Error 01: No description-file was found under the expected path")
 				Description:=ALG_TF_InsertPrefix(SnippetsStructure[1,SelectedLVEntry.3].Description,1,, ";;; ") ;; make sure the example is definitely a comment 
-			if (Description!="")
+			if (Description!="") && !Instr(Description,"Error 01: No description-file was found under the expected path")
 				Code:=PrependTextBeforeString(Code,";;; Description:`n" Description)
 		}
 		else
@@ -624,7 +680,7 @@ fCopyScript()
 				Description:=ALG_TF_InsertPrefix(Matches[1,SelectedLVEntry.3].Description,1,, ";;; ") ;; make sure the example is definitely a comment 
 			else if !Instr(Matches[1,SelectedLVEntry.3].Description,"Error 01: No description-file was found under the expected path")
 				Description:=ALG_TF_InsertPrefix(SnippetsStructure[1,SelectedLVEntry.3].Description,1,, ";;; ") ;; make sure the example is definitely a comment 
-			if (Description!="")
+			if (Description!="") && !Instr(Description,"Error 01: No description-file was found under the expected path")	
 				Code:=SnippetsStructure[1,SelectedLVEntry.3].Code
 		}
 		Code:=ALG_st_Insert(";--uID:" SnippetsStructure[1,SelectedLVEntry.3].Metadata.Hash "`n",Code) . "`n" ;; prepend uID-token
