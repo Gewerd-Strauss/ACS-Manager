@@ -1,4 +1,4 @@
-WatchDirectory(p*) {  																			                                                                    	;-- Watches a directory/file for file changes
+﻿WatchDirectory(p*) {  																			                                                                    	;-- Watches a directory/file for file changes
 
     ;By HotKeyIt
     ;Docs: http://www.autohotkey.com/forum/viewtopic.php?p=398565#398565

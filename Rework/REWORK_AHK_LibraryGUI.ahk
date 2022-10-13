@@ -76,7 +76,6 @@ CodeTimer("")
 CurrentMode:="Instr"
 ; Add scriptObj-template and convert Code to use it - maybe, just a thought. Syntax of the Library-File is probably way too special for doing so, and there are no real configs to save anyways
 ; separate library-files and settings-files, take a peek at ahk-rare to see what they store in settings
-global CURRENTCALLINDEX:=0
 
 /*
 for creditsRaw, use "/" in the "URL"-field when the snippet is not published yet (e.g. for code you've written yourself and not published yet)
@@ -727,7 +726,6 @@ lEditSnippet: ;; I have no idea how to bind a function to a gui-button itself.
 return
 fEditSnippet(SnippetsStructure:="")
 {
-	global ;; figure out how to bind the contents properly so I can remove the global-code
 	gui,1: submit, NoHide
 	SelectedLVEntry:=f_GetSelectedLVEntries()
 	SearchStr:=fGetSearchFunctionsString()
@@ -740,10 +738,14 @@ fCallBack_StatusBarMainWindow(Path:="")
 {
 	; not implemented yet
 	gui, submit, NoHide
-	if (((A_GuiEvent="DoubleClick") && (A_EventInfo=4))) || (Path=1) ;; trigger About
-		script.About()
 	if ((A_GuiEvent="DoubleClick") && (A_EventInfo=5)) || (Path=5) ;; trigger Error
 		SB_SetText("Testing Error", 2)
+	if (((A_GuiEvent="DoubleClick") && (A_EventInfo=4))) || (Path=1) ;; trigger About
+		script.About()
+	if ((A_GuiEvent="DoubleClick") && (A_EventInfo=3)) || (Path=5) ;; trigger update
+	{
+		;; TODO: write update-routine for data-only into scriptobj.
+	}
 	if ((A_GuiEvent="DoubleClick") && (A_EventInfo=2)) || (Path=2) ;; toggle debug mode
 	{
 		script.config.settings.bDebugSwitch:= !script.config.settings.bDebugSwitch
@@ -955,7 +957,7 @@ f_CreateTrayMenu()
 }
 
 lCheckClipboardContents()
-{
+{ ;; todo: check clipboard-contents for contents
 	gui, 1: Submit, NoHide
 	return
 }
@@ -1392,36 +1394,36 @@ f_GetSelectedLVEntries(Number:="")
 			return [sel,vRowNum,sCurrText6]
 		}
 	}
-	Else
-	{
-		loop
-		{
-			vRowNum:=LV_GetNext(vRowNum)
-				; if not vRowNum  ; The above returned zero, so there are no more selected rows.
-					break
-		}
-			LV_GetText(sCurrText1,Number,1) ; SectionInd - SectionName
-			LV_GetText(sCurrText2,Number,2) ; Name
-			LV_GetText(sCurrText3,Number,3) ; Hash
-			LV_GetText(sCurrText4,Number,4) ; LibraryName
-			LV_GetText(sCurrText5,Number,5) ; LVIdentifier
-			LV_GetText(sCurrText6,Number,6) ; AdditionIndex
+	; Else
+	; {
+	; 	loop
+	; 	{
+	; 		vRowNum:=LV_GetNext(vRowNum)
+	; 			; if not vRowNum  ; The above returned zero, so there are no more selected rows.
+	; 				break
+	; 	}
+	; 		LV_GetText(sCurrText1,Number,1) ; SectionInd - SectionName
+	; 		LV_GetText(sCurrText2,Number,2) ; Name
+	; 		LV_GetText(sCurrText3,Number,3) ; Hash
+	; 		LV_GetText(sCurrText4,Number,4) ; LibraryName
+	; 		LV_GetText(sCurrText5,Number,5) ; LVIdentifier
+	; 		LV_GetText(sCurrText6,Number,6) ; AdditionIndex
 
-			LV_GetText(sCurrText7,Number,7) ; License
-			LV_GetText(sCurrText8,Number,8) ; Version
-			LV_GetText(sCurrText9,Number,9) ; Author
-			sel[(vRowNum=0?1:vRowNum)]:={SelectedEntrySection:sCurrText1
-			,SelectedEntryName:sCurrText2
-			,Hash:sCurrText3
-			,Library:sCurrText4
-			,SelectedEntrySnippetIdentifier:sCurrText5
-			,AdditionIndex:sCurrText6
-			,License:sCurrText7
-			,Version:sCurrText8
-			,Author:sCurrText9}
-			return [sel,(vRowNum=0?1:vRowNum),sCurrText6]
+	; 		LV_GetText(sCurrText7,Number,7) ; License
+	; 		LV_GetText(sCurrText8,Number,8) ; Version
+	; 		LV_GetText(sCurrText9,Number,9) ; Author
+	; 		sel[(vRowNum=0?1:vRowNum)]:={SelectedEntrySection:sCurrText1
+	; 		,SelectedEntryName:sCurrText2
+	; 		,Hash:sCurrText3
+	; 		,Library:sCurrText4
+	; 		,SelectedEntrySnippetIdentifier:sCurrText5
+	; 		,AdditionIndex:sCurrText6
+	; 		,License:sCurrText7
+	; 		,Version:sCurrText8
+	; 		,Author:sCurrText9}
+	; 		return [sel,(vRowNum=0?1:vRowNum),sCurrText6]
 
-	}
+	; }
 	; loop
 	; {
 

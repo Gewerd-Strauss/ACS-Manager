@@ -1,44 +1,4 @@
-WatchDirectory(WatchFolder="", WatchSubDirs=true) {					                                                                    	;-- it's different from above not tested
-
-	;--https://autohotkey.com/board/topic/41653-watchdirectory/page-2
-
-	/*				DESCRIPTION
-	;Parameters
-	; WatchFolder - Specify a valid path to watch for changes in.
-	; - can be directory or drive (e.g. c:\ or c:\Temp)
-	; - can be network path e.g. \\192.168.2.101\Shared)
-	; - can include last backslash. e.g. C:\Temp\ (will be reported same form)
-	;
-	; WatchSubDirs - Specify whether to search in subfolders
-	;
-	;StopWatching - THIS SHOULD BE DONE BEFORE EXITING SCRIPT AT LEAST (OnExit)
-	; Call WatchDirectory() without parameters to stop watching all directories
-	;
-	;ReportChanges
-	; Call WatchDirectory("ReportingFunctionName") to process registered changes.
-	; Syntax of ReportingFunctionName(Action,Folder,File)
-	*/
-
-	/*					EXAMPLE
-
-	#Persistent
-	OnExit,Exit
-	WatchDirectory("C:\Windows",1)
-	SetTimer,WatchFolder,100
-	Return
-	WatchFolder:
-	WatchDirectory("RegisterChanges")
-	Return
-	RegisterChanges(action,folder,file){
-	static
-	#1:="New File", #2:="Deleted", #3:="Modified", #4:="Renamed From", #5:="Renamed To"
-	ToolTip % #%Action% "`n" folder . (SubStr(folder,0)="" ? "" : "") . file
-	}
-	Exit:
-	WatchDirectory()
-	ExitApp
-
-	*/
+﻿WatchDirectory(WatchFolder="", WatchSubDirs=true) {					                                                                    	;-- it's different from above not tested
 
 	static
 	local hDir, hEvent, r, Action, FileNameLen, pFileName, Restart, CurrentFolder, PointerFNI, option
