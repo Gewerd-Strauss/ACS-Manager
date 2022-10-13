@@ -171,6 +171,7 @@ if !script.Load(,1)
 	, SoundAlertOnDebug:true
 	, bSetSearchresultAlphabetically:true
 	, Max_InDepth_Searchable:200
+	, DirectoryPath:A_ScriptDir "\Sources"
 	, bNotifyDependenciesOnCopy:false
 	, bShowOnStartup:false}
 	,Map2:Map,Search_Descriptions:{Search_Code:"Check if you want to search code of snippets as well. Adds substantial overhead at bootup."
@@ -186,13 +187,14 @@ if !script.Load(,1)
 	, bDebugSwitch:"Set to true to expose additional information helpful for debugging issues."
 	, SoundAlertOnDebug:"Set true/false if you want to get an audio-ping whenever entering/exiting debug mode. Recommended to be on as db-mode can alter how the program behaves."
 	, Max_InDepth_Searchable:"Set the maximum number of snippets for which the script will also search all previously loaded Codes, Descriptions and Examples.`nFor more snippets, these searches will not be performed to not reduce performance too much."
+	, DirectoryPath:"The path to search for snippets"
 	, bNotifyDependenciesOnCopy:"Notify user of dependencies when notifying a snippet." ;; potentially only when the dependency also exists within?
 	, bShowOnStartup:"Set whether or not to display the GUI on script startup or not."
 	, Map2:"The Map corresponding shorthand searchkeys with their longhand assignments within the metadata"}}
 	script.Save()
 }
 ; script.Version:=script.config.Settings.ScriptVersion
-global DirectoryPath:= A_ScriptDir "\Sources\*" ;; this is the path that contains all libraries which will be read.
+global DirectoryPath:= ((substr(script.config.settings.DirectoryPath,-1)!="\*")?script.config.settings.DirectoryPath "\*":script.config.settings.DirectoryPath) ;"*" ;; this is the path that contains all libraries which will be read.
 SnippetsStructure:=fLoadFolderLibraries(DirectoryPath)
 Clipboard:=""
 for k,v in SnippetsStructure[2]
