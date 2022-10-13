@@ -1,6 +1,5 @@
 ﻿GetSysErrorText(errNr) { 																						;-- method to get meaningful data out of the error codes
 
-	; http://www.autohotkey.com/forum/post-72230.html#72230 by PhiLho
   bufferSize = 1024 ; Arbitrary, should be large enough for most uses
   VarSetCapacity(buffer, bufferSize)
   DllCall("FormatMessage"

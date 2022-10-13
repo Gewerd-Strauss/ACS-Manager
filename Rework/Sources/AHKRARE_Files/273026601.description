@@ -1,0 +1,1 @@
+﻿write directly to stderr for custom error messages, formatted like normal error messages.

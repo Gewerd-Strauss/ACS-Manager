@@ -81,29 +81,28 @@ EditorImporter(Snippet:="",SnippetsStructure:="",ConvertingAHKRARE:=false)
     gui, add, edit, w%EditWidth% h%EditHeight% vvDesc_Importer, % (Snippet.Description!=""?snippet.Description:"Desc")
     gui, add, edit, w%EditWidth% h%EditHeight% vvEx_Importer, % (Snippet.Example!=""?Snippet.Example:"Ex")
     gui, add, text, y%SmallFieldsStart% xp, Name
-    gui, add, edit, yp xp+100 w120 h%SmallFieldsHeight% vvName_Importer, % snippet.metadata.name
+    gui, add, edit, yp xp+100 w180 h%SmallFieldsHeight% vvName_Importer, % snippet.metadata.name
     gui, add, text, yp+%SmallFieldsHeight%+5 xp-100, Author
-    gui, add, edit, yp xp+100 w120 h%SmallFieldsHeight% vvAuthor_Importer, % snippet.metadata.author
+    gui, add, edit, yp xp+100 w180 h%SmallFieldsHeight% vvAuthor_Importer, % snippet.metadata.author
     gui, add, text, yp+%SmallFieldsHeight%+5 xp-100, version
-    gui, add, edit, yp xp+100 w120 h%SmallFieldsHeight% vvVersion_Importer, % snippet.metadata.version
+    gui, add, edit, yp xp+100 w180 h%SmallFieldsHeight% vvVersion_Importer, % snippet.metadata.version
     gui, add, text, yp+%SmallFieldsHeight%+5 xp-100, Date
-    gui, add, edit, yp xp+100 w120 h%SmallFieldsHeight% vvDate_Importer, % Date
+    gui, add, edit, yp xp+100 w180 h%SmallFieldsHeight% vvDate_Importer, % Date
     gui, add, text, yp+%SmallFieldsHeight% xp-100, License
-    gui, add, ComboBox, yp xp+100 w120 r5 h%SmallFieldsHeight% vvLicense_Importer, % strreplace("MIT|BSD3|Unlicense|WTFPL|none|paste",snippet.metadata.License,snippet.metadata.License "|")
+    gui, add, ComboBox, yp xp+100 w180 r5 h%SmallFieldsHeight% vvLicense_Importer, % strreplace("MIT|BSD3|Unlicense|WTFPL|none|paste",snippet.metadata.License,snippet.metadata.License "|")
     gui, add, text, yp+%SmallFieldsHeight% xp-100, License URL
-    gui, add, edit, yp xp+100 w120 h%SmallFieldsHeight% vvLicenseURL_Importer, % snippet.metadata.licenseURL
+    gui, add, edit, yp xp+100 w180 h%SmallFieldsHeight% vvLicenseURL_Importer, % snippet.metadata.licenseURL
     
     gui, add, text, y%SmallFieldsStart% xp+200, Section
-    gui, add, ComboBox, yp xp+100 w120 r5 h%SmallFieldsHeight% vvSection_Importer, % FoundSection
+    gui, add, ComboBox, yp xp+100 w180 r5 h%SmallFieldsHeight% vvSection_Importer, % FoundSection
     gui, add, text, yp+%SmallFieldsHeight%+5 xp-100, Source URL
-    gui, add, edit, yp xp+100 w120 h%SmallFieldsHeight% vvURL_Importer, % snippet.metadata.URL
+    gui, add, edit, yp xp+100 w180 h%SmallFieldsHeight% vvURL_Importer, % snippet.metadata.URL
     gui, add, text, yp+%SmallFieldsHeight%+5 xp-100, Library
     
     Ind:=0
         loop, files, % DirectoryPath, D
         {
             Ind++
-            ;; todo: make this load from a path in script.settings.path, including scriptObj
             SplitPath,% A_LoopFileFullPath,OutName, OutDir
             OutName:=strsplit(OutName,"\")[strsplit(OutName,"\").MaxIndex()]
             str.=OutName "|" 
@@ -111,29 +110,29 @@ EditorImporter(Snippet:="",SnippetsStructure:="",ConvertingAHKRARE:=false)
                 str.="|"
         }
         libstr:=strreplace(strreplace(str,"||","|"),snippet.metadata.Library,snippet.metadata.Library "|")
-        gui, add, ComboBox, yp xp+100 w120 h%SmallFieldsHeight% R100 vvLibrary_Importer,% libstr
+        gui, add, ComboBox, yp xp+100 w180 h%SmallFieldsHeight% R100 vvLibrary_Importer,% libstr
 
     gui, add, text, yp+%SmallFieldsHeight%+5 xp-100, Dependencies
-    gui, add, edit, yp xp+100 w120 h%SmallFieldsHeight% vvDependencies_Importer, % snippet.metadata.dependencies
+    gui, add, edit, yp xp+100 w180 h%SmallFieldsHeight% vvDependencies_Importer, % snippet.metadata.dependencies
     gui, add, text, yp+%SmallFieldsHeight%+5 xp-100, AHK-Version
-    gui, add, edit, yp xp+100 w120 h%SmallFieldsHeight% vvAHK_Version_Importer, % snippet.metadata.AHK_Version
+    gui, add, edit, yp xp+100 w180 h%SmallFieldsHeight% vvAHK_Version_Importer, % snippet.metadata.AHK_Version
     gui, add, text, yp+%SmallFieldsHeight%+5 xp-100, Keywords   
-    gui, add, edit, yp xp+100 w120 h%SmallFieldsHeight% vvKeywords_Importer, % snippet.metadata.KeyWords
+    gui, add, edit, yp xp+100 w180 h%SmallFieldsHeight% vvKeywords_Importer, % snippet.metadata.KeyWords
     ; gui, add, text, yp+%SmallFieldsHeight%+5 xp-300, Date
-    ; gui, add, edit, yp xp+300 w120 h%SmallFieldsHeight% vvDate_Importer2, % Date
+    ; gui, add, edit, yp xp+300 w180 h%SmallFieldsHeight% vvDate_Importer2, % Date
     ; gui, add, text, yp+24 xp-300, License
-    ; gui, add, ComboBox, yp xp+300 w120 r5 h%SmallFieldsHeight% vvLicense_Importer2, % strreplace("MIT|BSD3|Unlicense|WTFPL|none|paste",snippet.metadata.License,snippet.metadata.License "|")
+    ; gui, add, ComboBox, yp xp+300 w180 r5 h%SmallFieldsHeight% vvLicense_Importer2, % strreplace("MIT|BSD3|Unlicense|WTFPL|none|paste",snippet.metadata.License,snippet.metadata.License "|")
     ; gui, add, text, yp+%SmallFieldsHeight%+5 xp-300, Section
-    ; gui, add, ComboBox, yp xp+300 w120 r5 h%SmallFieldsHeight% vvSection_Importer2, % FoundSection
+    ; gui, add, ComboBox, yp xp+300 w180 r5 h%SmallFieldsHeight% vvSection_Importer2, % FoundSection
     ; gui, add, text, yp+%SmallFieldsHeight%+5 xp-300, URL
-    ; gui, add, edit, yp xp+300 w120 h%SmallFieldsHeight% vvURL_Importer2, % snippet.metadata.URL
+    ; gui, add, edit, yp xp+300 w180 h%SmallFieldsHeight% vvURL_Importer2, % snippet.metadata.URL
     ; gui, add, text, yp+%SmallFieldsHeight%+5 xp-300, Library
     
     EditWidth2:=EditWidth-220-110
     gui, add, text, yp-195 xp+150, % ""
     ; Obj_SubmitImporter:=Func("fSubmitImporter").Bind(Desc, Ex, vSnippet_Importer, vDesc_Importer, vEx_Importer, SubmissionObj.Name, vAuthor_Importer, vVersion_Importer, vDate_Importer, vLicense_Importer, vSection_Importer, vURL_Importer, vLibrary_Importer, vLicense_ImporterInsert)
     
-    gui, add, button, y%SmallFieldsStart% xp+200 h%SmallFieldsHeight% glSubmitImporter, % bIsEditing?"Edit":"Ingest"
+    gui, add, button, y%SmallFieldsStart% xp+200 h%SmallFieldsHeight% glSubmitImporter, % bIsEditing?"&Edit":"&Ingest"
     gui, add, button, yp+30 xp h%SmallFieldsHeight% glOpenSnippetInFolder, % "Open in folder"
     gui, add, button, yp+30 xp h%SmallFieldsHeight% glDelete, % "Delete"
     ; gui, add, edit, y%SmallFieldsStart% xp+80 w%EditWidth2% h%LicenseFieldsHeight% r12  vvLicense_ImporterInsert, %  bIsEditing?"[[Insert License if not found in DDL]]":"[[Insert License if not found in DDL]]"

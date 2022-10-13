@@ -1,4 +1,4 @@
-;To derive a dark / light shade of red
+﻿;To derive a dark / light shade of red
 	darkRed	:= ColorAdjL(  70, 0xFF0000 )
 	liteRed 	:= ColorAdjL( 235, 0xFF0000 )
 ;To derive a random ( but matching ) dark / light shade

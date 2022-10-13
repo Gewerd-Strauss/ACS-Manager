@@ -125,7 +125,7 @@ CrtDate:=SubStr(CrtDate,7,  2) "." SubStr(CrtDate,5,2) "." SubStr(CrtDate,1,4)
                     ,resfolder    : A_ScriptDir "\res"
                     ,iconfile	  : A_ScriptDir "\res\sct.ico"
 					,reqInternet  : false
-					,rfile  	  : "https://github.com/Gewerd-Strauss/AHK-Code-Snippets/archive/refs/heads/Speed-Test.zip"
+					,rfile  	  : "https://github.com/Gewerd-Strauss/AHK-Code-Snippets/archive/refs/heads/Rework-Separated-Code-&-Metadata.zip"
 					,vfile_raw	  : "https://raw.githubusercontent.com/Gewerd-Strauss/AHK-Code-Snippets/Speed-Test/version.ini" 
 					,vfile 		  : "https://raw.githubusercontent.com/Gewerd-Strauss/AHK-Code-Snippets/Speed-Test/version.ini" 
 					,vfile_local  : A_ScriptDir "\version.ini" 
@@ -139,7 +139,7 @@ CrtDate:=SubStr(CrtDate,7,  2) "." SubStr(CrtDate,5,2) "." SubStr(CrtDate,1,4)
 , global bSearchSnippets:=false
 FileGetVersion, Version, %A_ProgramFiles%\AutoHotkey\AutoHotkey.exe
 ; m(A_AhkVersion,Version)
-FileDelete, % script.configfile ;; for testing purposes and keeping the settings updated when adding/changing keys
+; FileDelete, % script.configfile ;; for testing purposes and keeping the settings updated when adding/changing keys
 if !script.Load(,1) 
 { ;; default settings
 	Map:={AU:"Author" ;; For fetching data from 'Matches', the presorted object 
@@ -428,8 +428,8 @@ lGUICreate_1New: ;; Fully Parametric-form, TODO: functionalise this thing
 		gui, tab
 
 		gui, add, statusbar, -Theme vStatusBarMainWindow  gfCallBack_StatusBarMainWindow ; finish up statusbar - settings, updating library/adding additional libraries
+		SB_SetParts(370,273,70,80,500)
 
-		SB_SetParts(370,273,70,80)
 		bIsAuthor:=(script.computername==script.authorID)
 		bIsDebug:=script.config.settings.bDebugSwitch
 		if (!bIsAuthor & !bIsDebug) || (bIsAuthor & !bIsDebug)
@@ -452,7 +452,7 @@ lGUICreate_1New: ;; Fully Parametric-form, TODO: functionalise this thing
 		else
 			SB_SetText("Errors:/",5)
 		SB_SetText("About this script",4)
-		SB_SetText("NE:Update Script",3)
+		SB_SetText("NE:Settings",3)
 		if script.config.settings.bShowOnStartup
 			fGuiShow_1(vGUIWidth,vGUIHeight,GuiNameMain)
         Hotkey, IfWinActive, % "ahk_id " MainGUI
@@ -506,7 +506,6 @@ Func1(Param1)
 	MsgBox, % Param1
 	return
 }
-
 
 fPrePopulateLV(SnippetsStructure)
 {
@@ -819,8 +818,25 @@ fLoadFillDetails()
 		return
 	if (Code="") || Instr(Code,"Error 01: File '")
 	{
+		bIsAuthor:=(script.computername==script.authorID)
+		bIsDebug:=script.config.settings.bDebugSwitch
 		if FileExist(Path ".ahk")
+		{
 			FileRead, Code, % Path ".ahk"
+			if (Code!="")
+				LoadedCount:=(LoadedCount=""?1:LoadedCount+1)
+			if (!bIsAuthor && bIsDebug) || (bIsAuthor && bIsDebug)
+			{
+				MessageString:="DB - Codes Loaded: " fPadIndex(LoadedCount,SnippetsStructure[5]) "/" SnippetsStructure[5]  ":Last: " Data["Metadata"].Name
+				SB_SetText(MessageString,6) 
+			}
+			else
+			{
+				MessageString:="S:" fPadIndex(LoadedCount,SnippetsStructure[5]) "/" SnippetsStructure[5] ;", L:" SnippetsStructure[3]
+				SB_SetText(MessageString,6) 
+			}
+
+		}
 		else
 		{
 			str:=strreplace(Path,Data["Metadata","Hash"],Data["Metadata","Name"])

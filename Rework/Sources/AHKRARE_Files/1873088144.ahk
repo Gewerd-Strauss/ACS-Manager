@@ -1,4 +1,4 @@
-ProcessPriority(PID:="", PS:="") {                                                                                  	;-- Useful inside a library function to save/set/reset script's Process priority
+﻿ProcessPriority(PID:="", PS:="") {                                                                                  	;-- Useful inside a library function to save/set/reset script's Process priority
 	Local hProc, PG:=0, PROCESS_QUERY_INFORMATION:=0x0400
 	  Process, Exist, %PID%
 	  If ! ( Errorlevel := ! (PID:=ErrorLevel) )

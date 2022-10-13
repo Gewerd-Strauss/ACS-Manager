@@ -1,0 +1,3 @@
+﻿Hash:=Object_HashmapHash("Key1")
+Hash2:=Object_HashmapHash("key1")
+msgbox, % (Hash==Hash2)
