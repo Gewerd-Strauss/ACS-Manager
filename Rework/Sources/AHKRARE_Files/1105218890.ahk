@@ -1,4 +1,4 @@
-CopyMemory(ByRef Destination, Source, Bytes) {                                                       	;-- Copy a block of memory from one place to another
+﻿CopyMemory(ByRef Destination, Source, Bytes) {                                                       	;-- Copy a block of memory from one place to another
 	/*                              	DESCRIPTION
 
 			Syntax: CopyMemory[ [destination], [source], [bytes] )

@@ -129,6 +129,7 @@ CrtDate:=SubStr(CrtDate,7,  2) "." SubStr(CrtDate,5,2) "." SubStr(CrtDate,1,4)
 					,vfile_raw	  : "https://raw.githubusercontent.com/Gewerd-Strauss/AHK-Code-Snippets/Speed-Test/version.ini" 
 					,vfile 		  : "https://raw.githubusercontent.com/Gewerd-Strauss/AHK-Code-Snippets/Speed-Test/version.ini" 
 					,vfile_local  : A_ScriptDir "\version.ini" 
+					,DataFolder:	A_ScriptDir "\Sources"
                     ,ErrorCache	  :	[]
                     ,config		  :	[]
 					,configfile   : A_ScriptDir "\INI-Files\" regexreplace(A_ScriptName, "\.\w+") ".ini"
@@ -142,60 +143,119 @@ FileGetVersion, Version, %A_ProgramFiles%\AutoHotkey\AutoHotkey.exe
 FileDelete, % script.configfile ;; for testing purposes and keeping the settings updated when adding/changing keys
 if !script.Load(,1) 
 { ;; default settings
-	Map:={AU:"Author" ;; For fetching data from 'Matches', the presorted object 
-		,DA:"Date"
-		,Dep:"Dependencies"
-		,Fi:"Library"
-		,Ha:"Hash"
-		,Key:"Keywords"
-		,Li:"License"
-		,Lic:"License"
-		,Na:"Name"
-		,Se:"Section"
-		,Sec:"Section"
-		,Url:"URL"
-		,Ver:"Version"		}
-	AHKVERSION:={AHK_Classic:"v1"
-		,L:"v1.1"
-		,v2:"v2"
-		,H:"vH"} 
-	script.config:={Settings:{Search_Code: false ;" " ";Check if you want to search code of snippets as well. Adds substantial overhead at bootup."
-	, Search_Description:false
-	, Search_Examples:false
-	, Search_InString_MetaFields:true
-	, DateFormat:"dd.MM.yyyy"
-	, CopyDescriptionToOutput:true
-	, CopyExampleToOutput:true
-	, CopyMetadataToOutput:true
-	, LibraryRelativeSI:false
-	, ShowRedraw:false
-	, bDebugSwitch:false
-	, SoundAlertOnDebug:true
-	, bSetSearchresultAlphabetically:true
-	, Max_InDepth_Searchable:200
-	, DirectoryPath:A_ScriptDir "\Sources"
-	, bNotifyDependenciesOnCopy:false
-	, bShowOnStartup:false}
-	,Map2:Map,Search_Descriptions:{Search_Code:"Check if you want to search code of snippets as well. Adds substantial overhead at bootup."
-    , Search_Description:"Check if you want to search descriptions of snippets as well. Adds substantial overhead at bootup."
-	, Search_Examples:"Check if you want to search examples of snippets as well. Adds substantial overhead at bootup."
-	, Search_InString_MetaFields:"Check if you want to search via In-String-matching in Metadata, instead of only allowing exact matches"
-	, DateFormat:"Set the format with which to display dates."
-	, CopyDescriptionToOutput:"Decide if you want to include the documentation when copying a snippet"
-	, CopyExampleToOutput:"Decide if you want to include the example when copying a snippet"
-	, CopyMetadataToOutput:"Decide if you want to include the metadata when copying a snippet"
-	, LibraryRelativeSI:"TODO:NOT IMPLEMENTED:Set SnippetIdentifier relative to its own library"
-	, ShowRedraw:"Display the redrawing of the LV-Control. Can reduce performance."
-	, bDebugSwitch:"Set to true to expose additional information helpful for debugging issues."
-	, SoundAlertOnDebug:"Set true/false if you want to get an audio-ping whenever entering/exiting debug mode. Recommended to be on as db-mode can alter how the program behaves."
-	, Max_InDepth_Searchable:"Set the maximum number of snippets for which the script will also search all previously loaded Codes, Descriptions and Examples.`nFor more snippets, these searches will not be performed to not reduce performance too much."
-	, DirectoryPath:"The path to search for snippets"
-	, bNotifyDependenciesOnCopy:"Notify user of dependencies when notifying a snippet." ;; potentially only when the dependency also exists within?
-	, bShowOnStartup:"Set whether or not to display the GUI on script startup or not."
-	, Map2:"The Map corresponding shorthand searchkeys with their longhand assignments within the metadata"}}
-	script.Save()
+	str=
+	(LTRIM
+
+[Map2]
+;Map2 Hidden:
+AU=Author
+DA=Date
+Dep=Dependencies
+Fi=Library
+Key=Keywords
+Li=License
+Lic=License
+Na=Name
+Ha=Hash
+Se=Section
+Sec=Section
+Url=URL
+Ver=Version
+[Settings]
+bDebugSwitch=0
+;bDebugSwitch Do you want to enter debug mode when starting up the script? Debug mode can be entered by pressing Ctrl+T while the GUI is active. NOT IMPLEMENTED:This can be useful for debugging issues with the startup routine.
+;bDebugSwitch Type: Checkbox 
+;bDebugSwitch CheckboxName: Enable Debugmode on startup?
+;bDebugSwitch Default: 0
+bNotifyDependenciesOnCopy=0
+;bNotifyDependenciesOnCopy Notify user of dependencies when notifying a snippet.
+;bNotifyDependenciesOnCopy Type: Checkbox 
+;bNotifyDependenciesOnCopy CheckboxName: Notify user of existing dependencies?
+;bNotifyDependenciesOnCopy Default:0
+;bNotifyDependenciesOnCopy Hidden:
+bShowOnStartup=0
+;bShowOnStartup Set whether or not to display the GUI on script startup or not.
+;bShowOnStartup Type: Checkbox 
+;bShowOnStartup Default: 0
+;bShowOnStartup CheckboxName: Show GUI on script-startup?
+CopyDescriptionToOutput=1
+;CopyDescriptionToOutput When checked, the contents of the "Description"-Editfield are added when copying the snippet to the clipboard
+;CopyDescriptionToOutput Type: Checkbox 
+;CopyDescriptionToOutput Default: 1
+;CopyDescriptionToOutput CheckboxName: Copy Description?
+CopyExampleToOutput=1
+;CopyExampleToOutput When checked, the contents of the "Example"-Editfield are added when copying the snippet to the clipboard
+;CopyExampleToOutput Type: Checkbox 
+;CopyExampleToOutput Default: 1
+;CopyExampleToOutput CheckboxName: Copy Example?
+CopyMetadataToOutput=1
+;CopyMetadataToOutput When checked, the Metadata of the snippet is added when copying the snippet to the clipboard
+;CopyMetadataToOutput Type: Checkbox 
+;CopyMetadataToOutput CheckboxName: Copy Metadata?
+;CopyMetadataToOutput Default: 1
+DateFormat=dd.MM.yyyy
+;DateFormat Set the format with which to display dates.
+;DateFormat Type: Text 
+;DateFormat Default: dd.MM.yyyy
+DirectoryPath=A_ScriptDir\Sources
+;DirectoryPath Set the folder to be loaded. The names of the firstlevel-subfolder will be the name of the "Library" within the script.
+;DirectoryPath Type: Folder
+;DirectoryPath Default: A_ScriptDir "\Sources"
+LibraryRelativeSI=0
+;LibraryRelativeSI When checked, the SnippetIndex displayed in the GUI will be relative to the library said snippet is in, and not relative to the section overall.
+;LibraryRelativeSI Type: Checkbox
+;LibraryRelativeSI Default: 0
+;LibraryRelativeSI Hidden:
+Max_InDepth_Searchable=200
+;Max_InDepth_Searchable Set the maximum number of snippets to be searched. DEPRECATED
+;Max_InDepth_Searchable Type: Number
+;Max_InDepth_Searchable Type: Hidden:
+Search_Code=0
+;Search_Code Do you want to search within already loaded code, although it will be MUCH slower?`nThis does not affect unloaded snippets - they cannot be searched.
+;Search_Code Type: Checkbox
+;Search_Code CheckboxName: Search in loaded Code?
+;Search_Code Default: 0
+Search_Description=0
+;Search_Description Do you want to search within already loaded Descriptions, although it will be MUCH slower?`nThis does not affect unloaded snippets - they cannot be searched.
+;Search_Description Type: Checkbox
+;Search_Description CheckboxName: Search in loaded Descriptions?
+;Search_Description Default: 0
+Search_Examples=0
+;Search_Examples Do you want to search within already loaded Examples, although it will be MUCH slower?`nThis does not affect unloaded snippets - they cannot be searched.
+;Search_Examples Type: Checkbox
+;Search_Examples CheckboxName: Search in loaded Examples?
+;Search_Examples Default: 0
+Search_InString_MetaFields=1
+;Search_InString_MetaFields Do you want to use InString instead of FullString-matching when searching within metadata-fields?
+;Search_InString_MetaFields Type: Checkbox
+;Search_InString_MetaFields CheckboxName: Use InStr()-Metadatasearch?
+;Search_InString_MetaFields Default: 1
+ShowRedraw=0
+;ShowRedraw Do you want to display the Listview redrawing itself when searching?
+;ShowRedraw Disable this if performance while doing so is too harsh
+;ShowRedraw Type: Checkbox
+;Search_InString_MetaFields CheckboxName: Use InStr()-Metadatasearch?
+;ShowRedraw Default: 0
+bSetSearchresultAlphabetically=1
+;bSetSearchresultAlphabetically Do you want to sort searchresults alphabetically or by section and snippet identifier? This only affects searchresults.
+;bSetSearchresultAlphabetically Type: Checkbox
+;bSetSearchresultAlphabetically CheckboxName: Sort Searchresults alphabetically?
+SoundAlertOnDebug=1
+;SoundAlertOnDebug Type: Text 
+	)
+	
+	FileAppend, % str,% script.configfile
+	script.Load(,1)
 }
+if script.config.settings.bShowLoadUp
+{
+	script.config.settings.bShowOnStartup:=true
+	script.config.settings.ShowRedraw:=true
+
+}
+
 ; script.Version:=script.config.Settings.ScriptVersion
+script.config.Settings.DirectoryPath:=strreplace(script.config.Settings.DirectoryPath,"A_ScriptDir",A_ScriptDir)
 global DirectoryPath:= ((substr(script.config.settings.DirectoryPath,-1)!="\*")?script.config.settings.DirectoryPath "\*":script.config.settings.DirectoryPath) ;"*" ;; this is the path that contains all libraries which will be read.
 SnippetsStructure:=fLoadFolderLibraries(DirectoryPath)
 Clipboard:=""
@@ -625,7 +685,15 @@ fCopyScript()
 			{
 					InfoText.push("License: " License "`n")
 				if (licenseURL!="")
+				{
 					InfoText.Push("LicenseURL:  " LicenseURL "`n")
+					if IsConnected(Data.Metadata.LicenseURL)
+					{
+						RAWLicenseURL:=StrReplace(Data.Metadata.LicenseURL,"github.com","raw.githubusercontent.com")
+						RAWLicenseURL:=StrReplace(RAWLicenseURL,"blob/","")
+						Data.License:=URLDownloadToVar(RAWLicenseURL)
+					}
+				}
 			}
 			; else
 			; {
@@ -655,6 +723,8 @@ fCopyScript()
 			for k,v in InfoText
 				FinalInfoText.="; " v
 			Code:=PrependTextBeforeString(Code,"; Metadata:`n" FinalInfoText)
+			if script.config.Settings.CopyLicenseToOutput
+				Code:=PrependTextBeforeString(Data.License,Code)
 		}
 		if script.config.Settings.CopyExampleToOutput
 		{
@@ -830,12 +900,12 @@ fLoadFillDetails()
 				LoadedCount:=(LoadedCount=""?1:LoadedCount+1)
 			if (!bIsAuthor && bIsDebug) || (bIsAuthor && bIsDebug)
 			{
-				MessageString:="DB - Codes Loaded: " fPadIndex(LoadedCount,SnippetsStructure[5]) "/" SnippetsStructure[5]  ":Last: " Data["Metadata"].Name
+				MessageString:="DB - Libraries Loaded:" SnippetsStructure[3]  " Codes Loaded: " fPadIndex(LoadedCount,SnippetsStructure[5]) "/" SnippetsStructure[5]  ":Last: " Data["Metadata"].Name
 				SB_SetText(MessageString,6) 
 			}
 			else
 			{
-				MessageString:="S:" fPadIndex(LoadedCount,SnippetsStructure[5]) "/" SnippetsStructure[5] ;", L:" SnippetsStructure[3]
+				MessageString:="L:" SnippetsStructure[3] " S:" fPadIndex(LoadedCount,SnippetsStructure[5]) "/" SnippetsStructure[5] 
 				SB_SetText(MessageString,6) 
 			}
 
@@ -1391,7 +1461,6 @@ f_GetSelectedLVEntries(Number:="")
 			vRowNum:=LV_GetNext(vRowNum)
 			if not vRowNum  ; The above returned zero, so there are no more selected rows.
 				break
-				; LV_Add("-E0x200",		Addition.LVSection,		Addition.Name,		Addition.Hash,		Addition.LibraryName,		Addition.LVIdentifier		)
 			LV_GetText(sCurrText1,vRowNum,1) ; SectionInd - SectionName
 			LV_GetText(sCurrText2,vRowNum,2) ; Name
 			LV_GetText(sCurrText3,vRowNum,3) ; Hash
@@ -1550,6 +1619,12 @@ fPopulateLVNew(Snippets,SectionNames,LibraryCount)
 		, Addition.Version
 		, Addition.Author
 		, Addition.LVIdentifier                 )
+		if script.config.settings.bShowLoadUp
+		{
+			guicontrol,,vSearchFunctions,% "Loading Snippet " k "/" Snippets.count() ":" Addition.Name ;" LibraryCount  ((LibraryCount>1)?" libraries":" library")
+			; sleep, 5
+		}
+	; m()
 	}
 	; m(d,Snippets.Count())
 	guicontrol,,vSearchFunctions,% Snippets.count() " snippets loaded from " LibraryCount  ((LibraryCount>1)?" libraries":" library")
@@ -2837,8 +2912,47 @@ ALG_TF_CountLines(Text)
 	}
 
 
+;--uID:754475711
+; Metadata:
+; Snippet: URLDownloadtoVar;  (v.1.0)
+; --------------------------------------------------------------
+; Author: maestrith
+; License: none
+; Source: https://www.autohotkey.com/boards/viewtopic.php?t=3291
+; 
+; --------------------------------------------------------------
+; Library: AHKRARE_Files
+; Section: 12 - Internet/Network
+; Dependencies: /
+; AHK_Version: /
+; --------------------------------------------------------------
+; Keywords: URL,
+
+URLDownloadToVar(url,ByRef variable="")
+{
+	hObject:=ComObjCreate("WinHttp.WinHttpRequest.5.1")
+	hObject.Open("GET",url)
+	hObject.Send()
+	return variable:=hObject.ResponseText
+}
+;--uID:754475711
 
 
+;--uID:1993173571
+; Metadata:
+; Snippet: IsConnected()
+; --------------------------------------------------------------
+; Library: AHKRARE_Files
+; Section: 12 - Internet/Network
+; Dependencies: /
+; AHK_Version: /
+; --------------------------------------------------------------
+
+
+IsConnected(URL="https://autohotkey.com/boards/") {                            	;-- Returns true if there is an available internet connection
+	return DllCall("Wininet.dll\InternetCheckConnection", "Str", URL,"UInt", 1, "UInt",0, "UInt")
+}
+;--uID:1993173571
 
 
 

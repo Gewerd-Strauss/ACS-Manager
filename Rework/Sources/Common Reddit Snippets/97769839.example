@@ -1,0 +1,4 @@
+﻿F1::
+WindowToggle:=InvertBool(ObsidianTogglePanes)
+SendInput,% "{" (WindowToggle?"F24":"F23") "}"
+return
