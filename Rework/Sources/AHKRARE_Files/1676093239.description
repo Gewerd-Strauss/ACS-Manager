@@ -1,6 +1,7 @@
-AddToolTip(ID="",TEXT="",TITLE="",OPTIONS="") {                                                        	;-- add ToolTips to controls - Advanced ToolTip features + Unicode
-	/*					DESCRIPTION
-ToolTip() by HotKeyIt http://www.autohotkey.com/forum/viewtopic.php?t=40165
+﻿add ToolTips to controls - Advanced ToolTip features + Unicode
+
+/*					DESCRIPTION
+ToolTip() by HotKeyIt 
 
 Syntax: ToolTip(Number,Text,Title,Options)
 
@@ -94,96 +95,3 @@ Return Value: ToolTip returns hWnd of the ToolTip
 |  			      If you use 1 ToolTip for several controls, the only difference between those can be the text.
 |  			         - Other options, like Title, color and so on, will be valid globally
 */
-
-static
-local option,a,b,c,d,e,f,g,h,i,k,l,m,n,o,p,q,r,s,t,v,w,x,y,xc,yc,xw,yw,RECT,_DetectHiddenWindows,OnMessage
-If !Init
-Gosub, TTM_INIT
-OnMessage:=OnMessage(0x4e,"") ,_DetectHiddenWindows:=A_DetectHiddenWindows
-DetectHiddenWindows, On
-If !ID
-{
-If text
-If text is Xdigit
-GoTo, TTN_LINKCLICK
-Loop, Parse, hWndArray, % Chr(2) ;Destroy all ToolTip Windows
-{
-If WinExist("ahk_id " . A_LoopField)
-DllCall("DestroyWindow","Uint",A_LoopField)
-hWndArray%A_LoopField%=
-}
-hWndArray=
-Loop, Parse, idArray, % Chr(2) ;Destroy all ToolTip Structures
-{
-TT_ID:=A_LoopField
-If TT_ALL_%TT_ID%
-Gosub, TT_DESTROY
-}
-idArray=
-Goto, TT_EXITFUNC
-}
-
-TT_ID:=ID
-TT_HWND:=TT_HWND_%TT_ID%
-
-;___________________  Load Options Variables and Structures ___________________
-
-If (options) {
-Loop,Parse,options,%A_Space%
-If (option:= SubStr(A_LoopField,1,1))
-%option%:= SubStr(A_LoopField,2)
-}
-If (G) {
-If (Title!="") {
-                        Gosub, TTM_SETTITLE
-Gosub, TTM_UPDATE
-}
-If (Text!="") {
-If (A!="")
-ID:=A
-If (InStr(text,"<a") and L){
-TOOLTEXT_%TT_ID%:=text
-text:=RegExReplace(text,"<a\K[^<]*?>",">")
-} else
-TOOLTEXT_%TT_ID%:=
-NumPut(&text,TOOLINFO_%ID%,36)
-Gosub, TTM_UPDATETIPTEXT
-}
-Loop, Parse,G,.
-If IsLabel(A_LoopField)
-Gosub, %A_LoopField%
-Sleep,10
-    Goto, TT_EXITFUNC
-}
-;__________________________  Save TOOLINFO Structures _________________________
-
-If P {
-If (p<100 and !WinExist("ahk_id " p)){
-Gui,%p%:+LastFound
-P:=WinExist()
-}
-If !InStr(TT_ALL_%TT_ID%,Chr(2) . Abs(P) . Chr(2))
-TT_ALL_%TT_ID%  .= Chr(2) . Abs(P) . Chr(2)
-}
-If !InStr(TT_ALL_%TT_ID%,Chr(2) . ID . Chr(2))
-TT_ALL_%TT_ID%  .= Chr(2) . ID . Chr(2)
-If H
-TT_HIDE_%TT_ID%:=1
-;__________________________  Create ToolTip Window  __________________________
-
-If (!TT_HWND and text) {
-TT_HWND := DllCall("CreateWindowEx", "Uint", 0x8, "str", "tooltips_class32", "str", "", "Uint", 0x02 + (v ? 0x1 : 0) + (l ? 0x100 : 0) + (C ? 0x80 : 0)+(O ? 0x40 : 0), "int", 0x80000000, "int", 0x80000000, "int", 0x80000000, "int", 0x80000000, "Uint", P ? P : 0, "Uint", 0, "Uint", 0, "Uint", 0)
-TT_HWND_%TT_ID%:=TT_HWND
-hWndArray .=(hWndArray ? Chr(2) : "") . TT_HWND
-idArray .=(idArray ? Chr(2) : "") . TT_ID
-Gosub, TTM_SETMAXTIPWIDTH
-DllCall("SendMessage", "Uint", TT_HWND, "Uint", 0x403, "Uint", 2, "Uint", (D ? D*1000 : -1)) ;TTDT_AUTOPOP
-DllCall("SendMessage", "Uint", TT_HWND, "Uint", 0x403, "Uint", 3, "Uint", (W ? W*1000 : -1)) ;TTDT_INITIAL
-DllCall("SendMessage", "Uint", TT_HWND, "Uint", 0x403, "Uint", 1, "Uint", (W ? W*1000 : -1)) ;TTDT_RESHOW
-} else if (!text and !options){
-DllCall("DestroyWindow","Uint",TT_HWND)
-Gosub, TT_DESTROY
-GoTo, TT_EXITFUNC
-}
-
-;______________________  Create TOOLINFO Structure  __

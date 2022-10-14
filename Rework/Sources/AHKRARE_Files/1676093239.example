@@ -1,4 +1,4 @@
-OnMessage(0x4e,"WM_NOTIFY") ;Will make LinkClick and ToolTipClose possible
+ï»¿OnMessage(0x4e,"WM_NOTIFY") ;Will make LinkClick and ToolTipClose possible
 OnMessage(0x404,"AHK_NotifyTrayIcon") ;Will pop up the ToolTip when you click on Tray Icon
 OnExit, ExitApp
 NoEnv
@@ -22,7 +22,7 @@ ToolTip(98,"<a http://www.autohotkey.com >AutoHotKEY>/a> - <a http://de.autohotk
 . " - <a http://lukewarm.s101.xrea.com/>JP</a>"
 . " - <a http://lukewarm.s101.xrea.com/>GR</a>"
 . " - <a http://www.autohotkey.com/docs/Tutorial-Portuguese.html>PT</a>"
-. " - <a http://cafe.naver.com/AutoHotKèy>KR</a>"
+. " - <a http://cafe.naver.com/AutoHotKï¿½y>KR</a>"
 . " - <a http://forum.ahkbbs.cn/bbs.php>CN</a>"
 . "`n<a http://www.google.com>Google</a> - <a http://www.maps.google.com>Maps</a>`n"
 . "<a http://social.msdn.microsoft.com/Search/en-US/?Refinement=86&Query=>MSDN</a>`n"

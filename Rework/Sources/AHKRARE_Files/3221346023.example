@@ -1,0 +1,4 @@
+﻿associativeObj1:={A:1,B:2,C:[1,2,3]}
+simpleObj2:=[1,2,3,4]
+msgbox, % Obj2Str(associativeObj1)
+msgbox, % Obj2Str(simpleObj2)
