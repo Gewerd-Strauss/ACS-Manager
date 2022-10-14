@@ -1109,6 +1109,7 @@ else
 	, vGuiWidth:=1920-20
 }
 gosub, lGUICreate_1New
+fGuiShow_1(vGUIWidth,vGUIHeight,GuiNameMain)
 return
 
 ; #if Winactive(GuiNameIngestion)
