@@ -140,12 +140,12 @@ CrtDate:=SubStr(CrtDate,7,  2) "." SubStr(CrtDate,5,2) "." SubStr(CrtDate,1,4)
 , global bSearchSnippets:=false
 FileGetVersion, Version, %A_ProgramFiles%\AutoHotkey\AutoHotkey.exe
 ; m(A_AhkVersion,Version)
-FileDelete, % script.configfile ;; for testing purposes and keeping the settings updated when adding/changing keys
+if bIsAuthor:=(script.computername==script.authorID)
+	FileDelete, % script.configfile ;; for testing purposes and keeping the settings updated when adding/changing keys
 if !script.Load(,1) 
 { ;; default settings
 	str=
-	(LTRIM
-
+(LTRIM
 [Map2]
 ;Map2 Hidden:
 AU=Author
@@ -173,6 +173,12 @@ bNotifyDependenciesOnCopy=0
 ;bNotifyDependenciesOnCopy CheckboxName: Notify user of existing dependencies?
 ;bNotifyDependenciesOnCopy Default:0
 ;bNotifyDependenciesOnCopy Hidden:
+bShowLoadUp=0
+;bShowLoadUp Do you want to display the loading routine when starting the script?
+;bShowLoadUp This is not recommended when loading _A LOT_ of snippets.
+;bShowLoadUp Type: Checkbox
+;bShowLoadUp Default: 0
+;bShowLoadUp CheckboxName: Display GUI when loading?
 bShowOnStartup=1
 ;bShowOnStartup Set whether or not to display the GUI on script startup or not.
 ;bShowOnStartup Type: Checkbox 
@@ -191,8 +197,8 @@ CopyExampleToOutput=1
 CopyLicenseToOutput=1
 ;CopyLicenseToOutput When checked, the License of the snippet is added when copying the snippet to the clipboard
 ;CopyLicenseToOutput Type: Checkbox 
-;CopyLicenseToOutput CheckboxName: Copy Metadata?
 ;CopyLicenseToOutput Default: 1
+;CopyLicenseToOutput CheckboxName: Copy Metadata?
 CopyMetadataToOutput=1
 ;CopyMetadataToOutput When checked, the Metadata of the snippet is added when copying the snippet to the clipboard
 ;CopyMetadataToOutput Type: Checkbox 
@@ -206,6 +212,21 @@ DirectoryPath=A_ScriptDir\Sources
 ;DirectoryPath Set the folder to be loaded. The names of the firstlevel-subfolder will be the name of the "Library" within the script.
 ;DirectoryPath Type: Folder
 ;DirectoryPath Default: A_ScriptDir "\Sources"
+Search_InString_MetaFields=1
+;Search_InString_MetaFields Do you want to use InString instead of FullString-matching when searching within metadata-fields?
+;Search_InString_MetaFields Type: Checkbox
+;Search_InString_MetaFields CheckboxName: Use InStr()-Metadatasearch?
+;Search_InString_MetaFields Default: 1
+ShowRedraw=0
+;ShowRedraw Do you want to display the Listview redrawing itself when searching? 
+;ShowRedraw Disable this if performance while doing so is too harsh.
+;ShowRedraw Type: Checkbox
+;ShowRedraw CheckboxName: Display Listview-Redraw when searching?
+;ShowRedraw Default: 0
+bSetSearchresultAlphabetically=1
+;bSetSearchresultAlphabetically Do you want to sort searchresults alphabetically or by section and snippet identifier? This only affects searchresults.
+;bSetSearchresultAlphabetically Type: Checkbox
+;bSetSearchresultAlphabetically CheckboxName: Sort Searchresults alphabetically?
 LibraryRelativeSI=0
 ;LibraryRelativeSI When checked, the SnippetIndex displayed in the GUI will be relative to the library said snippet is in, and not relative to the section overall.
 ;LibraryRelativeSI Type: Checkbox
@@ -214,42 +235,36 @@ LibraryRelativeSI=0
 Max_InDepth_Searchable=200
 ;Max_InDepth_Searchable Set the maximum number of snippets to be searched. DEPRECATED
 ;Max_InDepth_Searchable Type: Number
-;Max_InDepth_Searchable Type: Hidden:
+;Max_InDepth_Searchable Hidden:
 Search_Code=0
-;Search_Code Do you want to search within already loaded code, although it will be MUCH slower?`nThis does not affect unloaded snippets - they cannot be searched.
+;Search_Code Do you want to search within already loaded code, although it will be MUCH slower?
+;Search_Code This does not affect unloaded snippets - they cannot be searched.
 ;Search_Code Type: Checkbox
 ;Search_Code CheckboxName: Search in loaded Code?
 ;Search_Code Default: 0
+;Search_Code Hidden:
 Search_Description=0
-;Search_Description Do you want to search within already loaded Descriptions, although it will be MUCH slower?`nThis does not affect unloaded snippets - they cannot be searched.
+;Search_Description Do you want to search within already loaded Descriptions, although it will be MUCH slower?
+;Search_Description This does not affect unloaded snippets - they cannot be searched.
 ;Search_Description Type: Checkbox
 ;Search_Description CheckboxName: Search in loaded Descriptions?
 ;Search_Description Default: 0
+;Search_Description Hidden:
 Search_Examples=0
-;Search_Examples Do you want to search within already loaded Examples, although it will be MUCH slower?`nThis does not affect unloaded snippets - they cannot be searched.
+;Search_Examples Do you want to search within already loaded Examples, although it will be MUCH slower?
+;Search_Examples This does not affect unloaded snippets - they cannot be searched.
 ;Search_Examples Type: Checkbox
 ;Search_Examples CheckboxName: Search in loaded Examples?
 ;Search_Examples Default: 0
-Search_InString_MetaFields=1
-;Search_InString_MetaFields Do you want to use InString instead of FullString-matching when searching within metadata-fields?
-;Search_InString_MetaFields Type: Checkbox
-;Search_InString_MetaFields CheckboxName: Use InStr()-Metadatasearch?
-;Search_InString_MetaFields Default: 1
-ShowRedraw=0
-;ShowRedraw Do you want to display the Listview redrawing itself when searching?
-;ShowRedraw Disable this if performance while doing so is too harsh
-;ShowRedraw Type: Checkbox
-;Search_InString_MetaFields CheckboxName: Use InStr()-Metadatasearch?
-;ShowRedraw Default: 0
-bSetSearchresultAlphabetically=1
-;bSetSearchresultAlphabetically Do you want to sort searchresults alphabetically or by section and snippet identifier? This only affects searchresults.
-;bSetSearchresultAlphabetically Type: Checkbox
-;bSetSearchresultAlphabetically CheckboxName: Sort Searchresults alphabetically?
+;Search_Examples Hidden:
 SoundAlertOnDebug=1
-;SoundAlertOnDebug Type: Text 
-	)
+;SoundAlertOnDebug Type: Checkbox
+;SoundAlertOnDebug Checkboxname: Do you want to hear a sound alert when entering and exiting Debug mode?
+;SoundAlertOnDebug This can be useful as Debug mode can seriously alter the behaviour of the program
+;SoundAlertOnDebug Default: 1
+)
 	
-	FileAppend, % str,% script.configfile
+	FileAppend, % str,% script.configfile, % "UTF-16"
 	script.Load(,1)
 }
 if script.config.settings.bShowLoadUp
@@ -258,14 +273,18 @@ if script.config.settings.bShowLoadUp
 	script.config.settings.ShowRedraw:=true
 
 }
-
+if (script.config.Map2.Count()=0 || script.config.Map2.count()="")
+{
+	msgbox, 8240,% script.name ":Settings Corrupted", % "The settings have been corrupted and the Keymap for translating searchquery-identifiers (""NA:"",""SE:"",...) could not been found.`nThe script will now restore the settings to default. If that does not alleviate the issue, please open an issue in the scripts' repository.`n`nSearching by anything but name is not possible until this warning disappears"
+	ExitApp
+}
 ; script.Version:=script.config.Settings.ScriptVersion
 script.config.Settings.DirectoryPath:=strreplace(script.config.Settings.DirectoryPath,"A_ScriptDir",A_ScriptDir)
 global DirectoryPath:= ((substr(script.config.settings.DirectoryPath,-1)!="\*")?script.config.settings.DirectoryPath "\*":script.config.settings.DirectoryPath) ;"*" ;; this is the path that contains all libraries which will be read.
 SnippetsStructure:=fLoadFolderLibraries(DirectoryPath)
-Clipboard:=""
-for k,v in SnippetsStructure[2]
-	Clipboard.="`n" v
+; Clipboard:=""
+; for k,v in SnippetsStructure[2]
+; 	Clipboard.="`n" v
 oArr:=SnippetsStructure.Clone()
 SearchHistory:=[]
 
@@ -339,7 +358,7 @@ gosub, lGUICreate_1New
 ; clipboard:="PostMessageUn"
 ; clipboard:="controlgettabs"
 ; clipboard:="WinGetPosEx"
-clipboard:="Ha:10550"
+; clipboard:="Ha:10550"
 ; Clipboard:="Au:anon na:1"
 CodeTimer("AutoExec")
 return
@@ -348,7 +367,7 @@ return
 
 lGUICreate_1New: ;; Fully Parametric-form, TODO: functionalise this thing
 		gui, 1: destroy
-		gui, 1: new, +AlwaysOnTop -SysMenu -ToolWindow -caption +Border +labelALG -Resize ;+MinSize1000x		
+		gui, 1: new,  -SysMenu -ToolWindow -caption +Border +labelALG -Resize ;+MinSize1000x		
 		gui, 1: default
 		gui, +hwndMainGUI
 		if vsdb || (A_DebuggerName="Visual Studio Code")
@@ -524,11 +543,16 @@ lGUICreate_1New: ;; Fully Parametric-form, TODO: functionalise this thing
 		if script.config.settings.bShowOnStartup
 			fGuiShow_1(vGUIWidth,vGUIHeight,GuiNameMain)
         Hotkey, IfWinActive, % "ahk_id " MainGUI
-		Hotkey, ^Tab,fTabThroughTabControl
+		Obj_TabLeft:=Func("fTabThroughTabControl").Bind(-1)
+		Obj_TabRight:=Func("fTabThroughTabControl").Bind(1)
+		Hotkey, ^Tab,% Obj_TabRight
+		Hotkey, ^+Tab,% Obj_TabLeft
         Hotkey, ^f, fFocusSearchBar
         Hotkey, ^s, fFocusSearchBar
         Hotkey, ^k, fFocusListView
         Hotkey, ^c, fCopyScript
+		Hotkey, ^P, fEditSettings
+		Hotkey, ^+P, fEditSettings
 		; Hotkey, ^r, lGuiCreate_2
 		
 			Obj_ExtraButton2:=Func("fEditSnippet").Bind(SnippetsStructure)
@@ -557,6 +581,8 @@ lGUICreate_1New: ;; Fully Parametric-form, TODO: functionalise this thing
         Hotkey, ~Down, % Obj_fLVCallback
         
         hotkey, if, % RCFieldIsClicked
+        Hotkey, ~Up, % Obj_fLVCallback
+        Hotkey, ~Down, % Obj_fLVCallback
         Hotkey, ~RButton, fCopyScript
         Hotkey, ~LButton, fCopyScript
 		hotkey, if 
@@ -607,7 +633,7 @@ fFocusListView()
 fSuperviseSearchBar()
 {
 	if Instr(fGetSearchFunctionsString(),"?")
-		ttip(script.config.map2)
+		str:=ttip(script.config.map2)
 }
 fDeleteWordFromSearchBar()
 {
@@ -632,9 +658,9 @@ fClearSearchBar()
 	return
 }
 
-fTabThroughTabControl()
+fTabThroughTabControl(Direction:=1)
 {
-	SendInput, ^{PgDn}
+	SendInput, % "^" (Direction=1?"{PgDn}":"{PgUp}")
 	fFocusListView()
 	return
 }
@@ -810,7 +836,20 @@ fEditSnippet(SnippetsStructure:="")
 	EditorImporter(SnippetsStructure[1,SelectedLVEntry.3] ,SnippetsStructure)
 	return
 }
-
+fEditSettings()
+{
+	; A_ThisHotkey
+	bIsAuthor:=(script.computername==script.authorID)
+		bIsDebug:=script.config.settings.bDebugSwitch
+	if ((!bIsAuthor & !bIsDebug) || (bIsAuthor & !bIsDebug)) && Instr(A_ThisHotkey,"+")
+	{
+		if IniSettingsEditor(script.Name,script.configfile,1,1,1)
+			reload
+	}
+	else
+		if IniSettingsEditor(script.Name,script.configfile,1,1,0)
+			reload
+}
 fCallBack_StatusBarMainWindow(Path:="")
 {
 	; not implemented yet
@@ -820,9 +859,7 @@ fCallBack_StatusBarMainWindow(Path:="")
 	if (((A_GuiEvent="DoubleClick") && (A_EventInfo=4))) || (Path=1) ;; trigger About
 		script.About()
 	if ((A_GuiEvent="DoubleClick") && (A_EventInfo=3)) || (Path=5) ;; trigger update
-	{
-		;; TODO: write update-routine for data-only into scriptobj.
-	}
+		fEditSettings()
 	if ((A_GuiEvent="DoubleClick") && (A_EventInfo=2)) || (Path=2) ;; toggle debug mode
 	{
 		script.config.settings.bDebugSwitch:= !script.config.settings.bDebugSwitch
@@ -1787,7 +1824,7 @@ fReadINI(INI_File,bIsVar=0) ; return 2D-array from INI-file, or alternatively fr
 		SplitPath, INI_File,, WorkDir
 		OrigWorkDir:=A_WorkingDir
 		SetWorkingDir, % WorkDir
-		IniRead, SectionNames, %INI_File%
+		IniRead, SectionNames, % INI_File
 		for each, Section in StrSplit(SectionNames, "`n") {
 			IniRead, OutputVar_Section, %INI_File%, %Section%
 			for each, Haystack in StrSplit(OutputVar_Section, "`n")
@@ -2955,8 +2992,6 @@ ALG_TF_CountLines(Text)
  	hObject.Send()
  	return variable:=hObject.ResponseText
  }
-
-
 ;--uID:754475711
 ; --uID:1993173571
  ; Metadata:
@@ -2977,23 +3012,9 @@ ALG_TF_CountLines(Text)
  IsConnected(URL="https://autohotkey.com/boards/") {                            	;-- Returns true if there is an available internet connection
  	return DllCall("Wininet.dll\InternetCheckConnection", "Str", URL,"UInt", 1, "UInt",0, "UInt")
  }
-
-
 ; --uID:1993173571
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 	
 #Include %A_ScriptDir%\Includes\RichCode.ahk
 #Include %A_ScriptDir%\Includes\Editor.ahk
+#Include %A_ScriptDir%\Includes\IniSettingsEditor.ahk

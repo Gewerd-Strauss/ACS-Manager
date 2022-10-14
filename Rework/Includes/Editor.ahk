@@ -64,7 +64,6 @@ EditorImporter(Snippet:="",SnippetsStructure:="",ConvertingAHKRARE:=false)
         {
             Date:=snippet.Metadata.Date
         }
-
     }
     ImporterSections:=""
     for k,v in SnippetsStructure[2]
@@ -73,7 +72,6 @@ EditorImporter(Snippet:="",SnippetsStructure:="",ConvertingAHKRARE:=false)
             continue
         ImporterSections.="|" v
     }
-        Clipboard:=ImporterSections
     if !Instr(ImporterSections,snippet.MetaData.section)
         ImporterSections.="|" snippet.MetaData.section "|"
     FoundSection:=strreplace(ImporterSections,snippet.metadata.Section,snippet.metadata.Section "|")
