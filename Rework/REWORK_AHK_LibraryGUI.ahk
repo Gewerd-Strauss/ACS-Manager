@@ -173,7 +173,7 @@ bNotifyDependenciesOnCopy=0
 ;bNotifyDependenciesOnCopy CheckboxName: Notify user of existing dependencies?
 ;bNotifyDependenciesOnCopy Default:0
 ;bNotifyDependenciesOnCopy Hidden:
-bShowOnStartup=0
+bShowOnStartup=1
 ;bShowOnStartup Set whether or not to display the GUI on script startup or not.
 ;bShowOnStartup Type: Checkbox 
 ;bShowOnStartup Default: 0
@@ -188,6 +188,11 @@ CopyExampleToOutput=1
 ;CopyExampleToOutput Type: Checkbox 
 ;CopyExampleToOutput Default: 1
 ;CopyExampleToOutput CheckboxName: Copy Example?
+CopyLicenseToOutput=1
+;CopyLicenseToOutput When checked, the License of the snippet is added when copying the snippet to the clipboard
+;CopyLicenseToOutput Type: Checkbox 
+;CopyLicenseToOutput CheckboxName: Copy Metadata?
+;CopyLicenseToOutput Default: 1
 CopyMetadataToOutput=1
 ;CopyMetadataToOutput When checked, the Metadata of the snippet is added when copying the snippet to the clipboard
 ;CopyMetadataToOutput Type: Checkbox 
@@ -644,10 +649,11 @@ fCopyScript()
 	MouseGetPos,,,,mVC
 	; if (mVC="RICHEDIT50W1")	; little safety to remove copying when clicking the DescriptionBox
 	{
+		Code:=""
 		searchstr:=fGetSearchFunctionsString()
 		SelectedLVEntry:=f_GetSelectedLVEntries()
-		if (searchstr!="") && !Instr(Matches[1,SelectedLVEntry.3].Code,"Error 01: No code-file was found under the expected path")
-			Code:=Matches[1,SelectedLVEntry.3].Code 
+		if (searchstr!="") && !Instr(SnippetsStructure[1,SelectedLVEntry.3].Code,"Error 01: No code-file was found under the expected path")
+			Code:=SnippetsStructure[1,SelectedLVEntry.3].Code 
 		else if !Instr(SnippetsStructure[1,SelectedLVEntry.3].Code,"Error 01: No code-file was found under the expected path")
 			Code:=SnippetsStructure[1,SelectedLVEntry.3].Code 
 		if (Code="") && (searchstr!="")
@@ -721,55 +727,54 @@ fCopyScript()
 				InfoText.push("Keywords: " Keywords)
 			FinalInfoText:=""
 			for k,v in InfoText
-				FinalInfoText.="; " v
-			Code:=PrependTextBeforeString(Code,"; Metadata:`n" FinalInfoText)
+				FinalInfoText.=A_Space A_Space "; " v
 			if script.config.Settings.CopyLicenseToOutput
-				Code:=PrependTextBeforeString(Data.License,Code)
+				Data.License:=ALG_TF_InsertPrefix(Data.License,1,,A_Space A_Space "; ") ;; prepend "; " before each line of Licensetext
 		}
 		if script.config.Settings.CopyExampleToOutput
 		{
-			if (searchstr!="") && !Instr(Matches[1,SelectedLVEntry.3].Example,"Error 01: No example-file was found under the expected path")
-				Example:=ALG_TF_InsertPrefix(Matches[1,SelectedLVEntry.3].Example,1,, ";; ") ;; make sure the example is definitely a comment 
+			if (searchstr!="") && !Instr(SnippetsStructure[1,SelectedLVEntry.3].Example,"Error 01: No example-file was found under the expected path")
+				Example:=ALG_TF_InsertPrefix(SnippetsStructure[1,SelectedLVEntry.3].Example,1,, A_Space A_Space ";;; ") ;; make sure the example is definitely a comment 
 			else if !Instr(SnippetsStructure[1,SelectedLVEntry.3].Example,"Error 01: No example-file was found under the expected path")
-				Example:=ALG_TF_InsertPrefix(SnippetsStructure[1,SelectedLVEntry.3].Example,1,, ";; ") ;; make sure the example is definitely a comment 
-			if (Example!="") && !Instr(Example, "Error 01: No example-file was found under the expected path") ;; make sure the contents are not appended if they are already loaded but still contain the error-string
-				Code:=PrependTextBeforeString(Code,";; Example:`n" Example)
+				Example:=ALG_TF_InsertPrefix(SnippetsStructure[1,SelectedLVEntry.3].Example,1,, A_Space A_Space ";;; ") ;; make sure the example is definitely a comment 
 		}
 		else
 		{
-			if (searchstr!="") && !Instr(Matches[1,SelectedLVEntry.3].Example,"Error 01: No example-file was found under the expected path")
-				Example:=ALG_TF_InsertPrefix(Matches[1,SelectedLVEntry.3].Example,1,, ";; ") ;; make sure the example is definitely a comment 
+			if (searchstr!="") && !Instr(SnippetsStructure[1,SelectedLVEntry.3].Example,"Error 01: No example-file was found under the expected path")
+				Example:=ALG_TF_InsertPrefix(SnippetsStructure[1,SelectedLVEntry.3].Example,1,, A_Space A_Space ";;; ") ;; make sure the example is definitely a comment 
 			else if !Instr(SnippetsStructure[1,SelectedLVEntry.3].Example,"Error 01: No example-file was found under the expected path")
-				Example:=ALG_TF_InsertPrefix(SnippetsStructure[1,SelectedLVEntry.3].Example,1,, ";; ") ;; make sure the example is definitely a comment 
-			if (Example!="") && !Instr(Example, "Error 01: No example-file was found under the expected path") 
-				Code:=SnippetsStructure[1,SelectedLVEntry.3].Code
+				Example:=ALG_TF_InsertPrefix(SnippetsStructure[1,SelectedLVEntry.3].Example,1,, A_Space A_Space ";;; ") ;; make sure the example is definitely a comment 
 		}
 		if script.config.Settings.CopyDescriptionToOutput
 		{
-			if (searchstr!="") && !Instr(Matches[1,SelectedLVEntry.3].Description,"Error 01: No description-file was found under the expected path")
-				Description:=ALG_TF_InsertPrefix(Matches[1,SelectedLVEntry.3].Description,1,, ";;; ") ;; make sure the example is definitely a comment 
+			if (searchstr!="") && !Instr(SnippetsStructure[1,SelectedLVEntry.3].Description,"Error 01: No description-file was found under the expected path")
+				Description:=ALG_TF_InsertPrefix(SnippetsStructure[1,SelectedLVEntry.3].Description,1,, A_Space A_Space ";; ") ;; make sure the example is definitely a comment 
 			else if !Instr(SnippetsStructure[1,SelectedLVEntry.3].Description,"Error 01: No description-file was found under the expected path")
-				Description:=ALG_TF_InsertPrefix(SnippetsStructure[1,SelectedLVEntry.3].Description,1,, ";;; ") ;; make sure the example is definitely a comment 
-			if (Description!="") && !Instr(Description,"Error 01: No description-file was found under the expected path")
-				Code:=PrependTextBeforeString(Code,";;; Description:`n" Description)
+				Description:=ALG_TF_InsertPrefix(SnippetsStructure[1,SelectedLVEntry.3].Description,1,, A_Space A_Space ";; ") ;; make sure the example is definitely a comment 
 		}
 		else
 		{
-			if (searchstr!="") && !Instr(Matches[1,SelectedLVEntry.3].Description,"Error 01: No description-file was found under the expected path")
-				Description:=ALG_TF_InsertPrefix(Matches[1,SelectedLVEntry.3].Description,1,, ";;; ") ;; make sure the example is definitely a comment 
-			else if !Instr(Matches[1,SelectedLVEntry.3].Description,"Error 01: No description-file was found under the expected path")
-				Description:=ALG_TF_InsertPrefix(SnippetsStructure[1,SelectedLVEntry.3].Description,1,, ";;; ") ;; make sure the example is definitely a comment 
-			if (Description!="") && !Instr(Description,"Error 01: No description-file was found under the expected path")	
-				Code:=SnippetsStructure[1,SelectedLVEntry.3].Code
+			if (searchstr!="") && !Instr(SnippetsStructure[1,SelectedLVEntry.3].Description,"Error 01: No description-file was found under the expected path")
+				Description:=ALG_TF_InsertPrefix(SnippetsStructure[1,SelectedLVEntry.3].Description,1,, A_Space A_Space ";; ") ;; make sure the example is definitely a comment 
+			else if !Instr(SnippetsStructure[1,SelectedLVEntry.3].Description,"Error 01: No description-file was found under the expected path")
+				Description:=ALG_TF_InsertPrefix(SnippetsStructure[1,SelectedLVEntry.3].Description,1,, A_Space A_Space ";; ") ;; make sure the example is definitely a comment 
 		}
-		Code:=ALG_st_Insert(";--uID:" SnippetsStructure[1,SelectedLVEntry.3].Metadata.Hash "`n",Code) . "`n" ;; prepend uID-token
-		Code:=ALG_st_Insert(";--uID:" SnippetsStructure[1,SelectedLVEntry.3].Metadata.Hash "`n",Code,StrLen(Code)+StrLen(";--uID:" SnippetsStructure[1,SelectedLVEntry.3].Metadata.Hash "`n")) ;; append uID-token
+		Code:=ALG_TF_InsertPrefix(Code,1,,A_Space )
+		if (Example!="") && !Instr(Example, "Error 01: No example-file was found under the expected path") 
+			Code:=PrependTextBeforeString(Code,A_Space ";;; Example:`n" Example)
+		if (Description!="") && !Instr(Description,"Error 01: No description-file was found under the expected path")
+			Code:=PrependTextBeforeString(Code,A_Space ";; Description:`n" Description)
+		Code:=PrependTextBeforeString(Code,A_Space "; Metadata:`n" FinalInfoText)
+ 		Code:=ALG_st_Insert("; --uID:" SnippetsStructure[1,SelectedLVEntry.3].Metadata.Hash "`n",Code) . "`n" ;; prepend uID-token
+		if (Data.License!="")
+			Code:=PrependTextBeforeString(A_Space "; License:",Code)		;; add "; License:`n" below Code
+		if (Data.License!="")
+			Code:=PrependTextBeforeString(Data.License,Code)				;; add prepended licensetext below code
+		Code:=PrependTextBeforeString("; --uID:" SnippetsStructure[1,SelectedLVEntry.3].Metadata.Hash,Code)
 		Clipboard:=Code
 		nameStr:=SnippetsStructure[1,SelectedLVEntry.3,"MetaData","Name"]
-		; nameStr:="abcdefghijklmnopqrstuvwxyz1234567890"
 		Str:="On Clipboard: " SubStr(nameStr,1,20) (SnippetsStructure[1,SelectedLVEntry.3,"MetaData","Version"]!=""?" (v." SnippetsStructure[1,SelectedLVEntry.3,"MetaData","Version"] ")":"")
 		SB_SetText(Str , 1)
-
 	}
 	return
 }
@@ -2708,9 +2713,9 @@ ALG_TF__MakeMatchList(Text, Start = 1, End = 0, Col = 0, CallFunc = "Not availab
 	{
 	 ErrorList=
 	 (join|
-Error 01: Invalid StartLine parameter (non numerical character)`nFunction used: %CallFunc%
-Error 02: Invalid EndLine parameter (non numerical character)`nFunction used: %CallFunc%
-Error 03: Invalid StartLine parameter (only one + allowed)`nFunction used: %CallFunc%
+	Error 01: Invalid StartLine parameter (non numerical character)`nFunction used: %CallFunc%
+	Error 02: Invalid EndLine parameter (non numerical character)`nFunction used: %CallFunc%
+	Error 03: Invalid StartLine parameter (only one + allowed)`nFunction used: %CallFunc%
 	 )
 	 StringSplit, ErrorMessage, ErrorList, |
 	 Error = 0
@@ -2911,48 +2916,72 @@ ALG_TF_CountLines(Text)
 	 Return ErrorLevel + 1
 	}
 
+;--uID:754475711
+ ; Metadata:
+  ; Snippet: URLDownloadtoVar  ;  (v.1.0)
+  ; --------------------------------------------------------------
+  ; Author: maestrith
+  ; License: none
+  ; Source: https://www.autohotkey.com/boards/viewtopic.php?t=3291
+  ; 
+  ; --------------------------------------------------------------
+  ; Library: AHKRARE_Files
+  ; Section: 12 - Internet/Network
+  ; Dependencies: /
+  ; AHK_Version: /
+  ; --------------------------------------------------------------
+  ; Keywords: URL,
+
+ ;; Description:
+  ;; Downloads the contents of a webpage to a variable.
+
+ ;;; Example:
+  ;;; info:=URLDownloadToVar("http://www.google.com")
+  ;;; MsgBox % info
+  ;;; URLDownloadToVar("http://www.google.com",value)
+  ;;; MsgBox % value
+  ;;; return
+  ;;; URLDownloadToVar(url,ByRef variable=""){
+  ;;; 	hObject:=ComObjCreate("WinHttp.WinHttpRequest.5.1")
+  ;;; 	hObject.Open("GET",url)
+  ;;; 	hObject.Send()
+  ;;; 	return variable:=hObject.ResponseText
+  ;;; }
+
+ URLDownloadToVar(url,ByRef variable="")
+ {
+ 	hObject:=ComObjCreate("WinHttp.WinHttpRequest.5.1")
+ 	hObject.Open("GET",url)
+ 	hObject.Send()
+ 	return variable:=hObject.ResponseText
+ }
+
 
 ;--uID:754475711
-; Metadata:
-; Snippet: URLDownloadtoVar;  (v.1.0)
-; --------------------------------------------------------------
-; Author: maestrith
-; License: none
-; Source: https://www.autohotkey.com/boards/viewtopic.php?t=3291
-; 
-; --------------------------------------------------------------
-; Library: AHKRARE_Files
-; Section: 12 - Internet/Network
-; Dependencies: /
-; AHK_Version: /
-; --------------------------------------------------------------
-; Keywords: URL,
-
-URLDownloadToVar(url,ByRef variable="")
-{
-	hObject:=ComObjCreate("WinHttp.WinHttpRequest.5.1")
-	hObject.Open("GET",url)
-	hObject.Send()
-	return variable:=hObject.ResponseText
-}
-;--uID:754475711
+; --uID:1993173571
+ ; Metadata:
+  ; Snippet: IsConnected()
+  ; --------------------------------------------------------------
+  ; Library: AHKRARE_Files
+  ; Section: 12 - Internet/Network
+  ; Dependencies: /
+  ; AHK_Version: /
+  ; --------------------------------------------------------------
 
 
-;--uID:1993173571
-; Metadata:
-; Snippet: IsConnected()
-; --------------------------------------------------------------
-; Library: AHKRARE_Files
-; Section: 12 - Internet/Network
-; Dependencies: /
-; AHK_Version: /
-; --------------------------------------------------------------
+ ;; Description:
+  ;; Returns true if there is an available internet connection
+  ;; 
+  ;; 
+
+ IsConnected(URL="https://autohotkey.com/boards/") {                            	;-- Returns true if there is an available internet connection
+ 	return DllCall("Wininet.dll\InternetCheckConnection", "Str", URL,"UInt", 1, "UInt",0, "UInt")
+ }
 
 
-IsConnected(URL="https://autohotkey.com/boards/") {                            	;-- Returns true if there is an available internet connection
-	return DllCall("Wininet.dll\InternetCheckConnection", "Str", URL,"UInt", 1, "UInt",0, "UInt")
-}
-;--uID:1993173571
+; --uID:1993173571
+
+
 
 
 
@@ -2968,4 +2997,3 @@ IsConnected(URL="https://autohotkey.com/boards/") {                            	
 	
 #Include %A_ScriptDir%\Includes\RichCode.ahk
 #Include %A_ScriptDir%\Includes\Editor.ahk
-
