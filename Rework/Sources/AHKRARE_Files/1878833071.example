@@ -1,6 +1,0 @@
-hMdi:= FindChildWindow({Class: "OptoAppClass"}, {Class: "MDIClient"}, "Off")
-HEXhwnd:= Format("0x{:x}", hMdi)
-MsgBox, % HEXhwnd
-hWZ:= FindChildWindow({Class: "OptoAppClass"}, {Title: "Wartezimmer"}, "Off")
-HEXhwnd:= Format("0x{:x}", hWZ)
-MsgBox, % HEXhwnd

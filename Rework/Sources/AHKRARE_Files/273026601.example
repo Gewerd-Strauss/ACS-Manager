@@ -1,2 +1,0 @@
-﻿StdErr_Write(A_LineNumber,"This function needs pairs of parameter.","odd number")
-   month<1 || month>12 ? StdErr_Write(A_LineNumber,"The variable month must have a value between 1 and 12.","month := " month)

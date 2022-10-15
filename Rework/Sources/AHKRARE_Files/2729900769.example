@@ -1,8 +1,0 @@
-gui, new,, AHK
-OnMessage(0x5555, "ReceiveFromAHK")
-SetTimer, MyTimer, 100
-MyTimer:
-             if receivedVar
-             Received_String := receivedVar, receivedVar := ""
-             Msgbox "%Received_String%"
-return

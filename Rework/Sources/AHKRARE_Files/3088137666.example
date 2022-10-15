@@ -1,6 +1,0 @@
-if WinWaitProgress(100, "Piriform CCleaner")
-	MsgBox Done cleaning.
-else if (ErrorLevel = "FAIL")
-	MsgBox Error
-else
-	MsgBox Timeout; progress=%ErrorLevel%

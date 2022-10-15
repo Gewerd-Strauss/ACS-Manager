@@ -1,3 +1,0 @@
-msgbox, % GetCommState(4)
-listvars
-pause

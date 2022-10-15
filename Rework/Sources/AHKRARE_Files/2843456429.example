@@ -1,3 +1,0 @@
-; Tested only on these examples,
-msgbox % format("0x", RtlUlongByteSwap64(0x12345678))
-msgbox % format("0x", RtlUlongByteSwap64(0x78563412))

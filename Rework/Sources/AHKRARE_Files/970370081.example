@@ -1,5 +1,0 @@
-; Example - Wait for a Screen Region to change
-ChkSum := PixelChecksum( 0,0,32,32 )
-While % ( ChkSum = PixelChecksum( 0,0,32,32 ) )
-   Sleep, 100
-MsgBox, Screen Region Change Detected!

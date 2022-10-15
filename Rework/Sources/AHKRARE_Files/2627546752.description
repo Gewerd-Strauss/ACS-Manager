@@ -1,2 +1,0 @@
-changes the state of a region of memory within the virtual address space of a specified process. the memory is assigned to zero.AtEOF
-

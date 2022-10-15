@@ -1,7 +1,0 @@
-Menu, SplitButton_Menu, Add, First Item, DoNothing
-Menu, SplitButton_Menu, Add, Second Item, DoNothing
-Gui, Add, Button, w160 h80 hwndhButton, Button
-SplitButton(hButton)
-Gui, Show
-DoNothing:
-Return

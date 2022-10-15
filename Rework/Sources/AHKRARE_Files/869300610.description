@@ -1,8 +1,0 @@
-split a String by a regular expressin pattern and you will receive an array as a result
-
-;- - ObiWanKenobi
-;Parameters for RegExSplit:
-;psText                      the text you want to split
-;psRegExPattern      the Regular Expression you want to use for splitting
-;piStartPos               start at this posiiton in psText (optional parameter)
-;function ExtractSE() is a helper-function to extract a string at a specific start and end position.

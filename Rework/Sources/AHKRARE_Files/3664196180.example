@@ -1,5 +1,0 @@
-for i, tab in ControlGetTabs("SciTeTabCtrl1", "ahk_class SciTEWindow")
-{
-    MsgBox % tab
-}
-Any control with the class SysTabControl32 should also work. 

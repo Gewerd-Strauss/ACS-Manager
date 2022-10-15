@@ -1,1 +1,0 @@
-MsgBox % (l:=GlobalMemoryStatus()) "Load: " l.Load " %`nRAM: " Round(l.TotalPhys/(1024**2), 1) " MB"

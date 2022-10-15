@@ -1,4 +1,0 @@
-﻿; SetDebugPrivilege() ; www.autohotkey.com/forum/viewtopic.php?p=232199#232199
-Process Exist, svchost.exe
-PID := ErrorLevel
-MsgBox, % ProcessOwner( PID )

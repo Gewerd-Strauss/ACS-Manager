@@ -1,2 +1,0 @@
-win := WinEnum()                    	; calls EnumWindows
-children := WinEnum("A")     	; enumerate child windows of the active window

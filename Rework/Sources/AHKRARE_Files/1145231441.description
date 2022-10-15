@@ -1,9 +1,0 @@
-Activate a Window, with extra Error Checking and More Features
-
-/*                              	DESCRIPTION
-
-		Func: WinActivateEx
-		Activate a Window, with extra Error Checking and More Features
-		<paste FunctionNameEx>DetectHiddenWindows On
-		<paste WinProcParams>Keys := CmdSwitch(WinTitle, "-k", Keys)
-*/

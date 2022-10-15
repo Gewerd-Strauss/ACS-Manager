@@ -1,7 +1,0 @@
-NodeName = www.google.com
-IPs := HostToIp(NodeName)
-DllCall("Ws2_32\WSACleanup") ; always inlude this line after calling to release the socket connection
-if IPs <> -1 ; no error occurred
-	Msgbox, %NodeName%`n%IPs%
-else
-	MsgBox, Host "%NodeName%" not found

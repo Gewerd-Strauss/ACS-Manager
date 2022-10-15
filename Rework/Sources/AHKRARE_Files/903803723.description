@@ -1,2 +1,0 @@
-By means of OnMessage(), this function has been set up to be called automatically whenever new data arrives on the connection.
-

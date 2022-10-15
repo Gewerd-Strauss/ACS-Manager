@@ -1,2 +1,0 @@
-Gui,13: Default
-	msgbox % A_DefaultGui()

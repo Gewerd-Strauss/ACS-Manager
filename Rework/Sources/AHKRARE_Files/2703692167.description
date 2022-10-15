@@ -1,9 +1,0 @@
-waits until the window is minimized
-
-; Function:  WinWaitForMinimized
-;              waits for the window winID to minimize or until timeout,
-;              whichever comes first (used to delay other actions until a
-;              minimize message is handled and completed)
-; Parm1:     winID - ID of window to wait for minimization
-; Parm2:     timeOut - optional - timeout in milliseconds to wait
-; wait until minimized (or timeOut)

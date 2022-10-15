@@ -1,1 +1,0 @@
-CreatePropertyCondition(propertyId, ByRef var, type :="Variant

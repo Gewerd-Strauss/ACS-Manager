@@ -1,2 +1,0 @@
-for k, v in EnumWindows(0x0, false, )
-		MsgBox % GetWindowClass(v) "`n" GetWindowTitle(v)

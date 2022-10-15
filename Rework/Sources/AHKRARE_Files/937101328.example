@@ -1,2 +1,0 @@
-hFont := CreateFont("s12 italic, Courier New")
-		SendMessage, 0x30, %hFont%, 1,, ahk_id %hGuiControl%  WM_SETFONT = 0x30

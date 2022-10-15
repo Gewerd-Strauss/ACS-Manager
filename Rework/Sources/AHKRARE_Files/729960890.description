@@ -1,2 +1,0 @@
-Wait for a window to be created, returns 0 on timeout and ahk_id otherwise
-

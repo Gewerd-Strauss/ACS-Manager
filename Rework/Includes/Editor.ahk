@@ -171,14 +171,14 @@ lOpenSnippetInFolder:
 gui, ACSI: submit, NoHide 
 gui, 1: -Disabled
 gui, 1: -AlwaysOnTop
-fOpenSnippetInFolder(vName_Importer, vLibrary_Importer, vSnippet_Importer)
+fOpenSnippetInFolder(SnippetClone)
 return
 
-fOpenSnippetInFolder(vName_Importer, vLibrary_Importer, vSnippet_Importer)
+fOpenSnippetInFolder(Snippet)
 { ;; open the code file already selected in the explorer if one wants to navigate there.
-    Key:=vName_Importer . vLibrary_Importer . vSnippet_Importer ;; cuz the hash is no longer required to be translated, I can make it 
-    Hash:=Object_HashmapHash(Key) ; Issue: What to include in the hashed snippet name?
-    Path:=substr(DirectoryPath,1,Strlen(DirectoryPath)-1)  vLibrary_Importer "\" Hash
+    ; Key:=vName_Importer . vLibrary_Importer . vSnippet_Importer ;; cuz the hash is no longer required to be translated, I can make it 
+    ; Hash:=Object_HashmapHash(Key) ; Issue: What to include in the hashed snippet name?
+    Path:=substr(DirectoryPath,1,Strlen(DirectoryPath)-1)  Snippet.Metadata.Library "\" Snippet.Metadata.Hash
     Run Explorer.exe /select`,%Path%.ahk
     gui, 1: +AlwaysOnTop
     return

@@ -1,9 +1,0 @@
-find the distance between 2 colors
-
-AUTHOR:
-VxE
-
-RETURN VALUE:
-value range = [0, 441.67295593006372]
-that just means that any two colors will have a distance less than 442
-

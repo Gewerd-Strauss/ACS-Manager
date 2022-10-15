@@ -1,3 +1,0 @@
-A_GuiFont     := GuiDefaultFont()
-A_GuiFontSize := A_LastError
-MsgBox, %A_GuiFont%`t%A_GuiFontSize%

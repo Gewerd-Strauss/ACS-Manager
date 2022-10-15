@@ -1,2 +1,0 @@
-FRCmd("Show_FullPage") 				  ; this one only returns the Foxit command, to use for yourself with send- oder postmessage
-FRCmd("Place_Signature", FoxitID)   ; PostMessage Place_Signature to the FoxitReader window with the ID: FoxitID and it returns the command

@@ -1,2 +1,0 @@
-ListGlobalVars() neither shows nor activates the AutoHotkey main window, it returns a string
-

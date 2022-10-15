@@ -1,3 +1,0 @@
-f1::
-msgbox % pauseSuspendScript("test2.ahk", True, True)
-return

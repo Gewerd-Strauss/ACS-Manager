@@ -1,8 +1,0 @@
-get the text in the specified coordinates, function uses Microsoft UIA
-
-	/*                              	DESCRIPTION
-
-			; get the text in the specified coordinates
-			; Syntax: MouseGetText ([x], [y])
-
-	*/

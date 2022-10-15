@@ -1,2 +1,0 @@
-FontClone(hFont) {                                                                                                      	;-- backup hFont in memory for further processing
-	VarSetCapacity(LOGFONT, 92, 0) ;LOGFON

@@ -1,7 +1,0 @@
-Creating drop down menu with single subroutine label is more natural now (IMO). Read the comments in the function.
-
-; With CreateDDMenu(), you can easily create drop-down menus by using indentation - %A_Tab%.
-; Line without tabs on the left creates item in main menu. One tab on the left creates subitem, two tabs sub-sub item, and so on.
-; To create separator, specify at least 3 minuses --- (but follow indentation).
-; ReturnMenu parameter: if 1, function will not actually create menu, but will return its definition. You can redirect that return
-; to clipboard and paste your menu in script.
