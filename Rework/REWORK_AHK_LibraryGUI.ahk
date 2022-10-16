@@ -40,30 +40,30 @@ gui - customise
 */
 #NoEnv
 #Persistent
-#SingleInstance, Force
+#SingleInstance				, Force
 #InstallKeybdHook
-#MaxThreads, 250
-#MaxThreadsBuffer, On
-#MaxHotkeysPerInterval 99000000
-#HotkeyInterval 99000000
-#KeyHistory 1
-ListLines Off
-
-SetTitleMatchMode     	, 2
-SetTitleMatchMode     	, Fast
-DetectHiddenWindows	, Off
+#KeyHistory 				, 1
+#MaxThreads					, 250
+#MaxThreadsBuffer			, On
+#MaxHotkeysPerInterval 		, 99000000
+#HotkeyInterval 			, 99000000
+AutoTrim                    , On
+DetectHiddenWindows			, Off
+FileEncoding                , UTF-8
+ListLines 					, Off
 CoordMode                 	, Mouse, Screen
 CoordMode                 	, Pixel, Screen
 CoordMode                 	, ToolTip, Screen
 CoordMode                 	, Caret, Screen
 CoordMode                 	, Menu, Screen
+SendMode                   	, Input
+SetTitleMatchMode     		, 2
+SetTitleMatchMode     		, Fast
+SetWorkingDir				, % A_ScriptDir
 SetKeyDelay                	, -1, -1
-SetBatchLines           		, -1
+SetBatchLines           	, -1
 SetWinDelay                	, -1
 SetControlDelay          	, -1
-SendMode                   	, Input
-AutoTrim                     	, On
-FileEncoding                	, UTF-8
 
 ; ttip("Comb through ahkrare-content and move example and description comment blocks to their respective files","add all metadata-fields to be used in the editor, and figure out how to do the editor metadata-adjustable")
 ; #Warn,,Off 
@@ -71,9 +71,8 @@ FileEncoding                	, UTF-8
 ; some performance stuff
 
 ; #KeyHistory, 0
-SetWorkingDir, %A_ScriptDir%
 CodeTimer("")
-CurrentMode:="Instr"
+; CurrentMode:="Instr"
 ; Add scriptObj-template and convert Code to use it - maybe, just a thought. Syntax of the Library-File is probably way too special for doing so, and there are no real configs to save anyways
 ; separate library-files and settings-files, take a peek at ahk-rare to see what they store in settings
 
@@ -99,7 +98,6 @@ G33kdude - RichCode - https://github.com/G33kDude/RichCode.ahk
 FileGetTime, ModDate,%A_ScriptFullPath%,M
 FileGetTime, CrtDate,%A_ScriptFullPath%,C
 CrtDate:=SubStr(CrtDate,7,  2) "." SubStr(CrtDate,5,2) "." SubStr(CrtDate,1,4)
-, ModDate:=SubStr(ModDate,7,  2) "." SubStr(ModDate,5,2) "." SubStr(ModDate,1,4)
 , global script := {   base         : script
                     ,name         : regexreplace(A_ScriptName, "\.\w+")
                     ,version      : FileOpen(A_ScriptDir "\version.ini","r").Read() ;; Gets read in from settings-file later
@@ -111,8 +109,8 @@ CrtDate:=SubStr(CrtDate,7,  2) "." SubStr(CrtDate,5,2) "." SubStr(CrtDate,1,4)
                     ,email        : ""
                     ,credits      : CreditsRaw
 					,creditslink  : ""
-                    ,crtdate      : CrtDate
-                    ,moddate      : ModDate
+                    ,crtdate      : SubStr(CrtDate,7,  2) "." SubStr(CrtDate,5,2) "." SubStr(CrtDate,1,4)
+                    ,moddate      : SubStr(ModDate,7,  2) "." SubStr(ModDate,5,2) "." SubStr(ModDate,1,4)
                     ,homepagetext : ""
                     ,homepagelink : ""
                     ,ghtext 	  : "GH-Repo"

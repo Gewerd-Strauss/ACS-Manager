@@ -1,3 +1,0 @@
-﻿InvertBool(var){
-	return !var
-}
