@@ -9,7 +9,7 @@
 
 
 
-EditorImporter(Snippet:="",SnippetsStructure:="",ConvertingAHKRARE:=false)
+ACS_EditorImporter(Snippet:="",SnippetsStructure:="",ConvertingAHKRARE:=false)
 {
     gui, ACSI: destroy
     gui, ACSI: new, +AlwaysOnTop -SysMenu -ToolWindow -caption +Border +labelACSI -Resize ;+Owner1 ;+MinSize1000x		

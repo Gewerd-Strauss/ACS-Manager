@@ -489,7 +489,7 @@ lGUICreate_1New: ;; Fully Parametric-form, TODO: functionalise this thing
 				, Height_RichCode:=Height_Tab3-2*HeightMargin_Global - 4
 			; RichField1
 				gui, tab, CODE
-				global RC:=new RichCode(RESettings2, "y" yPos_RichCode " x" xPos_RichCode  " w" Width_RichCode " h" Height_RichCode,"MainGui", HighlightBound=Func("HighlightAHK"))
+				global RC:=new ACS_RichCode(RESettings2, "y" yPos_RichCode " x" xPos_RichCode  " w" Width_RichCode " h" Height_RichCode,"MainGui", HighlightBound=Func("HighlightAHK"))
 				AddToolTip(RC,"Test")
 			}
         	RC.HighlightBound:=Func("HighlightAHK")
@@ -499,11 +499,11 @@ lGUICreate_1New: ;; Fully Parametric-form, TODO: functionalise this thing
 
 		}
 		gui, tab, Examples
-		global RC2:=new RichCode(RESettings2, "y" yPos_RichCode " x" xPos_RichCode  " w" Width_RichCode " h" Height_RichCode,"MainGui", HighlightBound=Func("HighlightAHK"))
+		global RC2:=new ACS_RichCode(RESettings2, "y" yPos_RichCode " x" xPos_RichCode  " w" Width_RichCode " h" Height_RichCode,"MainGui", HighlightBound=Func("HighlightAHK"))
         RC2.HighlightBound:=Func("HighlightAHK")
         
 		gui, tab, Description
-		global RC3:=new RichCode(RESettings2, "y" yPos_RichCode " x" xPos_RichCode  " w" Width_RichCode " h" Height_RichCode,"MainGui", HighlightBound=Func("HighlightAHK"))
+		global RC3:=new ACS_RichCode(RESettings2, "y" yPos_RichCode " x" xPos_RichCode  " w" Width_RichCode " h" Height_RichCode,"MainGui", HighlightBound=Func("HighlightAHK"))
         RC3.HighlightBound:=Func("HighlightAHK")
         
         , SearchIsFocused:=Func("ControlIsFocused").Bind("Edit1")
@@ -827,7 +827,7 @@ FileCount(filter, mode)
 } ;</07.01.000017>
 lIngestSnippet:
 {
-	EditorImporter("Ingestion",SnippetsStructure)
+	ACS_EditorImporter("Ingestion",SnippetsStructure)
 }
 return
 lEditSnippet: ;; I have no idea how to bind a function to a gui-button itself.
@@ -841,7 +841,7 @@ fEditSnippet(SnippetsStructure:="")
 	SelectedLVEntry:=f_GetSelectedLVEntries()
 	SearchStr:=fGetSearchFunctionsString()
 	fLoadFillDetails() ;(SnippetsStructure,DirectoryPath)
-	EditorImporter(SnippetsStructure[1,SelectedLVEntry.3] ,SnippetsStructure)
+	ACS_EditorImporter(SnippetsStructure[1,SelectedLVEntry.3] ,SnippetsStructure)
 	return
 }
 fEditSettings()
@@ -851,11 +851,11 @@ fEditSettings()
 		bIsDebug:=script.config.settings.bDebugSwitch
 	if ((!bIsAuthor & !bIsDebug) || (bIsAuthor & !bIsDebug)) && Instr(A_ThisHotkey,"+")
 	{
-		if IniSettingsEditor(script.Name,script.configfile,1,1,1)
+		if ACS_InisettingsEditor(script.Name,script.configfile,1,1,1)
 			reload
 	}
 	else
-		if IniSettingsEditor(script.Name,script.configfile,1,1,0)
+		if ACS_InisettingsEditor(script.Name,script.configfile,1,1,0)
 			reload
 }
 fCallBack_StatusBarMainWindow(Path:="")
@@ -3024,6 +3024,6 @@ ALG_TF_CountLines(Text)
 ; --uID:1993173571
 
 	
-#Include %A_ScriptDir%\Includes\RichCode.ahk
-#Include %A_ScriptDir%\Includes\Editor.ahk
-#Include %A_ScriptDir%\Includes\IniSettingsEditor.ahk
+#Include %A_ScriptDir%\Includes\ACS_RichCode.ahk
+#Include %A_ScriptDir%\Includes\ACS_Editor.ahk
+#Include %A_ScriptDir%\Includes\ACS_InisettingsEditor.ahk

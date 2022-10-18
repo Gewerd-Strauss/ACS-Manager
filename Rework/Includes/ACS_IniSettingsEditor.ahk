@@ -147,7 +147,7 @@
 ; - code: can't make GUI resizable, since this is only possible with hard
 ;     coded GUI ID, due to %GuiID%GuiSize label
 
-IniSettingsEditor(ProgName,IniFile,OwnedBy = 0,DisableGui = 0, ShowHidden = 0) {
+ACS_IniSettingsEditor(ProgName,IniFile,OwnedBy = 0,DisableGui = 0, ShowHidden = 0) {
 	static pos
 	if (A_ComputerName="DESKTOP-FH4RU5C")
 		m(A_ScriptName,"edited")	

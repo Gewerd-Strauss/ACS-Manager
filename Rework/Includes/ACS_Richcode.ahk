@@ -1,5 +1,5 @@
 /*
-	class RichCode({"TabSize": 4     ; Width of a tab in characters
+	class ACS_RichCode({"TabSize": 4     ; Width of a tab in characters
 		, "Indent": "`t"             ; What text to insert on indent
 		, "FGColor": 0xRRGGBB        ; Foreground (text) color
 		, "BGColor": 0xRRGGBB        ; Background color
@@ -23,7 +23,7 @@
 		
 		; The colors to be used by the highlighter function.
 		; This is currently used only by the highlighter, not at all by the
-		; RichCode class. As such, the RGB ordering is by convention only.
+		; ACS_RichCode class. As such, the RGB ordering is by convention only.
 		; You can add as many colors to this array as you want.
 		, "Colors"
 		: [0xRRGGBB
@@ -32,7 +32,7 @@
 			, 0xRRGGBB]})
 */
 
-class RichCode
+class ACS_RichCode
 {
 	static Msftedit := DllCall("LoadLibrary", "Str", "Msftedit.dll")
 	static IID_ITextDocument := "{8CC497C0-A1DF-11CE-8098-00AA0047BE5D}"
