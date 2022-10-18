@@ -548,7 +548,7 @@ lGUICreate_1New: ;; Fully Parametric-form, TODO: functionalise this thing
         Hotkey, ^f, fFocusSearchBar
         Hotkey, ^s, fFocusSearchBar
         Hotkey, ^k, fFocusListView
-        Hotkey, ^c, fCopyScript
+        Hotkey, ^c, fCopySnippet
 		Hotkey, ^P, fEditSettings
 		Hotkey, ^+P, fEditSettings
 		; Hotkey, ^r, lGuiCreate_2
@@ -581,8 +581,8 @@ lGUICreate_1New: ;; Fully Parametric-form, TODO: functionalise this thing
         hotkey, if, % RCFieldIsClicked
         Hotkey, ~Up, % Obj_fLVCallback
         Hotkey, ~Down, % Obj_fLVCallback
-        Hotkey, ~RButton, fCopyScript
-        Hotkey, ~LButton, fCopyScript
+        Hotkey, ~RButton, fCopySnippet
+        Hotkey, ~LButton, fCopySnippet
 		hotkey, if 
 					; Gui, Color, 4f1f21, 432a2e
 					; fFocusListView()
@@ -667,7 +667,7 @@ fFocusSearchBar()
 	guicontrol, focus, SearchString
 	return
 }
-fCopyScript()
+fCopySnippet(IsDependency:=false)
 {
 	global
 	MouseGetPos,,,,mVC
@@ -794,13 +794,23 @@ fCopyScript()
 			Code:=PrependTextBeforeString(A_Space "; License:",Code)		;; add "; License:`n" below Code
 		if (Data.License!="")
 			Code:=PrependTextBeforeString(Data.License,Code)				;; add prepended licensetext below code
+		DependencyWarning:=""
+		if !(Data.Metadata.Dependencies="")
+		{
+			for k,v in strsplit(Data.Metadata.Dependencies,",")
+				DependencyWarning.="Warning: Dependency '" v "' may not be included. In that case, please search for it separately, or refer to the documentation.`n"
+			Code.=DependencyWarning
+		}
 		Code:=PrependTextBeforeString("; --uID:" SnippetsStructure[1,SelectedLVEntry.3].Metadata.Hash,Code)
 		Clipboard:=Code
 		nameStr:=SnippetsStructure[1,SelectedLVEntry.3,"MetaData","Name"]
 		Str:="On Clipboard: " SubStr(nameStr,1,20) (SnippetsStructure[1,SelectedLVEntry.3,"MetaData","Version"]!=""?" (v." SnippetsStructure[1,SelectedLVEntry.3,"MetaData","Version"] ")":"")
 		SB_SetText(Str , 1)
 	}
-	return
+	if IsDependency
+		return Code
+	Else
+		return
 }
 PrependTextBeforeString(Text,StringToInsert)
 { ;; adds 'StringToInsert' two lines before 'Text' and returns the result
@@ -1106,7 +1116,7 @@ fMoveThroughSearchHistory(SnippetsStructure,References,DirectoryPath,SearchHisto
 	if (Pos=OldPos) ;; reached start/end of search history, no need to refresh the LV
 		return
 	NewSearchString:=SearchHistory[Pos]
-	fSetSearchFunctionsString(NewSearchString,SearchString)
+	fSetSearchFunctionsString(NewSearchString)
 	ttip(Pos)
 	if (NewSearchString="")
 	{
@@ -1163,7 +1173,7 @@ fGetSearchFunctionsString()
 	GuiControlGet, ContentsSearchField,,SearchString
 	return ContentsSearchField
 }
-fSetSearchFunctionsString(Str,OldStr)
+fSetSearchFunctionsString(Str)
 { ;; sets the contents of the search-edit field
 	GuiControl, , SearchString, % Str
 	Result:=(fGetSearchFunctionsString()!=""?true:false) 
@@ -2988,7 +2998,8 @@ ALG_TF_CountLines(Text)
  	hObject:=ComObjCreate("WinHttp.WinHttpRequest.5.1")
  	hObject.Open("GET",url)
  	hObject.Send()
- 	return variable:=hObject.ResponseText
+	variable:=hObject.ResponseText
+ 	return variable
  }
 ;--uID:754475711
 ; --uID:1993173571
