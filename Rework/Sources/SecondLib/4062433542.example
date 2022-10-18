@@ -1,4 +1,0 @@
-﻿filePath := "C:\Windows\notepad.exe"
-msgbox % "MD5:`n" HashFile(filePath,2)
-msgbox % "SHA:`n" HashFile(filePath,3)
-msgbox % "SHA512:`n" HashFile(filePath,6)
