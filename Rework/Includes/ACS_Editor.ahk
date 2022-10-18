@@ -17,21 +17,7 @@ ACS_EditorImporter(Snippet:="",SnippetsStructure:="",ConvertingAHKRARE:=false)
     gui, +hwndACSIGUI
     if WinExist("ahk_exe code.exe") || (A_DebuggerName="Visual Studio Code")
         gui, ACSI: -AlwaysOnTop
-    gui_control_options := "xm w220 " . cForeground . " -E0x200"  ; remove border around edit field
-    , gui_control_options2 :=  cForeground . " -E0x200"
-    , cBackground := "c" . "1d1f21"
-    , cCurrentLine := "c" . "282a2e"
-    , cSelection := "c" . "373b41"
-    , cForeground := "c" . "c5c8c6"
-    , cComment := "c" . "969896"
-    , cRed := "c" . "cc6666"
-    , cOrange := "c" . "de935f"
-    , cYellow := "c" . "f0c674"
-    , cGreen := "c" . "b5bd68"
-    , cAqua := "c" . "8abeb7"
-    , cBlue := "c" . "81a2be"
-    , cPurple := "c" . "b294bb"
-    , vLastCreationScreenHeight:=vGuiHeight2  
+     vLastCreationScreenHeight:=vGuiHeight2  
     , vLastCreationScreenWidth:=vGUIWidth2
     gui, font, s9 , Segoe UI
     SysGet, Mon,MonitorWorkArea 

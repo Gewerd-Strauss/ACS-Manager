@@ -38,6 +38,7 @@ Other languages/MCode
 gui - customise
 
 */
+; #Warn, all
 #NoEnv
 #Persistent
 #SingleInstance				, Force
@@ -278,7 +279,7 @@ if (script.config.Map2.Count()=0 || script.config.Map2.count()="")
 }
 ; script.Version:=script.config.Settings.ScriptVersion
 script.config.Settings.DirectoryPath:=strreplace(script.config.Settings.DirectoryPath,"A_ScriptDir",A_ScriptDir)
-global DirectoryPath:= ((substr(script.config.settings.DirectoryPath,-1)!="\*")?script.config.settings.DirectoryPath "\*":script.config.settings.DirectoryPath) ;"*" ;; this is the path that contains all libraries which will be read.
+global DirectoryPath:= ( (substr(script.config.settings.DirectoryPath,-1)!="\*") ?script.config.settings.DirectoryPath "\*":script.config.settings.DirectoryPath) ;; this is the path that contains all libraries which will be read. ;; Ensure that thes path is terminated in a "\*"
 SnippetsStructure:=fLoadFolderLibraries(DirectoryPath)
 ; Clipboard:=""
 ; for k,v in SnippetsStructure[2]
@@ -632,6 +633,7 @@ fSuperviseSearchBar()
 {
 	if Instr(fGetSearchFunctionsString(),"?")
 		str:=ttip(script.config.map2)
+	return
 }
 fDeleteWordFromSearchBar()
 {
@@ -723,17 +725,11 @@ fCopySnippet(IsDependency:=false)
 						RAWLicenseURL:=StrReplace(RAWLicenseURL,"blob/","")
 						Data.License:=URLDownloadToVar(RAWLicenseURL)
 						if (Data.License=0)
-						{
 							Data.License:="License could not be copied, please retrieve manually from '" Data.Metadata.LicenseURL  "'"
-						}
 					}
 				}
 			}
-			; else
-			; {
-			; 	if (License="")
-			; 		InfoText.Push("`n")
-			; }
+			
 			
 			if (URL!="")
 				InfoText.Push("Source: " URL "`n")
@@ -852,7 +848,7 @@ fEditSettings()
 {
 	; A_ThisHotkey
 	bIsAuthor:=(script.computername==script.authorID)
-		bIsDebug:=script.config.settings.bDebugSwitch
+	bIsDebug:=script.config.settings.bDebugSwitch
 	if ((!bIsAuthor & !bIsDebug) || (bIsAuthor & !bIsDebug)) && Instr(A_ThisHotkey,"+")
 	{
 		if ACS_InisettingsEditor(script.Name,script.configfile,1,1,1)
