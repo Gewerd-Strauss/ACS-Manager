@@ -722,6 +722,10 @@ fCopySnippet(IsDependency:=false)
 						RAWLicenseURL:=StrReplace(Data.Metadata.LicenseURL,"github.com","raw.githubusercontent.com")
 						RAWLicenseURL:=StrReplace(RAWLicenseURL,"blob/","")
 						Data.License:=URLDownloadToVar(RAWLicenseURL)
+						if (Data.License=0)
+						{
+							Data.License:="License could not be copied, please retrieve manually from '" Data.Metadata.LicenseURL  "'"
+						}
 					}
 				}
 			}
@@ -860,13 +864,17 @@ fEditSettings()
 }
 fCallBack_StatusBarMainWindow(Path:="")
 {
-	; not implemented yet
+	global
 	gui, submit, NoHide
+	if ((A_GuiEvent="DoubleClick") && (A_EventInfo=6)) || (Path=6) ;; get debug info
+	{
+		Clipboard:="Currently loaded Snippets (" CurrentLoaded[2] "):`n" CurrentLoaded[1]
+	}
 	if ((A_GuiEvent="DoubleClick") && (A_EventInfo=5)) || (Path=5) ;; trigger Error
 		SB_SetText("Testing Error", 2)
-	if (((A_GuiEvent="DoubleClick") && (A_EventInfo=4))) || (Path=1) ;; trigger About
+	if (((A_GuiEvent="DoubleClick") && (A_EventInfo=4))) || (Path=4) ;; trigger About
 		script.About()
-	if ((A_GuiEvent="DoubleClick") && (A_EventInfo=3)) || (Path=5) ;; trigger update
+	if ((A_GuiEvent="DoubleClick") && (A_EventInfo=3)) || (Path=3) ;; trigger update
 		fEditSettings()
 	if ((A_GuiEvent="DoubleClick") && (A_EventInfo=2)) || (Path=2) ;; toggle debug mode
 	{
@@ -947,7 +955,11 @@ fLoadFillDetails()
 		{
 			FileRead, Code, % Path ".ahk"
 			if (Code!="")
+			{
+				LoadedNames:=(LoadedNames=""?Data.Metadata.Name " - " Data.Metadata.Hash:LoadedNames "`n" Data.Metadata.Name " - " Data.Metadata.Hash)
 				LoadedCount:=(LoadedCount=""?1:LoadedCount+1)
+				CurrentLoaded:=[LoadedNames,LoadedCount]
+			}
 			if (!bIsAuthor && bIsDebug) || (bIsAuthor && bIsDebug)
 			{
 				MessageString:="DB - Libraries Loaded:" SnippetsStructure[3]  " Codes Loaded: " fPadIndex(LoadedCount,SnippetsStructure[5]) "/" SnippetsStructure[5]  ":Last: " Data["Metadata"].Name
@@ -2995,11 +3007,22 @@ ALG_TF_CountLines(Text)
 
  URLDownloadToVar(url,ByRef variable="")
  {
- 	hObject:=ComObjCreate("WinHttp.WinHttpRequest.5.1")
- 	hObject.Open("GET",url)
- 	hObject.Send()
-	variable:=hObject.ResponseText
- 	return variable
+	whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+	whr.Open("GET", url), whr.Send()
+	whr.WaitForResponse()
+	try ;; thanks to u/anonymous1184 for this general fix against 
+	{
+		response := whr.ResponseText
+		from := "ResponseText"
+	} 
+	catch e 
+	{
+		response := ""
+		for char in whr.ResponseBody
+			response .= Chr(char)
+		from := "ResponseBody"
+	}
+ 	return (response=""?0:response)
  }
 ;--uID:754475711
 ; --uID:1993173571
