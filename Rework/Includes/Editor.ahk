@@ -252,20 +252,27 @@ fSubmitImporter(SubmissionObj, Snippet,bIsEditing,ConvertingAHKRARE:=false)
 
     gui, ACSI: submit, nohide
     gui, 1: -Disabled
+    if (SubmissionObj.Example="Ex")
+        SubmissionObj.Remove(Example)
+    if (SubmissionObj.Example="Desc")
+        SubmissionObj.Remove(Description)
     if !ConvertingAHKRARE
     {
         if ((SubmissionObj.Snippet="")  || (SubmissionObj.Name="")   || (SubmissionObj.Library=""))
         {
             i:=0
             missingStr:=""
-            for k,v in SubmissionObject
+            for k,v in SubmissionObj
             {
                 
                 if (v="")
                     missingStr.= k ":" v (mod(3,++i)?",`n":", ")
             }
-            MsgBox 0x40030, `% script.name " - Snippet Editor", "The contents fed to be edited do not resemble a valid snippet object.`n`nPlease check for errors in the data structure`, as well as the source code.`nFaulty Values:`n" missingStr "`nReturning to Main GUI"
-            return
+            if (missingStr="")
+            {
+                MsgBox 0x40030, `% script.name " - Snippet Editor", "The contents fed to be edited do not resemble a valid snippet object.`n`nPlease check for errors in the data structure`, as well as the source code.`nFaulty Values:`n" missingStr "`nReturning to Main GUI"
+                return
+            }
         }
     }
 
@@ -334,7 +341,7 @@ fSubmitImporter(SubmissionObj, Snippet,bIsEditing,ConvertingAHKRARE:=false)
         if fWriteTextToFile(SubmissionObj.Example,strreplace(DirectoryPath,"*") SubmissionObj.Library "\" Hash ".example")
             Success++
     }
-    if (SubmissionObj.Description!="") && (RegExReplace(SubmissionObj.Description,"\s*","")!="") && !Instr(SubmissionObj.Description, "Error 01: No example-file was found under the expected path")
+    if (SubmissionObj.Description!="") && (RegExReplace(SubmissionObj.Description,"\s*","")!="") && !Instr(SubmissionObj.Description, "Error 01: No description-file was found under the expected path")
     {
         if fWriteTextToFile(SubmissionObj.Description,strreplace(DirectoryPath,"*") SubmissionObj.Library "\" Hash ".description")
             Success++
