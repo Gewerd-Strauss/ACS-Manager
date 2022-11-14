@@ -134,135 +134,134 @@ CrtDate:=SubStr(CrtDate,7,  2) "." SubStr(CrtDate,5,2) "." SubStr(CrtDate,1,4)
 					,configfile   : A_ScriptDir "\INI-Files\" regexreplace(A_ScriptName, "\.\w+") ".ini"
                     ,configfolder : A_ScriptDir "\INI-Files"}
 
-, f_CreateTrayMenu()
 , script.Update(,,1)
 , global bSearchSnippets:=false
 FileGetVersion, Version, %A_ProgramFiles%\AutoHotkey\AutoHotkey.exe
+OnMessage(0x404, "f_TrayIconSingleClickCallBack")
 ; m(A_AhkVersion,Version)
-if bIsAuthor:=(script.computername==script.authorID)
-	FileDelete, % script.configfile ;; for testing purposes and keeping the settings updated when adding/changing keys
+; if bIsAuthor:=(script.computername==script.authorID)
+; 	FileDelete, % script.configfile ;; for testing purposes and keeping the settings updated when adding/changing keys
 if !script.Load(,1) 
 { ;; default settings
 	str=
-(LTRIM
-[Map2]
-;Map2 Hidden:
-AU=Author
-DA=Date
-Dep=Dependencies
-Fi=Library
-Key=Keywords
-Li=License
-Lic=License
-Na=Name
-Ha=Hash
-Se=Section
-Sec=Section
-Url=URL
-Ver=Version
-[Settings]
-bDebugSwitch=0
-;bDebugSwitch Do you want to enter debug mode when starting up the script? Debug mode can be entered by pressing Ctrl+T while the GUI is active. NOT IMPLEMENTED:This can be useful for debugging issues with the startup routine.
-;bDebugSwitch Type: Checkbox 
-;bDebugSwitch CheckboxName: Enable Debugmode on startup?
-;bDebugSwitch Default: 0
-bNotifyDependenciesOnCopy=0
-;bNotifyDependenciesOnCopy Notify user of dependencies when notifying a snippet.
-;bNotifyDependenciesOnCopy Type: Checkbox 
-;bNotifyDependenciesOnCopy CheckboxName: Notify user of existing dependencies?
-;bNotifyDependenciesOnCopy Default:0
-;bNotifyDependenciesOnCopy Hidden:
-bShowLoadUp=0
-;bShowLoadUp Do you want to display the loading routine when starting the script?
-;bShowLoadUp This is not recommended when loading _A LOT_ of snippets.
-;bShowLoadUp Type: Checkbox
-;bShowLoadUp Default: 0
-;bShowLoadUp CheckboxName: Display GUI when loading?
-bShowOnStartup=1
-;bShowOnStartup Set whether or not to display the GUI on script startup or not.
-;bShowOnStartup Type: Checkbox 
-;bShowOnStartup Default: 0
-;bShowOnStartup CheckboxName: Show GUI on script-startup?
-CopyDescriptionToOutput=1
-;CopyDescriptionToOutput When checked, the contents of the "Description"-Editfield are added when copying the snippet to the clipboard
-;CopyDescriptionToOutput Type: Checkbox 
-;CopyDescriptionToOutput Default: 1
-;CopyDescriptionToOutput CheckboxName: Copy Description?
-CopyExampleToOutput=1
-;CopyExampleToOutput When checked, the contents of the "Example"-Editfield are added when copying the snippet to the clipboard
-;CopyExampleToOutput Type: Checkbox 
-;CopyExampleToOutput Default: 1
-;CopyExampleToOutput CheckboxName: Copy Example?
-CopyLicenseToOutput=1
-;CopyLicenseToOutput When checked, the License of the snippet is added when copying the snippet to the clipboard
-;CopyLicenseToOutput Type: Checkbox 
-;CopyLicenseToOutput Default: 1
-;CopyLicenseToOutput CheckboxName: Copy Metadata?
-CopyMetadataToOutput=1
-;CopyMetadataToOutput When checked, the Metadata of the snippet is added when copying the snippet to the clipboard
-;CopyMetadataToOutput Type: Checkbox 
-;CopyMetadataToOutput CheckboxName: Copy Metadata?
-;CopyMetadataToOutput Default: 1
-DateFormat=dd.MM.yyyy
-;DateFormat Set the format with which to display dates.
-;DateFormat Type: Text 
-;DateFormat Default: dd.MM.yyyy
-DirectoryPath=A_ScriptDir\Sources
-;DirectoryPath Set the folder to be loaded. The names of the firstlevel-subfolder will be the name of the "Library" within the script.
-;DirectoryPath Type: Folder
-;DirectoryPath Default: A_ScriptDir "\Sources"
-Search_InString_MetaFields=1
-;Search_InString_MetaFields Do you want to use InString instead of FullString-matching when searching within metadata-fields?
-;Search_InString_MetaFields Type: Checkbox
-;Search_InString_MetaFields CheckboxName: Use InStr()-Metadatasearch?
-;Search_InString_MetaFields Default: 1
-ShowRedraw=0
-;ShowRedraw Do you want to display the Listview redrawing itself when searching? 
-;ShowRedraw Disable this if performance while doing so is too harsh.
-;ShowRedraw Type: Checkbox
-;ShowRedraw CheckboxName: Display Listview-Redraw when searching?
-;ShowRedraw Default: 0
-bSetSearchresultAlphabetically=1
-;bSetSearchresultAlphabetically Do you want to sort searchresults alphabetically or by section and snippet identifier? This only affects searchresults.
-;bSetSearchresultAlphabetically Type: Checkbox
-;bSetSearchresultAlphabetically CheckboxName: Sort Searchresults alphabetically?
-LibraryRelativeSI=0
-;LibraryRelativeSI When checked, the SnippetIndex displayed in the GUI will be relative to the library said snippet is in, and not relative to the section overall.
-;LibraryRelativeSI Type: Checkbox
-;LibraryRelativeSI Default: 0
-;LibraryRelativeSI Hidden:
-Max_InDepth_Searchable=200
-;Max_InDepth_Searchable Set the maximum number of snippets to be searched. DEPRECATED
-;Max_InDepth_Searchable Type: Number
-;Max_InDepth_Searchable Hidden:
-Search_Code=0
-;Search_Code Do you want to search within already loaded code, although it will be MUCH slower?
-;Search_Code This does not affect unloaded snippets - they cannot be searched.
-;Search_Code Type: Checkbox
-;Search_Code CheckboxName: Search in loaded Code?
-;Search_Code Default: 0
-;Search_Code Hidden:
-Search_Description=0
-;Search_Description Do you want to search within already loaded Descriptions, although it will be MUCH slower?
-;Search_Description This does not affect unloaded snippets - they cannot be searched.
-;Search_Description Type: Checkbox
-;Search_Description CheckboxName: Search in loaded Descriptions?
-;Search_Description Default: 0
-;Search_Description Hidden:
-Search_Examples=0
-;Search_Examples Do you want to search within already loaded Examples, although it will be MUCH slower?
-;Search_Examples This does not affect unloaded snippets - they cannot be searched.
-;Search_Examples Type: Checkbox
-;Search_Examples CheckboxName: Search in loaded Examples?
-;Search_Examples Default: 0
-;Search_Examples Hidden:
-SoundAlertOnDebug=1
-;SoundAlertOnDebug Type: Checkbox
-;SoundAlertOnDebug Checkboxname: Do you want to hear a sound alert when entering and exiting Debug mode?
-;SoundAlertOnDebug This can be useful as Debug mode can seriously alter the behaviour of the program
-;SoundAlertOnDebug Default: 1
-)
-	
+	(LTRIM
+	[Map2]
+	;Map2 Hidden:
+	AU=Author
+	DA=Date
+	Dep=Dependencies
+	Fi=Library
+	Key=Keywords
+	Li=License
+	Lic=License
+	Na=Name
+	Ha=Hash
+	Se=Section
+	Sec=Section
+	Url=URL
+	Ver=Version
+	[Settings]
+	bDebugSwitch=0
+	;bDebugSwitch Do you want to enter debug mode when starting up the script? Debug mode can be entered by pressing Ctrl+T while the GUI is active. NOT IMPLEMENTED:This can be useful for debugging issues with the startup routine.
+	;bDebugSwitch Type: Checkbox 
+	;bDebugSwitch CheckboxName: Enable Debugmode on startup?
+	;bDebugSwitch Default: 0
+	bNotifyDependenciesOnCopy=0
+	;bNotifyDependenciesOnCopy Notify user of dependencies when notifying a snippet.
+	;bNotifyDependenciesOnCopy Type: Checkbox 
+	;bNotifyDependenciesOnCopy CheckboxName: Notify user of existing dependencies?
+	;bNotifyDependenciesOnCopy Default:0
+	;bNotifyDependenciesOnCopy Hidden:
+	bShowLoadUp=0
+	;bShowLoadUp Do you want to display the loading routine when starting the script?
+	;bShowLoadUp This is not recommended when loading _A LOT_ of snippets.
+	;bShowLoadUp Type: Checkbox
+	;bShowLoadUp Default: 0
+	;bShowLoadUp CheckboxName: Display GUI when loading?
+	bShowOnStartup=1
+	;bShowOnStartup Set whether or not to display the GUI on script startup or not.
+	;bShowOnStartup Type: Checkbox 
+	;bShowOnStartup Default: 0
+	;bShowOnStartup CheckboxName: Show GUI on script-startup?
+	CopyDescriptionToOutput=1
+	;CopyDescriptionToOutput When checked, the contents of the "Description"-Editfield are added when copying the snippet to the clipboard
+	;CopyDescriptionToOutput Type: Checkbox 
+	;CopyDescriptionToOutput Default: 1
+	;CopyDescriptionToOutput CheckboxName: Copy Description?
+	CopyExampleToOutput=1
+	;CopyExampleToOutput When checked, the contents of the "Example"-Editfield are added when copying the snippet to the clipboard
+	;CopyExampleToOutput Type: Checkbox 
+	;CopyExampleToOutput Default: 1
+	;CopyExampleToOutput CheckboxName: Copy Example?
+	CopyLicenseToOutput=1
+	;CopyLicenseToOutput When checked, the License of the snippet is added when copying the snippet to the clipboard
+	;CopyLicenseToOutput Type: Checkbox 
+	;CopyLicenseToOutput Default: 1
+	;CopyLicenseToOutput CheckboxName: Copy Metadata?
+	CopyMetadataToOutput=1
+	;CopyMetadataToOutput When checked, the Metadata of the snippet is added when copying the snippet to the clipboard
+	;CopyMetadataToOutput Type: Checkbox 
+	;CopyMetadataToOutput CheckboxName: Copy Metadata?
+	;CopyMetadataToOutput Default: 1
+	DateFormat=dd.MM.yyyy
+	;DateFormat Set the format with which to display dates.
+	;DateFormat Type: Text 
+	;DateFormat Default: dd.MM.yyyy
+	DirectoryPath=A_ScriptDir\Sources
+	;DirectoryPath Set the folder to be loaded. The names of the firstlevel-subfolder will be the name of the "Library" within the script.
+	;DirectoryPath Type: Folder
+	;DirectoryPath Default: A_ScriptDir "\Sources"
+	Search_InString_MetaFields=1
+	;Search_InString_MetaFields Do you want to use InString instead of FullString-matching when searching within metadata-fields?
+	;Search_InString_MetaFields Type: Checkbox
+	;Search_InString_MetaFields CheckboxName: Use InStr()-Metadatasearch?
+	;Search_InString_MetaFields Default: 1
+	ShowRedraw=0
+	;ShowRedraw Do you want to display the Listview redrawing itself when searching? 
+	;ShowRedraw Disable this if performance while doing so is too harsh.
+	;ShowRedraw Type: Checkbox
+	;ShowRedraw CheckboxName: Display Listview-Redraw when searching?
+	;ShowRedraw Default: 0
+	bSetSearchresultAlphabetically=1
+	;bSetSearchresultAlphabetically Do you want to sort searchresults alphabetically or by section and snippet identifier? This only affects searchresults.
+	;bSetSearchresultAlphabetically Type: Checkbox
+	;bSetSearchresultAlphabetically CheckboxName: Sort Searchresults alphabetically?
+	LibraryRelativeSI=0
+	;LibraryRelativeSI When checked, the SnippetIndex displayed in the GUI will be relative to the library said snippet is in, and not relative to the section overall.
+	;LibraryRelativeSI Type: Checkbox
+	;LibraryRelativeSI Default: 0
+	;LibraryRelativeSI Hidden:
+	Max_InDepth_Searchable=200
+	;Max_InDepth_Searchable Set the maximum number of snippets to be searched. DEPRECATED
+	;Max_InDepth_Searchable Type: Number
+	;Max_InDepth_Searchable Hidden:
+	Search_Code=0
+	;Search_Code Do you want to search within already loaded code, although it will be MUCH slower?
+	;Search_Code This does not affect unloaded snippets - they cannot be searched.
+	;Search_Code Type: Checkbox
+	;Search_Code CheckboxName: Search in loaded Code?
+	;Search_Code Default: 0
+	;Search_Code Hidden:
+	Search_Description=0
+	;Search_Description Do you want to search within already loaded Descriptions, although it will be MUCH slower?
+	;Search_Description This does not affect unloaded snippets - they cannot be searched.
+	;Search_Description Type: Checkbox
+	;Search_Description CheckboxName: Search in loaded Descriptions?
+	;Search_Description Default: 0
+	;Search_Description Hidden:
+	Search_Examples=0
+	;Search_Examples Do you want to search within already loaded Examples, although it will be MUCH slower?
+	;Search_Examples This does not affect unloaded snippets - they cannot be searched.
+	;Search_Examples Type: Checkbox
+	;Search_Examples CheckboxName: Search in loaded Examples?
+	;Search_Examples Default: 0
+	;Search_Examples Hidden:
+	SoundAlertOnDebug=1
+	;SoundAlertOnDebug Type: Checkbox
+	;SoundAlertOnDebug Checkboxname: Do you want to hear a sound alert when entering and exiting Debug mode?
+	;SoundAlertOnDebug This can be useful as Debug mode can seriously alter the behaviour of the program
+	;SoundAlertOnDebug Default: 1
+	)
 	FileAppend, % str,% script.configfile, % "UTF-16"
 	script.Load(,1)
 }
@@ -337,7 +336,7 @@ RESettings2 :=
 }
 )
 gosub, lGUICreate_1New
-
+f_CreateTrayMenu(vGUIWidth,vGUIHeight,GuiNameMain)
 
 ;;  an armada of different search testing strings :
 ; Clipboard:="Au:Gew Se:menu Li:Un"
@@ -1081,8 +1080,15 @@ fLoadFillDetails()
 		f_FillFields(Code,Description,Example)		;; using name as the identifier could be problematic when having multiple snippets  of same name
 	return
 }
-
-f_CreateTrayMenu()
+f_TrayIconSingleClickCallBack(wParam, lParam)
+{ ; taken from https://autohotkey.com/board/topic/26639-tray-menu-show-gui/
+	if (lParam = 0x202)
+	{
+		menu, tray, show
+		return 0
+	}
+}
+f_CreateTrayMenu(vGUIWidth,vGUIHeight,GuiNameMain)
 { ;; facilitates creation of the tray menu
 	menu, tray, add,
 	Menu, Misc, add, Open Script-folder, lOpenScriptFolder
@@ -1090,6 +1096,8 @@ f_CreateTrayMenu()
 	menu, Misc, Add, About, Label_AboutFile
 	SplitPath, A_ScriptName,,,, scriptname
 	Menu, tray, add, Miscellaneous, :Misc
+	Obj_GuiShow:=Func("fGuiShowHide").Bind(vGUIWidth,vGUIHeight,GuiNameMain)
+	Menu, Tray, Add, Show/Hide GUI, % Obj_GuiShow
 	menu, tray, add,
 	return
 	lOpenScriptFolder:
@@ -1136,7 +1144,6 @@ fMoveThroughSearchHistory(SnippetsStructure,References,DirectoryPath,SearchHisto
 }
 fSearchSnippetsEnter(SnippetsStructure,References,DirectoryPath,SearchHistory)
 {
-	; A_GuiControl A_ThisHotkey A_ThisFunc A_THisLabel A_GuiControlEvent A_GuiEvent | always useful having these here when checking annoying states
 	lSearchSnippets:
 		; Settimer, % func, Off
 		Gui, 1: Submit, NoHide
@@ -1194,6 +1201,7 @@ fSelectFirstLVEntry_Searches()
 	return
 }
 
+
 ; MoveOnListView(Direction:=1)
 ; { 
 ; 	sleep, 150
@@ -1210,10 +1218,7 @@ fSelectFirstLVEntry(SnippetsStructure,Matches)
 ::alib.s::
 Numpad0::
 GUI_Mode:=!GUI_Mode
-if WinActive(GuiNameMain)
-    fGuiHide_1()
-else
-    fGuiShow_1(vGUIWidth,vGUIHeight,GuiNameMain)
+fGuiShowHide(vGUIWidth,vGUIHeight,GuiNameMain)
 if strsplit(script.config.settings.ShowRedraw,A_Space).1
 	GuiControl, +Redraw, LVvalue
 f_RescaleLV()
@@ -1250,6 +1255,35 @@ return
 SendInput, ^s  
 reload
 return ; yes I know this is not actually needed. I don't care.
+
+fGuiShowHide(vGUIWidth,vGUIHeight,GuiNameMain)
+{ ;; show or hide the GUI
+; A_GuiControl A_ThisHotkey A_ThisFunc A_THisLabel A_GuiControlEvent A_ThisMenu A_ThisMenuItem A_GuiEvent | always useful having these here when checking annoying states
+	static bShowGUIFromTray:=0
+	if (A_ThisMenu="Tray")
+	{
+		if !bShowGUIFromTray
+			fGuiHide_1()	
+		else if bShowGUIFromTray
+			fGuiShow_1(vGUIWidth,vGUIHeight,GuiNameMain)
+		ttip(bShowGUIFromTray:=!bShowGUIFromTray)
+	}
+	else
+	{
+		if WinActive(GuiNameMain)
+		{
+			bShowGUIFromTray:=true
+			fGuiHide_1()
+		}
+		else 
+		{
+			bShowGUIFromTray:=false
+			fGuiShow_1(vGUIWidth,vGUIHeight,GuiNameMain)
+		}
+	}
+	Return
+}
+
 
 f_CollectMatches(Array,String,References,AllSections)
 { ;; finds all fields of Array whose value contain 'String', and if any exist return the snippet's Object
