@@ -93,7 +93,8 @@ ACS_EditorImporter(Snippet:="",SnippetsStructure:="",ConvertingAHKRARE:=false)
             if (Ind=1)
                 str.="|"
         }
-        libstr:=strreplace(strreplace(str,"||","|"),snippet.metadata.Library,snippet.metadata.Library "|")
+        libstr:=strreplace(str,"||","|")
+        libstr:=strreplace(libstr,snippet.metadata.Library,snippet.metadata.Library "|")
         gui, add, ComboBox, yp xp+100 w180 h%SmallFieldsHeight% R100 vvLibrary_Importer,% libstr
 
     gui, add, text, yp+%SmallFieldsHeight%+5 xp-100, Dependencies
@@ -322,12 +323,12 @@ fSubmitImporter(SubmissionObj, Snippet,bIsEditing,ConvertingAHKRARE:=false)
         if fWriteTextToFile(SubmissionObj.Snippet,NewFile:=strreplace(DirectoryPath,"*") SubmissionObj.Library "\" Hash ".ahk")
             Success++
     }
-    if (SubmissionObj.Example!="") && (RegExReplace(SubmissionObj.Example,"\s*","")!="") && !Instr(SubmissionObj.Example, "Error 01: No example-file was found under the expected path")
+    if (SubmissionObj.Example!="") && (RegExReplace(SubmissionObj.Example,"\s*","")!="") && !(SubmissionObj.Example="Ex") && !Instr(SubmissionObj.Example, "Error 01: No example-file was found under the expected path")
     {
         if fWriteTextToFile(SubmissionObj.Example,strreplace(DirectoryPath,"*") SubmissionObj.Library "\" Hash ".example")
             Success++
     }
-    if (SubmissionObj.Description!="") && (RegExReplace(SubmissionObj.Description,"\s*","")!="") && !Instr(SubmissionObj.Description, "Error 01: No description-file was found under the expected path")
+    if (SubmissionObj.Description!="") && (RegExReplace(SubmissionObj.Description,"\s*","")!="") && !(SubmissionObj.Desc="Desc") && !Instr(SubmissionObj.Description, "Error 01: No description-file was found under the expected path")
     {
         if fWriteTextToFile(SubmissionObj.Description,strreplace(DirectoryPath,"*") SubmissionObj.Library "\" Hash ".description")
             Success++
