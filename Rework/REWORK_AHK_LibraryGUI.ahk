@@ -1149,6 +1149,27 @@ fSearchSnippetsEnter(SnippetsStructure,References,DirectoryPath,SearchHistory)
 		Gui, 1: Submit, NoHide
 		; GuiControlGet, currentSearch, , SearchString
 		SearchString:=fGetSearchFunctionsString()
+		if SubStr(SearchString, 1,3)="c::" ;; enter command mode, do not 
+		{
+			Prompt:=strSplit(SearchString,"c::").2
+			if (Prompt="rescale")
+			{
+				gosub, lRescale
+				fClearSearchBar()
+				Return
+			}
+			else if (Prompt="reload")
+			{
+				reload
+			}
+			else
+			{
+				ttip("Invalid Command issued:'" Prompt "'")
+
+			}
+			fClearSearchBar()
+			return
+		}
 		; Matches:=[] ;; create Obj
 		global Matches:=f_CollectMatches(SnippetsStructure[1],SearchString,References,SnippetsStructure[2]) ;; for sections, because we need to load every single snippet's metadata anyways, we might just as well preprocess into various lists?
 		if (Matches!=-1)  && IsObject(Matches) ;; is this even necessary? ;; DEPRECATED: || RegExMatch(SearchString,Regex.SecSearch,s) 
@@ -1230,6 +1251,7 @@ return
 ^T::fCallBack_StatusBarMainWindow(2)
 Esc::fGuiHide_1()
 Numpad9:: ;; resizes the GUI 
+lRescale:
 bSwitchSize:=1
 if (vGuiHeight==(1080-20))
 {
