@@ -1166,6 +1166,15 @@ fSearchSnippetsEnter(SnippetsStructure,References,DirectoryPath,SearchHistory)
 			{
 				reload
 			}
+			else if (Prompt="get Sections")
+			{
+				Clipboard:=getSectionsOutput:=""
+
+				for k,v in SnippetsStructure[2]
+					getSectionsOutput.=v "`n"
+
+				Clipboard:=getSectionsOutput
+			}
 			else
 			{
 				ttip("Invalid Command issued:'" Prompt "'")
