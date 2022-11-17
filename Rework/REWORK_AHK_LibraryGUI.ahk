@@ -87,52 +87,56 @@ finally, make sure toingest 'CreditsRaw' into the 'credits'-field of the templat
 #Include <ScriptObj\scriptObj>
 CreditsRaw=
 (LTRIM
-author1   -		 snippetName1		   		  			-	URL1
-Gewerd Strauss		- snippetName2|SnippetName3 (both at the same URL)								-	/
-Ixiko - AHK-Rare - https://github.com/Ixiko/AHK-Rare
-Paris - DateParse - https://github.com/Paris/AutoHotkey-Scripts/blob/master/DateParse.ahk
-tidbit - String Things - https://www.autohotkey.com/boards/viewtopic.php?t=53
-hi5 - tf - https://github.com/hi5/TF#ALG_TF_InsertPrefix
-jballi - AddToolTip - https://www.autohotkey.com/boards/viewtopic.php?t=30079
-G33kdude - RichCode - https://github.com/G33kDude/RichCode.ahk
+snippetName1  										- author1		   		  						-	URL1
+snippetName2|SnippetName3 (both at the same URL) 	- Gewerd Strauss								-	/
+AHK-Rare 											- Ixiko 										- https://github.com/Ixiko/AHK-Rare
+DateParse 											- Paris 										- https://github.com/Paris/AutoHotkey-Scripts/blob/master/DateParse.ahk
+String Things 										- tidbit 										- https://www.autohotkey.com/boards/viewtopic.php?t=53
+tf 													- hi5											- https://github.com/hi5/TF#ALG_TF_InsertPrefix
+AddToolTip 											- jballi 										- https://www.autohotkey.com/boards/viewtopic.php?t=30079
+RichCode 											- G33kdude 										-  https://github.com/G33kDude/RichCode.ahk
 )
 FileGetTime, ModDate,%A_ScriptFullPath%,M
 FileGetTime, CrtDate,%A_ScriptFullPath%,C
 CrtDate:=SubStr(CrtDate,7,  2) "." SubStr(CrtDate,5,2) "." SubStr(CrtDate,1,4)
-, global script := {   base         : script
-                    ,name         : regexreplace(A_ScriptName, "\.\w+")
-                    ,version      : FileOpen(A_ScriptDir "\version.ini","r").Read() ;; Gets read in from settings-file later
-                    ,dbgLevel	  : 1
-                    ,computername : A_ComputerName
-                    ,author       : "Gewerd Strauss"
-					,authorID	  : "LAPTOP-C"
-					,authorlink   : ""
-                    ,email        : ""
-                    ,credits      : CreditsRaw
-					,creditslink  : ""
-                    ,crtdate      : SubStr(CrtDate,7,  2) "." SubStr(CrtDate,5,2) "." SubStr(CrtDate,1,4)
-                    ,moddate      : SubStr(ModDate,7,  2) "." SubStr(ModDate,5,2) "." SubStr(ModDate,1,4)
-                    ,homepagetext : ""
-                    ,homepagelink : ""
-                    ,ghtext 	  : "GH-Repo"
-                    ,ghlink       : "https://github.com/Gewerd-Strauss/AHK-Code-Snippets"
-                    ,doctext	  : "Documenation"
-                    ,doclink	  : "https://github.com/Gewerd-Strauss/ScriptObj#readme"
-                    ,forumtext	  : ""
-                    ,forumlink	  : ""
-                    ,donateLink	  : ""
-                    ,resfolder    : A_ScriptDir "\res"
-                    ,iconfile	  : A_ScriptDir "\res\sct.ico"
-					,reqInternet  : false
-					,rfile  	  : "https://github.com/Gewerd-Strauss/AHK-Code-Snippets/archive/refs/heads/Rework-Separated-Code-&-Metadata.zip"
-					,vfile_raw	  : "https://raw.githubusercontent.com/Gewerd-Strauss/AHK-Code-Snippets/Speed-Test/version.ini" 
-					,vfile 		  : "https://raw.githubusercontent.com/Gewerd-Strauss/AHK-Code-Snippets/Speed-Test/version.ini" 
-					,vfile_local  : A_ScriptDir "\version.ini" 
-					,DataFolder:	A_ScriptDir "\Sources"
-                    ,ErrorCache	  :	[]
-                    ,config		  :	[]
-					,configfile   : A_ScriptDir "\INI-Files\" regexreplace(A_ScriptName, "\.\w+") ".ini"
-                    ,configfolder : A_ScriptDir "\INI-Files"}
+, global script := {   base           : script
+                    ,name             : regexreplace(A_ScriptName, "\.\w+")
+                    ,version          : FileOpen(A_ScriptDir "\version.ini","r").Read() ;; Gets read in from settings-file later
+                    ,dbgLevel	      : 1
+                    ,computername     : A_ComputerName
+                    ,author           : "Gewerd Strauss"
+					,authorID	      : "LAPTOP-C"
+					,authorlink       : ""
+                    ,email            : ""
+                    ,credits          : CreditsRaw
+					,creditslink      : ""
+                    ,crtdate          : SubStr(CrtDate,7,  2) "." SubStr(CrtDate,5,2) "." SubStr(CrtDate,1,4)
+                    ,moddate          : SubStr(ModDate,7,  2) "." SubStr(ModDate,5,2) "." SubStr(ModDate,1,4)
+                    ,homepagetext     : ""
+                    ,homepagelink     : ""
+                    ,ghtext 	      : "GH-Repo"
+                    ,ghlink           : "https://github.com/Gewerd-Strauss/AHK-Code-Snippets"
+                    ,doctext	      : "Documenation"
+                    ,doclink	      : "https://github.com/Gewerd-Strauss/ScriptObj#readme"
+                    ,forumtext	      : ""
+                    ,forumlink	      : ""
+                    ,donateLink	      : ""
+                    ,resfolder        : A_ScriptDir "\res"
+                    ,iconfile	      : A_ScriptDir "\res\sct.ico"
+					,reqInternet      : false
+					,rfile  	      : "https://github.com/Gewerd-Strauss/AHK-Code-Snippets/archive/refs/heads/Rework-Separated-Code-&-Metadata.zip"
+					,vfile_raw	      : "https://raw.githubusercontent.com/Gewerd-Strauss/AHK-Code-Snippets/Rework-Separated-Code-&-Metadata/version.ini" 
+					,vfile 		      : "https://raw.githubusercontent.com/Gewerd-Strauss/AHK-Code-Snippets/Rework-Separated-Code-&-Metadata/version.ini" 
+					,vfile_local      : A_ScriptDir "\version.ini" 
+					,DataFolder	      :	A_ScriptDir "\Sources"
+					,Data_rfile       : "https://github.com/Gewerd-Strauss/AHK-Code-Snippets/archive/refs/heads/Rework-Separated-Code-&-Metadata.zip"
+					,Data_vfile_raw   : "https://raw.githubusercontent.com/Gewerd-Strauss/AHK-Code-Snippets/Rework-Separated-Code-&-Metadata/dataversion.ini" 
+					,Data_vfile	      : "https://raw.githubusercontent.com/Gewerd-Strauss/AHK-Code-Snippets/Rework-Separated-Code-&-Metadata/dataversion.ini" 
+					,Data_vfile_local : A_ScriptDir "\dataversion.ini" 
+                    ,ErrorCache	      :	[]
+                    ,config		      :	[]
+					,configfile       : A_ScriptDir "\INI-Files\" regexreplace(A_ScriptName, "\.\w+") ".ini"
+                    ,configfolder     : A_ScriptDir "\INI-Files"}
 
 , script.Update(,,1)
 , global bSearchSnippets:=false
