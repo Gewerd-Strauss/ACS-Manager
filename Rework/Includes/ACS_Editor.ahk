@@ -276,11 +276,12 @@ fSubmitImporter(SubmissionObj, Snippet,bIsEditing,ConvertingAHKRARE:=false)
 
 
     OldHash:=Snippet.Metadata.Hash
+    OldHashes:=Snippet.Metadata.PastHashes
     OldLib:=Snippet.Metadata.Library
     ttip(SubmissionObj.Name,SubmissionObj.Library)
     Key:=SubmissionObj.Name . SubmissionObj.Library . SubmissionObj.Snippet ;; cuz the hash is no longer required to be translated, I can make it 
     Hash:=Object_HashmapHash(Key) ; Issue: What to include in the hashed snippet name?
-    Obj:={Name:SubmissionObj.Name,Author:SubmissionObj.Author,Date:DateParse(SubmissionObj.Date),License:SubmissionObj.Licens,URL:SubmissionObj.URL,Section:SubmissionObj.Section,Version:SubmissionObj.Version,Hash:Hash} ;; decide if we actually want to     if (Code="")  ;; do not write to disc
+    ; Obj:={Name:SubmissionObj.Name,Author:SubmissionObj.Author,Date:DateParse(SubmissionObj.Date),License:SubmissionObj.Licens,URL:SubmissionObj.URL,Section:SubmissionObj.Section,Version:SubmissionObj.Version,Hash:Hash} ;; decide if we actually want to     if (Code="")  ;; do not write to disc
     IniSave:=SubmissionObj.Clone()
     IniSave.Hash:=Hash
     IniSave.Remove("Code")
@@ -300,6 +301,21 @@ fSubmitImporter(SubmissionObj, Snippet,bIsEditing,ConvertingAHKRARE:=false)
         if (k="Snippet")
             IniSave.Remove(k)
     }
+    /*
+        add Hashing-History
+        this is required so that files that are simply renamed retain their history, 
+        so that when updating the library from remote we are able to tell which files 
+        actually need to be updated and which not.
+
+        ;; now all that's needed is a special updater, because script.update is not set up for this.
+        or rather, I need an updater that only downloads the new repo to A_Temp, and a separate script 
+        to decide which files can be copied and which can not.
+    */
+    IniSave.PastHashes:=Hash ","  Snippet.Metadata.PastHashes
+    
+
+
+
     Extensions:=[".ahk",".ini",".example",".description"]
     for k,v in Extensions
     {
@@ -378,7 +394,8 @@ fSubmitImporter(SubmissionObj, Snippet,bIsEditing,ConvertingAHKRARE:=false)
             MsgBox 0x30, % script.name " - Snippet Editor", "Error:`nOnly "  Restore " Files could be restored from the error, " k-Restore " files must be`nmanually recovered from the backup."
         
     }
-    reload
+    if (!Instr(A_ScriptName, "ACS_Editor") && !bForceRestartOnEditt)
+        reload
     return
 }
 fWriteTextToFile(Text,Path)

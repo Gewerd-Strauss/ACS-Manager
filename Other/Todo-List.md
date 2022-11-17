@@ -1,6 +1,7 @@
 (LTrim
 List-version 31.07.2022 21:18:35
 # TODO
+- [ ] #important **Finish Hashing-Checker (and script-specific update routine, as scriptobj is no longer suitable for that**
 - [ ] Consider switching storage over to something like JSON, (or rather SerDes in this case) both make my life much easier when loading the data, and when parsing it - because there is basically nothing to parse
 	- considerations: 
 		- 1 SerDes-Str/File, so that we don't loose file-relative hash uniqueness
