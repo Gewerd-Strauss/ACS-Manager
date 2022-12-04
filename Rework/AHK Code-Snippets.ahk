@@ -143,7 +143,7 @@ CrtDate:=SubStr(CrtDate,7,  2) "." SubStr(CrtDate,5,2) "." SubStr(CrtDate,1,4)
 
 script.Update(,,1,,1)
 global bSearchSnippets:=bForceRestartOnEdit:=false
-global GuiCommands:=["rescale","reload","get sections","no restart on edit"]
+global GuiCommands:=["entered by prepending c::","rescale","reload","get sections","no restart on edit"]
 FileGetVersion, Version, %A_ProgramFiles%\AutoHotkey\AutoHotkey.exe
 OnMessage(0x404, "f_TrayIconSingleClickCallBack")
 ; m(A_AhkVersion,Version)
@@ -540,8 +540,8 @@ lGUICreate_1New: ;; Fully Parametric-form, TODO: functionalise this thing
 		}
 		; f_SB_Set()
 		SB_SetText("No Code from " script.name " on clipboard.", 1)
-		if (SnippetsStructure[4,"ahk"]!=SnippetsStructure[4,"ini"]) 
-			script.Error:="Critical Error: Metadata for " SnippetsStructure[4,"ini"] " files has been found, but code is present for " SnippetsStructure[4,"ahk"] " snippets."
+		if (SnippetsStructure[4,"ahk"]!=SnippetsStructure[4,"ini"])
+			script.Error:="Critical Error [1]: Metadata for " SnippetsStructure[4,"ini"] " files has been found, but code is present for " SnippetsStructure[4,"ahk"] " snippets."
 		if (script.error!="")
 			SB_SetText(script.error,5)
 		else
@@ -865,11 +865,11 @@ fEditSettings()
 	bIsDebug:=script.config.settings.bDebugSwitch
 	if ((!bIsAuthor & !bIsDebug) || (bIsAuthor & !bIsDebug)) && Instr(A_ThisHotkey,"+")
 	{
-		if ACS_InisettingsEditor(script.Name,script.configfile,1,1,1)
+		if ACS_InisettingsEditor(script.Name,script.configfile,1,1,0)
 			reload
 	}
 	else
-		if ACS_InisettingsEditor(script.Name,script.configfile,1,1,0)
+		if ACS_InisettingsEditor(script.Name,script.configfile,1,1,1)
 			reload
 }
 fCallBack_StatusBarMainWindow(Path:="")
@@ -881,7 +881,29 @@ fCallBack_StatusBarMainWindow(Path:="")
 		Clipboard:="Currently loaded Snippets (" CurrentLoaded[2] "):`n" CurrentLoaded[1]
 	}
 	if ((A_GuiEvent="DoubleClick") && (A_EventInfo=5)) || (Path=5) ;; trigger Error
-		SB_SetText("Testing Error", 2)
+	{
+		if InStr(script.Error,"Critical Error [1]")
+		{
+			ErrorString=
+			(LTRIM
+			For the following snippets, no the file indicated before the hash does not exist (.ini -> no ini-file. .ahk -> no .ahk-file)
+			Description- and Example-files are disregarded by this errorcheck.
+
+			
+			)
+			ErrorString.= "`n" Object2String(SnippetsStructure[6])
+			Clipboard:=ErrorString
+			SB_SetText("Check your Clipboard for more information", 2)
+			SoundBeep, 150, 150
+			SoundBeep, 150, 150
+			SoundBeep, 1750, 150
+			Func:=func("fResetSB").Bind(2)
+			Settimer,% Func , -1300
+
+		}
+
+					
+	}
 	if (((A_GuiEvent="DoubleClick") && (A_EventInfo=4))) || (Path=4) ;; trigger About
 		script.About()
 	if ((A_GuiEvent="DoubleClick") && (A_EventInfo=3)) || (Path=3) ;; trigger update
@@ -925,6 +947,28 @@ fCallBack_StatusBarMainWindow(Path:="")
 	}
 	return
 }
+
+fResetSB(Ind)
+{
+	if (Ind=2)
+	{
+		bIsAuthor:=(script.computername==script.authorID)
+		bIsDebug:=script.config.settings.bDebugSwitch
+		if (!bIsAuthor & !bIsDebug) || (bIsAuthor & !bIsDebug)
+		{ ;; public display
+			SB_SetText("Standard Mode Engaged. Click to enter debug-mode",2)
+			ListLines, Off
+			; KeyHistory
+		}
+		else if (!bIsAuthor && bIsDebug) || (bIsAuthor && bIsDebug)
+		{
+			SB_SetText("Author/Debug Mode Engaged. Click to exit debug-mode",2)
+			ListLines, On
+		}
+	}
+	return
+}
+
 fLV_Callback(SnippetsStructure,FoundMatches)
 { ;; decides based on contents of searchbox what contents to load into the richfields and edit-fields
 	global ;; there is certainly a way to avoid this global here, but for me it is far too complicated.
@@ -1854,14 +1898,25 @@ floadFolderLibraries(DirectoryPath)
 		, description:0
 		, example:0
 		, ini:0}
+	FileUnknown:=[]
+	FileUnknown.ahk:=[]
+	FileUnknown.description:=[]
+	FileUnknown.example:=[]
+	FileUnknown.ini:=[]
+	A:=[]
+	A.B:=[]
+	A.B.push("s")
 	loop, files, % DirectoryPath, FR
 	{
-
  		SplitPath, % A_LoopFileFullPath,FileName,DirName,Ext,NameNExt,Drive
 		FileTypeCount[Ext]++
-		if !Instr(SubStr(A_LoopFileFullPath,-3),"ini")
-			continue
 		
+		if !FileExist(SubStr(A_LoopFileFullPath,1,strlen(A_LoopFileFullPath)-(StrLen(Ext)+1)) ".ini")
+			FileUnknown.ini[NameNExt]:=quote(NameNExt)
+		if !FileExist(SubStr(A_LoopFileFullPath,1,strlen(A_LoopFileFullPath)-(StrLen(Ext)+1)) ".ahk")
+			FileUnknown.ahk[NameNExt]:=quote(NameNExt)
+		if !Instr(SubStr(A_LoopFileFullPath,-3),"ini") ;; only parse .ini files
+			continue
 		; if Instr(".Description,.Example,.ahk,",Ext)
 		; 	Continue
 		;; preset these fields
@@ -1916,7 +1971,7 @@ floadFolderLibraries(DirectoryPath)
 		k++
 	}
 	; ttip("Decide if we want all snippets in the same obj, or if we want to subobjectivise them by keeping the folderstructure within as a 1st-lvl-object differentiation.","Currently, the Section")
-	return [Arr,SectionNames,LibrariesKnown.Count(),FileTypeCount,Arr.Count()]
+	return [Arr,SectionNames,LibrariesKnown.Count(),FileTypeCount,Arr.Count(),FileUnknown]
 }
 
 fReadINI(INI_File,bIsVar=0) ; return 2D-array from INI-file, or alternatively from a string with the same format.
