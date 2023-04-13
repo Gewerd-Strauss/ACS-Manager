@@ -44,6 +44,7 @@ gui - customise
 		→ might be thrown out as too complex/ressource-heavy/pointless, just food for thought so far.
 
 */
+#Requires AutoHotkey v1.1+
 ; #Warn, all
 #HotkeyInterval 			, 99000000
 ;#InstallKeybdHook
