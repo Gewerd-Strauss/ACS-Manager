@@ -155,6 +155,7 @@ if !script.Load(,1)
 	(LTRIM
 	[Map2]
 	;Map2 Hidden:
+	Ahk=AHK_Version
 	AU=Author
 	DA=Date
 	Dep=Dependencies
@@ -1957,6 +1958,11 @@ floadFolderLibraries(DirectoryPath)
 		;; Insert Metadata from file and add the current library-(==folder-)name
 		; Info:=fReadINI(strreplace(A_LoopFileFullPath, ".ahk",".ini")).Info
 		Info:=fReadINI(A_LoopFileFullPath).Info
+		if (Info.AHK_Version="")
+		{
+			Info.AHK_Version:="v1"
+			ACSI_fWriteIni(Info,A_LoopFileFullPath)
+		}
 		if !(Info.Count()>0)
 			msgbox, % "Error: metadata not found in file '" A_LoopFileFullPath "'."
 		Arr[k,"Metadata"]:=Info
