@@ -472,7 +472,7 @@ lGUICreate_1New: ;; Fully Parametric-form, TODO: functionalise this thing
 					, Width_ListView:=vGuiWidth-2*WidthMargin_Global
 					, Height_ListView:=vGuiHeight*HeightFraction_ListView
         			gui, font,s8
-					 gui, add, Listview, x%xPos_ListView% y%yPos_ListView% w%Width_ListView% h%Height_ListView% +Report ReadOnly Count%MaxSnippetCount% -vScroll vLVvalue gfLV_Callback, Section|Snippet Name|Hash|Library|Snippet Identifier|Ingestion-Order|License|Version|Author|Snippet Identifier
+					gui, add, Listview, x%xPos_ListView% y%yPos_ListView% w%Width_ListView% h%Height_ListView% +Report ReadOnly Count%MaxSnippetCount% -vScroll vLVvalue gfLV_Callback, Section|Snippet Name|Hash|Library|Snippet Identifier|Ingestion-Order|License|Version|Author|Snippet Identifier
 					guicontrol, font, LVvalue
 			; Define Parameters - Description Box
 					xPos_DescriptionBox:=WidthMargin_Global
@@ -1439,16 +1439,13 @@ f_CollectMatches(Array,String,References,AllSections)
 		pos+=strlen(match)
 	}
 	if (KeyVals.Count()=0)
-	{
 		KeyVals.NA:=String
-	}
 	for k,v in KeyVals
 	{
 		for s,w in References[Map[k]]
 		{
 			if (k="DA")
 			{
-				
 				if Instr(s,NewDate:=DateParse(v))
 					str.="," w ;; for each KeyVal-Pair, add the locations of those snippets which are referenced to the string.
 			}
@@ -1483,7 +1480,6 @@ f_CollectMatches(Array,String,References,AllSections)
 			continue
 		Matches.push(Array[k])
 	}
-	
 	
 	if (Matches.Count()=0)
 		Matches:=Array.Clone()
@@ -1645,7 +1641,7 @@ GetFocusedControl()  {                                                          
 } ;</06.04.02.000002>
 
 f_GetSelectedLVEntries(Number:="")
-{ ; Get Values from selected row in LV A_DefaultListView ;TODO: this can probably be condensed
+{ ; Get Values from selected row in LV A_DefaultListView ; TODO: this can probably be condensed
     vRowNum:=0
 	, sel:=[]
 	if (Number="")
