@@ -1352,7 +1352,7 @@ return
 ; gui, 2: destroy
 ; gui, 1: show
 ; return
-#If (A_ComputerName=script.AuthorID?1:0) 
+#If (A_ComputerName=script.AuthorID?1:0) && WinActive("ahk_id " MainGUI)
 !esc::
 SendInput, ^s  
 reload
