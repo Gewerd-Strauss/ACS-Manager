@@ -706,6 +706,8 @@ fCopySnippet(IsDependency:=false)
 		{
 			Author:=Data.Metadata.Author
 			FormatTime, Date,% Data.Metadata.Date, % script.config.Settings.DateFormat
+			if (Date="" && Data.Metadata.Date!="")
+				Date:=Data.Metadata.Date
 			License:=Data.Metadata.License
 			Name:=Data.Metadata.Name
 			Section:=Data.Metadata.Section
@@ -1078,7 +1080,8 @@ fLoadFillDetails()
 	}
 	Author:=Data.Metadata.Author
 	FormatTime, Date,% Data.Metadata.Date, % script.config.Settings.DateFormat
-	; Hash
+	if (Date="" && Data.Metadata.Date!="")
+		Date:=Data.Metadata.Date
 	License:=Data.Metadata.License
 	Name:=Data.Metadata.Name
 	Section:=Data.Metadata.Section
