@@ -739,11 +739,16 @@ fCopySnippet(IsDependency:=false)
 					InfoText.Push("LicenseURL:  " LicenseURL "`n")
 					if IsConnected(Data.Metadata.LicenseURL)
 					{
-						RAWLicenseURL:=StrReplace(Data.Metadata.LicenseURL,"github.com","raw.githubusercontent.com")
-						RAWLicenseURL:=StrReplace(RAWLicenseURL,"blob/","")
-						Data.License:=URLDownloadToVar(RAWLicenseURL)
-						if (Data.License=0)
-							Data.License:="License could not be copied, please retrieve manually from '" Data.Metadata.LicenseURL  "'"
+						if InStr(Data.Metadata.LicenseURL,"github.com") {
+							RAWLicenseURL:=StrReplace(Data.Metadata.LicenseURL,"github.com","raw.githubusercontent.com")
+							RAWLicenseURL:=StrReplace(RAWLicenseURL,"blob/","")
+							Data.License:=URLDownloadToVar(RAWLicenseURL)
+							if (Data.License=0)
+								Data.License:="License could not be copied, please retrieve manually from '" Data.Metadata.LicenseURL  "'`n"
+						}
+						else {
+							Data.License:="License could not be copied, please retrieve manually from '" Data.Metadata.LicenseURL  "'`n"
+						}
 					}
 				}
 			}
