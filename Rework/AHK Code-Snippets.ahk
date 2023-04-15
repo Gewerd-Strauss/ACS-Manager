@@ -1003,9 +1003,9 @@ fLV_Callback(SnippetsStructure,FoundMatches)
 	global ;; there is certainly a way to avoid this global here, but for me it is far too complicated.
 	str:=fGetSearchFunctionsString()
 	if (str="") ;; search-box is empty, thus we ingest the default Object
-		func := Func("fLoadFillDetails") ;.Bind(SnippetsStructure,DirectoryPath) ;; need to remember how to do this
+		func := Func("fLoadFillDetails").Bind(SnippetsStructure,DirectoryPath) ;; need to remember how to do this
 	else 		;; search-box is not empty, thus we ingest the search results
-		func := Func("fLoadFillDetails") ;.Bind(Matches,DirectoryPath) ;; need to remember how to do this
+		func := Func("fLoadFillDetails").Bind(Matches,DirectoryPath) ;; need to remember how to do this
 	Settimer, % func, Off
 	Settimer, % func, -150 ;; TODO: replace this timer with the hook proposed by anonymous1184
 	return
