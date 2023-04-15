@@ -216,7 +216,7 @@ if !script.Load(,1)
 	;CopyLicenseToOutput When checked, the License of the snippet is added when copying the snippet to the clipboard
 	;CopyLicenseToOutput Type: Checkbox 
 	;CopyLicenseToOutput Default: 1
-	;CopyLicenseToOutput CheckboxName: Copy Metadata?
+	;CopyLicenseToOutput CheckboxName: Copy License?
 	CopyMetadataToOutput=1
 	;CopyMetadataToOutput When checked, the Metadata of the snippet is added when copying the snippet to the clipboard
 	;CopyMetadataToOutput Type: Checkbox 
