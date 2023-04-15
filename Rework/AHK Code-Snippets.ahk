@@ -914,7 +914,7 @@ fCallBack_StatusBarMainWindow(Path:="")
 		{
 			ErrorString=
 			(LTRIM
-			For the following snippets, no the file indicated before the hash does not exist (.ini -> no ini-file. .ahk -> no .ahk-file)
+			For the following snippets, the file indicated before the hash does not exist (.ini -> no ini-file. .ahk -> no .ahk-file)
 			Description- and Example-files are disregarded by this errorcheck.
 
 			
