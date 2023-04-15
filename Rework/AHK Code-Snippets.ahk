@@ -410,8 +410,8 @@ lGUICreate_1New: ;; Fully Parametric-form, TODO: functionalise this thing
 		SysGet, Mon,MonitorWorkArea 
 		if (!vGUIWidth and !vGuiHeight) || (((vGUIWidth!=(A_ScreenWidth-20)) || (vGuiHeight!=(A_ScreenHeight))) && !bSwitchSize) ; assign outer gui dimensions either if they don't exist or if the resolution of the active screen has changed - f.e. when undocking or docking to a higher resolution display. The lGuiCreate_1-subroutine is also invoked in total if the resolution changes, but this is the necessary inner check to reassign dimensions.
 		{ 
-			vGUIWidth:=A_ScreenWidth*1.0 - 20  ;-910 ; 0.6@1440 starts clipping
-			, vGUIHeight:=MonBottom*1.0 - 20 
+			vGUIWidth:=A_ScreenWidth*1.0-20  ;-910 ; 0.6@1440 starts clipping
+			, vGUIHeight:=MonBottom*1.0-20 
 		}
 		
 		gui, font, s7 cRed, Segoe UI
@@ -1368,8 +1368,8 @@ lRescale:
 bSwitchSize:=1
 if (vGuiHeight==(1080-20))
 {
-	vGUIWidth:=A_ScreenWidth*1.0 - 20  ;-910 ; 0.6@1440 starts clipping
-	, vGUIHeight:=MonBottom*1.0 - 20 
+	vGUIWidth:=A_ScreenWidth*1.0-20  ;-910 ; 0.6@1440 starts clipping
+	, vGUIHeight:=MonBottom*1.0-20 
 }
 else
 {
