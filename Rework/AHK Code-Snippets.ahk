@@ -3237,6 +3237,6 @@ ALG_TF_CountLines(Text)
 ; --uID:1993173571
 
 	
-#Include %A_ScriptDir%\Includes\ACS_RichCode.ahk
-#Include %A_ScriptDir%\Includes\ACS_Editor.ahk
-#Include %A_ScriptDir%\Includes\ACS_InisettingsEditor.ahk
+#Include %A_ScriptDir%\Lib\ACS_RichCode.ahk
+#Include %A_ScriptDir%\Lib\ACS_Editor.ahk
+#Include %A_ScriptDir%\Lib\ACS_InisettingsEditor.ahk
