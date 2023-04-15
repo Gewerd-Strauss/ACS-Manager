@@ -150,7 +150,9 @@ script.loadCredits(script.resfolder "\credits.txt")
 ;script.setIcon()
 script.loadCredits(script.resfolder "\credits.txt")
 script.Update(,,1,,1)
-global bSearchSnippets:=bForceRestartOnEdit:=false
+
+global bSearchSnippets:=false
+global bForceRestartOnEdit:=true
 global GuiCommands:=["entered by prepending c::","rescale","reload","get sections","no restart on edit"]
 FileGetVersion, Version, %A_ProgramFiles%\AutoHotkey\AutoHotkey.exe
 OnMessage(0x404, "f_TrayIconSingleClickCallBack")
@@ -871,7 +873,7 @@ fEditSnippet(SnippetsStructure:="")
 	SelectedLVEntry:=f_GetSelectedLVEntries()
 	SearchStr:=fGetSearchFunctionsString()
 	fLoadFillDetails() ;(SnippetsStructure,DirectoryPath)
-	ACS_EditorImporter(SnippetsStructure[1,SelectedLVEntry.3] ,SnippetsStructure)
+	ACS_EditorImporter(SnippetsStructure[1,SelectedLVEntry.3] ,SnippetsStructure,bForceRestartOnEdit)
 	return
 }
 fEditSettings()
@@ -1225,6 +1227,7 @@ fMoveThroughSearchHistory(SnippetsStructure,References,DirectoryPath,SearchHisto
 }
 fSearchSnippetsEnter(SnippetsStructure,References,DirectoryPath,SearchHistory)
 {
+	global bForceRestartonEdit:=true
 	lSearchSnippets:
 		; Settimer, % func, Off
 		Gui, 1: Submit, NoHide
@@ -1253,7 +1256,7 @@ fSearchSnippetsEnter(SnippetsStructure,References,DirectoryPath,SearchHistory)
 
 				Clipboard:=getSectionsOutput
 			}
-			else if (Prompt="no restart on edit")
+			else if (Prompt="no restart")
 			{
 
 				bForceRestartOnEdit:=!bForceRestartOnEdit
