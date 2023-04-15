@@ -1601,7 +1601,16 @@ f_CollectMatches(Array,String,References,AllSections)
 				; 	Needle:=AllSections[v]
 				if script.config.settings.Search_InString_MetaFields
 				{
-					if InStr(SearchedStr,needle)
+					if (k="DA") && (StrLen(v)<6)
+					{
+						needle:=v
+						if InStr(SearchedStr,needle)
+						{
+							Matches2.push(w)
+							MatchedLibraries[Matches[s,"Metadata","Library"]]:=1
+						}
+					}
+					else if InStr(SearchedStr,needle)
 					{
 						if Instr(AddedOnes,w.Metadata.Hash)
 							continue
