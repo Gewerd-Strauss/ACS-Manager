@@ -714,6 +714,10 @@ fCopySnippet(IsDependency:=false)
 		if script.config.Settings.CopyMetadataToOutput
 		{
 			Author:=Data.Metadata.Author
+			Date_Metadata:=Data.Metadata.Date
+			Date_ISO:=DateParse(Date_Metadata)
+			FormatTime, Date_Displayed, % Date_ISO, % script.config.Settings.DateFormat
+			
 			FormatTime, Date,% Data.Metadata.Date, % script.config.Settings.DateFormat
 			if (Date="" && Data.Metadata.Date!="")
 				Date:=Data.Metadata.Date
@@ -737,6 +741,8 @@ fCopySnippet(IsDependency:=false)
 				InfoText.push(" (v." Version ")`n")
 			else
 				InfoText[InfoText.MaxIndex()].="`n"
+			if (Date!="") && (URL="")
+				InfoText.push((Version!=""?A_Space:"") Date)
 			InfoText.push("--------------------------------------------------------------`n")
 			if (Author!="")
 				InfoText.push("Author: " Author "`n")
@@ -767,6 +773,10 @@ fCopySnippet(IsDependency:=false)
 				InfoText.Push("Source: " URL "`n")
 			if (Date!="") && (URL!="")
 				InfoText.Push("(" Date ")`n")
+			; else {
+			; 	if (Date!="")
+			; 		InfoText.Push("(" Date ")`n")
+			; }
 			else if (URL!="")
 				InfoText.Push("`n")
 			if !Instr(InfoText[InfoText.MaxIndex()],"--------------------------------------------------------------") &&  !(Instr(InfoText[InfoText.MaxIndex()-1],"--------------------------------------------------------------") && InfoText[InfoText.MaxIndex()]="`n")
@@ -1094,9 +1104,10 @@ fLoadFillDetails()
 		SnippetsStructure[1,SelectedLVEntry[3]].Example:=Example
 	}
 	Author:=Data.Metadata.Author
-	FormatTime, Date,% Data.Metadata.Date, % script.config.Settings.DateFormat
-	if (Date="" && Data.Metadata.Date!="")
-		Date:=Data.Metadata.Date
+	Date_Metadata:=Data.Metadata.Date
+	Date_ISO:=DateParse(Date_Metadata)
+	FormatTime, Date_Displayed, % Date_ISO, % script.config.Settings.DateFormat
+
 	if ((A_DebuggerName="Visual Studio Code" && bIsAuthor && bIsDebug) || bIsDebug)
 		ACS_ttip([Data.Metadata.Name ":`nOn MetaData: " Date_Metadata,"ISO8601: " Date_ISO,"Displayed Format: " Date_Displayed,"Intended Format: " script.config.Settings.DateFormat,"Intended Format > BackTransformed: " DateParse(Date_Displayed)],(((!bIsAuthor && bIsDebug) || (bIsAuthor && bIsDebug) || OverWriteShow)?5:1),,,,,,,,true)
 	;else if (!(A_DebuggerName="Visual Studio Code") || !bIsDebug)
@@ -1121,6 +1132,8 @@ fLoadFillDetails()
 		InfoText.push(" (v." Version ")`n")
 	else
 		InfoText[InfoText.MaxIndex()].="`n"
+	if (Date_Displayed!="") && (URL="")
+		InfoText.push((Version!=""?A_Space:"") "(added: " Date_Displayed ")`n")
 	InfoText.push("--------------------------------------------------------------`n")
 	if (Author!="")
 		InfoText.push("Author: " Author "`n")
@@ -1139,8 +1152,8 @@ fLoadFillDetails()
 	
 	if (URL!="")
 		InfoText.Push("<a href=""" URL """>Source</a> ")
-	if (Date!="") && (URL!="")
-		InfoText.Push("(" Date ")`n")
+	if (Date_Displayed!="") && (URL!="")
+		InfoText.Push("(retrieved: " Date_Displayed ")`n")
 	else if (URL!="")
 		InfoText.Push("`n")
 	if !Instr(InfoText[InfoText.MaxIndex()],"--------------------------------------------------------------") &&  !(Instr(InfoText[InfoText.MaxIndex()-1],"--------------------------------------------------------------") && InfoText[InfoText.MaxIndex()]="`n")
@@ -1461,7 +1474,14 @@ f_CollectMatches(Array,String,References,AllSections)
 		{
 			if (k="DA")
 			{
-				if Instr(s,NewDate:=DateParse(v))
+				vLen:=StrLen(v)
+				if (vLen<6) ;; no full date data present - we cannot convert to iso-date, and thus cannot check with DateParse. Instead do a simple InStr-Check
+				{
+					if InStr(s,v)
+						str.="," w ;; for each KeyVal-Pair, add the locations of those snippets which are referenced to the string.
+
+				} 
+				else if Instr(s,NewDate:=DateParse(v))
 					str.="," w ;; for each KeyVal-Pair, add the locations of those snippets which are referenced to the string.
 			}
 			else
@@ -1509,6 +1529,10 @@ f_CollectMatches(Array,String,References,AllSections)
 			{
 				SearchedStr:=Matches[s,"MetaData",script.config.map2[k]]
 				Needle:=(k="DA")?DateParse(v):v
+				if (k="DA") && (StrLen(v)<6)
+				{
+					
+				}
 				if script.config.settings.Search_InString_MetaFields
 				{
 					if InStr(SearchedStr,needle)
