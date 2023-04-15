@@ -88,17 +88,17 @@ when 2+ snippets are located at the same url, concatenate them with "|" and trea
 finally, make sure toingest 'CreditsRaw' into the 'credits'-field of the template below.
 */
 
-#Include <ScriptObj\scriptObj>
+#Include <Script>
 CreditsRaw=
 (LTRIM
-snippetName1  										- author1		   		  						-	URL1
-snippetName2|SnippetName3 (both at the same URL) 	- Gewerd Strauss								-	/
-AHK-Rare 											- Ixiko 										- https://github.com/Ixiko/AHK-Rare
-DateParse 											- Paris 										- https://github.com/Paris/AutoHotkey-Scripts/blob/master/DateParse.ahk
-String Things 										- tidbit 										- https://www.autohotkey.com/boards/viewtopic.php?t=53
-tf 													- hi5											- https://github.com/hi5/TF#ALG_TF_InsertPrefix
-AddToolTip 											- jballi 										- https://www.autohotkey.com/boards/viewtopic.php?t=30079
-RichCode 											- G33kdude 										-  https://github.com/G33kDude/RichCode.ahk
+author1		   		  			-			snippetName1  										-	URL1
+Gewerd Strauss					-			snippetName2|SnippetName3 (both at the same URL) 	-	/
+Ixiko 							-			AHK-Rare 											- https://github.com/Ixiko/AHK-Rare
+Paris 							-			DateParse 											- https://github.com/Paris/AutoHotkey-Scripts/blob/master/DateParse.ahk
+tidbit 							-			String Things 										- https://www.autohotkey.com/boards/viewtopic.php?t=53
+hi5								-			tf 													- https://github.com/hi5/TF#ALG_TF_InsertPrefix
+jballi 							-			AddToolTip, REMOVE THIS 											- https://www.autohotkey.com/boards/viewtopic.php?t=30079, https://www.autohotkey.com/board/topic/75906-about-my-scripts-and-snippets/
+G33kdude 						-			RichCode 											-  https://github.com/G33kDude/RichCode.ahk
 )
 FileGetTime, ModDate,%A_ScriptFullPath%,M
 FileGetTime, CrtDate,%A_ScriptFullPath%,C
@@ -142,6 +142,13 @@ CrtDate:=SubStr(CrtDate,7,  2) "." SubStr(CrtDate,5,2) "." SubStr(CrtDate,1,4)
 					,configfile       : A_ScriptDir "\INI-Files\" regexreplace(A_ScriptName, "\.\w+") ".ini"
                     ,configfolder     : A_ScriptDir "\INI-Files"}
 
+;
+if !script.requiresInternet() {
+    ExitApp
+}
+script.loadCredits(script.resfolder "\credits.txt")
+;script.setIcon()
+script.loadCredits(script.resfolder "\credits.txt")
 script.Update(,,1,,1)
 global bSearchSnippets:=bForceRestartOnEdit:=false
 global GuiCommands:=["entered by prepending c::","rescale","reload","get sections","no restart on edit"]
