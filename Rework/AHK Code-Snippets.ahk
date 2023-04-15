@@ -73,7 +73,7 @@ SetTitleMatchMode     		, Fast
 SetWinDelay                	, -1
 SetWorkingDir				, % A_ScriptDir
 
-; ttip("Comb through ahkrare-content and move example and description comment blocks to their respective files","add all metadata-fields to be used in the editor, and figure out how to do the editor metadata-adjustable")
+; ACS_ttip("Comb through ahkrare-content and move example and description comment blocks to their respective files","add all metadata-fields to be used in the editor, and figure out how to do the editor metadata-adjustable")
 ; #Warn,,Off 
 
 CodeTimer("")
@@ -610,7 +610,7 @@ lGUICreate_1New: ;; Fully Parametric-form, TODO: functionalise this thing
 		LastScaledSize:=[vGUIWidth,vGUIHeight]
 		lCheckClipboardContents()
 		if !script.config.settings.bShowOnStartup
-			ttip(script.name " has finished initialisation.")
+			ACS_ttip(script.name " has finished initialisation.")
 return
 Func1(Param1)
 {
@@ -654,7 +654,7 @@ fSuperviseSearchBar()
 		Object:={}
 		Object.Filters:=script.config.map2
 		Object.GuiCommands:=GuiCommands
-		str:=ttip(Object)
+		str:=ACS_ttip(Object)
 	}
 	return
 }
@@ -939,6 +939,7 @@ fCallBack_StatusBarMainWindow(Path:="")
 				SB_SetText("Standard Mode Engaged. Click to enter debug-mode",2)
 				
 			}
+			ACS_ttip("")
 		}
 		else if (!bIsAuthor & bIsDebug) || (bIsAuthor & bIsDebug)
 		{
@@ -1094,6 +1095,10 @@ fLoadFillDetails()
 	FormatTime, Date,% Data.Metadata.Date, % script.config.Settings.DateFormat
 	if (Date="" && Data.Metadata.Date!="")
 		Date:=Data.Metadata.Date
+	if ((A_DebuggerName="Visual Studio Code" && bIsAuthor && bIsDebug) || bIsDebug)
+		ACS_ttip([Data.Metadata.Name ":`nOn MetaData: " Date_Metadata,"ISO8601: " Date_ISO,"Displayed Format: " Date_Displayed,"Intended Format: " script.config.Settings.DateFormat,"Intended Format > BackTransformed: " DateParse(Date_Displayed)],(((!bIsAuthor && bIsDebug) || (bIsAuthor && bIsDebug) || OverWriteShow)?5:1),,,,,,,,true)
+	;else if (!(A_DebuggerName="Visual Studio Code") || !bIsDebug)
+	;	ACS_ttip()
 	License:=Data.Metadata.License
 	Name:=Data.Metadata.Name
 	Section:=Data.Metadata.Section
@@ -1209,7 +1214,7 @@ fMoveThroughSearchHistory(SnippetsStructure,References,DirectoryPath,SearchHisto
 		return
 	NewSearchString:=SearchHistory[Pos]
 	fSetSearchFunctionsString(NewSearchString)
-	ttip(Pos)
+	ACS_ttip(Pos)
 	if (NewSearchString="")
 	{
 		fResetListView(SnippetsStructure)		
@@ -1251,12 +1256,12 @@ fSearchSnippetsEnter(SnippetsStructure,References,DirectoryPath,SearchHistory)
 			else if (Prompt="no restart on edit")
 			{
 
-				ttip("Restart On Edit: "(bForceRestartOnEdit?"On":"Off"))
 				bForceRestartOnEdit:=!bForceRestartOnEdit
+				ACS_ttip("Restart On Edit: "(bForceRestartOnEdit?"On":"Off"))
 			}
 			else
 			{
-				ttip("Invalid Command issued:'" Prompt "'")
+				ACS_ttip("Invalid Command issued:'" Prompt "'")
 
 			}
 			fClearSearchBar()
@@ -1289,7 +1294,7 @@ fSearchSnippetsEnter(SnippetsStructure,References,DirectoryPath,SearchHistory)
 			}
 		}
 		if (Matches=-1)
-			ttip("No results")
+			ACS_ttip("No results")
 		if (SearchString!="") && !HasVal(SearchHistory,SearchString) && (Matches!=-1)
 			SearchHistory.push(SearchString)
 	return SearchHistory
@@ -1380,7 +1385,7 @@ fGuiShowHide(vGUIWidth,vGUIHeight,GuiNameMain)
 			fGuiHide_1()	
 		else if bShowGUIFromTray
 			fGuiShow_1(vGUIWidth,vGUIHeight,GuiNameMain)
-		ttip(bShowGUIFromTray:=!bShowGUIFromTray)
+		ACS_ttip(bShowGUIFromTray:=!bShowGUIFromTray)
 	}
 	else
 	{
@@ -1988,7 +1993,7 @@ floadFolderLibraries(DirectoryPath)
 		}
 		k++
 	}
-	; ttip("Decide if we want all snippets in the same obj, or if we want to subobjectivise them by keeping the folderstructure within as a 1st-lvl-object differentiation.","Currently, the Section")
+	; ACS_ttip("Decide if we want all snippets in the same obj, or if we want to subobjectivise them by keeping the folderstructure within as a 1st-lvl-object differentiation.","Currently, the Section")
 	return [Arr,SectionNames,LibrariesKnown.Count(),FileTypeCount,Arr.Count(),FileUnknown]
 }
 
@@ -2674,7 +2679,7 @@ Quote(String)
 { ; u/anonymous1184 | fetched from https://www.reddit.com/r/AutoHotkey/comments/p2z9co/comment/h8oq1av/?utm_source=share&utm_medium=web2x&context=3
 	return """" String """"
 }
-ttip(text:="TTIP: Test",mode:=1,to:=4000,xp:="NaN",yp:="NaN",CoordMode:=-1,to2:=1750,Times:=20,currTip:=20)
+ACS_ttip(text:="TTIP: Test",mode:=1,to:=4000,xp:="NaN",yp:="NaN",CoordMode:=-1,to2:=1750,Times:=20,currTip:=20,RemoveObjectEnumeration:=false)
 {
 	/*
 		v.0.2.1
@@ -2705,19 +2710,21 @@ ttip(text:="TTIP: Test",mode:=1,to:=4000,xp:="NaN",yp:="NaN",CoordMode:=-1,to2:=
 
 		---
 		v.0.2.1
-		- added Obj2Str-Conversion via "ttip_Obj2Str()"
+		- added Obj2Str-Conversion via "ACS_ttip_Obj2Str()"
 		v.0.1.1 
 		- Initial build, 	no changelog yet
 	
 	*/
 	
-	;if (text="TTIP: Test")
-		;m(to)
-		cCoordModeTT:=A_CoordModeToolTip
-	if (text="") || (text=-1)
-		gosub, lRemovettip
+	cCoordModeTT:=A_CoordModeToolTip
+	if (text="") || (text=-1) {
+		gosub, ACS_lRemovettip
+		return
+	}
 	if IsObject(text)
-		text:=ttip_Obj2Str(text)
+		text:=ACS_ttip_Obj2Str(text)
+	if (RemoveObjectEnumeration)
+		text:=RegExReplace(text,"`aim)^((\.(\d|\s|\w)+\=|\s)\s)") ;; thank you u/GroggyOtter on reddit for helping me on this needle and my incompetence in all things regex :P
 	static ttip_text
 	static lastcall_tip
 	static currTip2
@@ -2747,7 +2754,7 @@ ttip(text:="TTIP: Test",mode:=1,to:=4000,xp:="NaN",yp:="NaN",CoordMode:=-1,to2:=
 	tooltip, % ttip_text,xp,yp,% currTip
 	if (mode=1) ; remove after given time
 	{
-		SetTimer, lRemovettip, % "-" to
+		SetTimer, ACS_lRemovettip, % "-" to
 	}
 	else if (mode=2) ; remove, but repeatedly show every "to"
 	{
@@ -2772,7 +2779,7 @@ ttip(text:="TTIP: Test",mode:=1,to:=4000,xp:="NaN",yp:="NaN",CoordMode:=-1,to2:=
 	ttOnOff++
 	if mod(ttOnOff,2)	
 	{
-		gosub, lRemovettip
+		gosub, ACS_lRemovettip
 		sleep, % to_1
 	}
 	else
@@ -2783,7 +2790,7 @@ ttip(text:="TTIP: Test",mode:=1,to:=4000,xp:="NaN",yp:="NaN",CoordMode:=-1,to2:=
 	if (ttOnOff>=ttimes)
 	{
 		Settimer, lSwitchOnOff, off
-		gosub, lRemovettip
+		gosub, ACS_lRemovettip
 		return
 	}
 	Settimer, lSwitchOnOff, -100
@@ -2793,12 +2800,12 @@ ttip(text:="TTIP: Test",mode:=1,to:=4000,xp:="NaN",yp:="NaN",CoordMode:=-1,to2:=
 	ToolTip, % ttip_text,,, % currTip2
 	sleep, % (mod(timercount,2)?to2:to)
 	return
-	lRemovettip:
+	ACS_lRemovettip:
 	ToolTip,,,,currTip2
 	return
 }
 
-ttip_Obj2Str(Obj,FullPath:=1,BottomBlank:=0)
+ACS_ttip_Obj2Str(Obj,FullPath:=1,BottomBlank:=0)
 {
 	static String,Blank
 	if(FullPath=1)
@@ -2806,7 +2813,7 @@ ttip_Obj2Str(Obj,FullPath:=1,BottomBlank:=0)
 	if(IsObject(Obj)){
 		for a,b in Obj{
 			if(IsObject(b))
-				ttip_Obj2Str(b,FullPath "." a,BottomBlank)
+				ACS_ttip_Obj2Str(b,FullPath "." a,BottomBlank)
 			else{
 				if(BottomBlank=0)
 					String.=FullPath "." a " = " b "`n"
