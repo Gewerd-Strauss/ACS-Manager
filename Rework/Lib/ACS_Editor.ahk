@@ -9,7 +9,7 @@
 
 
 
-ACS_EditorImporter(Snippet:="",SnippetsStructure:="",ConvertingAHKRARE:=false)
+ACS_EditorImporter(Snippet:="",SnippetsStructure:="",ConvertingAHKRARE:=false,Restart:=TRUE)
 {
     gui, ACSI: destroy
     gui, ACSI: new, +AlwaysOnTop -SysMenu -ToolWindow -caption +Border +labelACSI -Resize ;+Owner1 ;+MinSize1000x		
@@ -42,14 +42,16 @@ ACS_EditorImporter(Snippet:="",SnippetsStructure:="",ConvertingAHKRARE:=false)
     bIsEditing:=(IsObject(Snippet)?true:false)
     if Snippet.Metadata.HasKey("Date") 
     {
-        if (script.config.Settings.DateFormat!="")
-            FormatTime, Date,% Snippet.Metadata.Date, % script.config.Settings.DateFormat
-        else
-            FormatTime, Date,% Snippet.Metadata.Date, % "yyyyMMdd"
-        if (Date="") && (Snippet.Metadata.Date!="")
-        {
-            Date:=snippet.Metadata.Date
-        }
+        ;if (script.config.Settings.DateFormat!="")
+        ;    FormatTime, Date,% Snippet.Metadata.Date, % script.config.Settings.DateFormat
+        ;else
+        ;    FormatTime, Date,% Snippet.Metadata.Date, % "yyyyMMdd"
+        ;if (Date="") && (Snippet.Metadata.Date!="")
+        ;{
+            Date_MetaData:=snippet.Metadata.Date
+            Date_ISO:=DateParse(Date_Metadata)
+            FormatTime, Date_Displayed, % Date_ISO, % script.config.Settings.DateFormat
+        ;}
     }
     ImporterSections:=""
     for k,v in SnippetsStructure[2]
@@ -71,10 +73,10 @@ ACS_EditorImporter(Snippet:="",SnippetsStructure:="",ConvertingAHKRARE:=false)
     gui, add, text, yp+%SmallFieldsHeight%+5 xp-100, version
     gui, add, edit, yp xp+100 w180 h%SmallFieldsHeight% vvVersion_Importer, % snippet.metadata.version
     gui, add, text, yp+%SmallFieldsHeight%+5 xp-100, Date
-    gui, add, edit, yp xp+100 w180 h%SmallFieldsHeight% vvDate_Importer, % Date
+    gui, add, edit, yp xp+100 w180 h%SmallFieldsHeight% vvDate_Importer, % Date_Displayed
     gui, add, text, yp+%SmallFieldsHeight% xp-100, License
     gui, add, ComboBox, yp xp+100 w180 r5 h%SmallFieldsHeight% vvLicense_Importer, % strreplace("MIT|BSD3|Unlicense|WTFPL|none|paste",snippet.metadata.License,snippet.metadata.License "|")
-    gui, add, text, yp+%SmallFieldsHeight% xp-100, License URL
+    gui, add, text, yp+%SmallFieldsHeight% xp-100, License URL 
     gui, add, edit, yp xp+100 w180 h%SmallFieldsHeight% vvLicenseURL_Importer, % snippet.metadata.licenseURL
     
     gui, add, text, y%SmallFieldsStart% xp+200, Section
@@ -230,11 +232,13 @@ if (snippetClone.Count()!=0) && (SnippetClone!="")
     fDelete(SnippetClone)
 }
 ; global ConvertingAHKRARE:=ConvertingAHKRARE
-fSubmitImporter({Snippet:vSnippet_Importer,Description:vDesc_Importer, Example:vEx_Importer, Name:vName_Importer,Author:vAuthor_Importer, Version:vVersion_Importer,Date:vDate_Importer,License:vLicense_Importer,LicenseURL:vLicenseURL_Importer,Section:vSection_Importer,URL:vURL_Importer,Library:vLibrary_Importer,Dependencies:vDependencies_Importer,AHK_Version:vAHK_Version_Importer,KeyWords:vKeywords_Importer}, SnippetClone,bIsEditing,ConvertingAHKRARE)
+
+Date_ISO:=DateParse(vDate_Importer)
+fSubmitImporter({Snippet:vSnippet_Importer,Description:vDesc_Importer, Example:vEx_Importer, Name:vName_Importer,Author:vAuthor_Importer, Version:vVersion_Importer,Date:Date_ISO,License:vLicense_Importer,LicenseURL:vLicenseURL_Importer,Section:vSection_Importer,URL:vURL_Importer,Library:vLibrary_Importer,Dependencies:vDependencies_Importer,AHK_Version:vAHK_Version_Importer,KeyWords:vKeywords_Importer}, SnippetClone,bIsEditing,ConvertingAHKRARE,bForceRestartOnEdit)
 return
 ; ACSISubmit:
 ; return
-fSubmitImporter(SubmissionObj, Snippet,bIsEditing,ConvertingAHKRARE:=false)
+fSubmitImporter(SubmissionObj, Snippet,bIsEditing,ConvertingAHKRARE:=false,bForceRestartOnEdit:=true)
 { ;; submits inputs
 
     gui, ACSI: submit, nohide
@@ -278,7 +282,7 @@ fSubmitImporter(SubmissionObj, Snippet,bIsEditing,ConvertingAHKRARE:=false)
     OldHash:=Snippet.Metadata.Hash
     OldHashes:=Snippet.Metadata.PastHashes
     OldLib:=Snippet.Metadata.Library
-    ttip(SubmissionObj.Name,SubmissionObj.Library)
+    ACS_ttip(SubmissionObj.Name,SubmissionObj.Library)
     Key:=SubmissionObj.Name . SubmissionObj.Library . SubmissionObj.Snippet ;; cuz the hash is no longer required to be translated, I can make it 
     Hash:=Object_HashmapHash(Key) ; Issue: What to include in the hashed snippet name?
     ; Obj:={Name:SubmissionObj.Name,Author:SubmissionObj.Author,Date:DateParse(SubmissionObj.Date),License:SubmissionObj.Licens,URL:SubmissionObj.URL,Section:SubmissionObj.Section,Version:SubmissionObj.Version,Hash:Hash} ;; decide if we actually want to     if (Code="")  ;; do not write to disc
@@ -356,12 +360,12 @@ fSubmitImporter(SubmissionObj, Snippet,bIsEditing,ConvertingAHKRARE:=false)
         Expected++
     if (SubmissionObj.Example!="") && (RegExReplace(SubmissionObj.Example,"\s*","")!="") && !Instr(SubmissionObj.Example, "Error 01: No example-file was found under the expected path")
         Expected++
-    if (SubmissionObj.Description!="") && (RegExReplace(SubmissionObj.Description,"\s*","")!="") && !Instr(SubmissionObj.Description, "Error 01: No example-file was found under the expected path")
+    if (SubmissionObj.Description!="") && (RegExReplace(SubmissionObj.Description,"\s*","")!="") && !Instr(SubmissionObj.Description, "Error 01: No description-file was found under the expected path")
         Expected++
     if (Expected>Success)
     {
         SplitPath, BackupLocation,,,,OutFileName
-        MsgBox 0x30, % script.name " - Snippet Editor", "Error:`n" Expected " files were expected to be updated`, but only " Success " files could be written to file.`nBackup-files exist in the LibraryFolder under the name " OutFileName
+        MsgBox 0x30, % script.name " - Snippet Editor",% "Error:`n" Expected " files were expected to be updated`, but only " Success " files could be written to file.`nBackup-files exist in the LibraryFolder under the name " OutFileName
     }
     if (ConvertingAHKRARE)
     {
@@ -394,7 +398,7 @@ fSubmitImporter(SubmissionObj, Snippet,bIsEditing,ConvertingAHKRARE:=false)
             MsgBox 0x30, % script.name " - Snippet Editor", "Error:`nOnly "  Restore " Files could be restored from the error, " k-Restore " files must be`nmanually recovered from the backup."
         
     }
-    if (!Instr(A_ScriptName, "ACS_Editor") && !bForceRestartOnEditt)
+    if (!Instr(A_ScriptName, "ACS_Editor") && bForceRestartOnEdit)
         reload
     return
 }

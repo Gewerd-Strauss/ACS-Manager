@@ -34,3 +34,6 @@
 - tested ingestion of ahk-rare library
   - went surprisingly well, only 22 faulty files because i fucked up once
 - added Sources-folder to gitignore
+---
+
+remainer cf. Commit-history (yes, it's a bit ugly. I was  learning git at the time :P)

@@ -58,5 +58,5 @@ KeyDown(wParam, lParam, Msg, hWnd) {
     diff := A_Now
     diff -= last, Seconds
     last := A_Now
-    ttip("Seconds since last 'Edit1' input: " diff)
+    ACS_ttip("Seconds since last 'Edit1' input: " diff)
 }

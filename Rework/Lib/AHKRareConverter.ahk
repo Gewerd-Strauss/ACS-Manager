@@ -104,7 +104,7 @@ loop,
     SnippetsStructure[2]:=strsplit("|graphic|Varius get|Date or Time|Command CommandLine|Clipboard|gui - icon|gui - menu|gui - customise|gui - control type|gui - to change","|")
     global ConvertingAHKRARE:=true
     EditorImporter(Snippet,SnippetsStructure,true)
-    ttip("Current:" TotalConverted++ "`nTotal:" TotalCount "`nTo go:" TotalCount-TotalConverted)
+    ACS_ttip("Current:" TotalConverted++ "`nTotal:" TotalCount "`nTo go:" TotalCount-TotalConverted)
     if TotalConverted==TotalCount
     {
         Ended:=A_Now
