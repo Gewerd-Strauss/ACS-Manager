@@ -893,11 +893,11 @@ fEditSettings()
 	bIsDebug:=script.config.settings.bDebugSwitch
 	if ((!bIsAuthor & !bIsDebug) || (bIsAuthor & !bIsDebug)) && Instr(A_ThisHotkey,"+")
 	{
-		if ACS_InisettingsEditor(script.Name,script.configfile,1,1,0)
+		if ACS_InisettingsEditor(script.Name,script.configfile,1,1,1)
 			reload
 	}
 	else
-		if ACS_InisettingsEditor(script.Name,script.configfile,1,1,1)
+		if ACS_InisettingsEditor(script.Name,script.configfile,1,1,0)
 			reload
 }
 fCallBack_StatusBarMainWindow(Path:="")
