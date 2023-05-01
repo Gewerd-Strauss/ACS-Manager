@@ -737,7 +737,7 @@ fCopySnippet(IsDependency:=false)
 			else
 				InfoText[InfoText.MaxIndex()].="`n"
 			if (Date!="") && (URL="")
-				InfoText.push((Version!=""?A_Space:"") Date)
+				InfoText.push((Version!=""?A_Space:"") Date "`n")
 			InfoText.push("--------------------------------------------------------------`n")
 			if (Author!="")
 				InfoText.push("Author: " Author "`n")
@@ -749,7 +749,7 @@ fCopySnippet(IsDependency:=false)
 					InfoText.Push("LicenseURL: " LicenseURL "`n")
 					if IsConnected(Data.Metadata.LicenseURL)
 					{
-						if InStr(Data.Metadata.LicenseURL,"github.com") {
+						if InStr(Data.Metadata.LicenseURL,"github.com") || InStr(Data.Metadata.LicenseURL,"gist.githubusercontent.com") {
 							RAWLicenseURL:=StrReplace(Data.Metadata.LicenseURL,"github.com","raw.githubusercontent.com")
 							RAWLicenseURL:=StrReplace(RAWLicenseURL,"blob/","")
 							Data.License:=URLDownloadToVar(RAWLicenseURL)
@@ -1099,8 +1099,14 @@ fLoadFillDetails()
 	Author:=Data.Metadata.Author
 	Date_Metadata:=Data.Metadata.Date
 	Date_ISO:=DateParse(Date_Metadata)
-	FormatTime, Date_Displayed, % Date_ISO, % script.config.Settings.DateFormat
 
+	;msgbox, % ACS_Obj2Str([Data.Metadata.Name ":`nOn MetaData: " Date_Metadata,"ISO8601: " Date_ISO,"Displayed Format: " Date_Displayed,"Intended Format: " script.config.Settings.DateFormat,"Intended Format > BackTransformed: " DateParse(Date_Displayed)])
+	if (StrLen(Date_Metadata=8) && !Instr(Date_Metadata,".")) { ;; assume this is an ISO-formatted string already.
+		Date_ISO:=Date_Metadata
+	} else if (StrLen(Date_Metadata=4) && !Instr(Date_Metadata,".")) {
+
+	}
+	FormatTime, Date_Displayed, % Date_ISO, % script.config.Settings.DateFormat
 	if ((A_DebuggerName="Visual Studio Code" && bIsAuthor && bIsDebug) || bIsDebug)
 		ACS_ttip([Data.Metadata.Name ":`nOn MetaData: " Date_Metadata,"ISO8601: " Date_ISO,"Displayed Format: " Date_Displayed,"Intended Format: " script.config.Settings.DateFormat,"Intended Format > BackTransformed: " DateParse(Date_Displayed)],(((!bIsAuthor && bIsDebug) || (bIsAuthor && bIsDebug) || OverWriteShow)?5:1),,,,,,,,true)
 	;else if (!(A_DebuggerName="Visual Studio Code") || !bIsDebug)
