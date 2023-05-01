@@ -793,49 +793,51 @@ fCopySnippet(IsDependency:=false)
 				InfoText.push("Keywords: " Keywords)
 			FinalInfoText:=""
 			for k,v in InfoText
-				FinalInfoText.=A_Space A_Space "; " v
+				FinalInfoText.= "; " v
 			if script.config.Settings.CopyLicenseToOutput
-				Data.License:=ALG_TF_InsertPrefix(Data.License,1,,A_Space A_Space "; ") ;; prepend "; " before each line of Licensetext
+				Data.License:=ALG_TF_InsertPrefix(RTrim(Data.License),1,, "; ") ;; prepend "; " before each line of Licensetext
 		}
 		if script.config.Settings.CopyExampleToOutput
 		{
 			if (searchstr!="") && !Instr(SnippetsStructure[1,SelectedLVEntry.3].Example,"Error 01: No example-file was found under the expected path")
-				Example:=ALG_TF_InsertPrefix(SnippetsStructure[1,SelectedLVEntry.3].Example,1,, A_Space A_Space ";;; ") ;; make sure the example is definitely a comment 
+				Example:=ALG_TF_InsertPrefix(SnippetsStructure[1,SelectedLVEntry.3].Example,1,, "; ") ;; make sure the example is definitely a comment
 			else if !Instr(SnippetsStructure[1,SelectedLVEntry.3].Example,"Error 01: No example-file was found under the expected path")
-				Example:=ALG_TF_InsertPrefix(SnippetsStructure[1,SelectedLVEntry.3].Example,1,, A_Space A_Space ";;; ") ;; make sure the example is definitely a comment 
+				Example:=ALG_TF_InsertPrefix(SnippetsStructure[1,SelectedLVEntry.3].Example,1,, "; ") ;; make sure the example is definitely a comment
 		}
 		else
 		{
 			if (searchstr!="") && !Instr(SnippetsStructure[1,SelectedLVEntry.3].Example,"Error 01: No example-file was found under the expected path")
-				Example:=ALG_TF_InsertPrefix(SnippetsStructure[1,SelectedLVEntry.3].Example,1,, A_Space A_Space ";;; ") ;; make sure the example is definitely a comment 
+				Example:=ALG_TF_InsertPrefix(SnippetsStructure[1,SelectedLVEntry.3].Example,1,, "; ") ;; make sure the example is definitely a comment
 			else if !Instr(SnippetsStructure[1,SelectedLVEntry.3].Example,"Error 01: No example-file was found under the expected path")
-				Example:=ALG_TF_InsertPrefix(SnippetsStructure[1,SelectedLVEntry.3].Example,1,, A_Space A_Space ";;; ") ;; make sure the example is definitely a comment 
+				Example:=ALG_TF_InsertPrefix(SnippetsStructure[1,SelectedLVEntry.3].Example,1,, "; ") ;; make sure the example is definitely a comment
 		}
 		if script.config.Settings.CopyDescriptionToOutput
 		{
-			if (searchstr!="") && !Instr(SnippetsStructure[1,SelectedLVEntry.3].Description,"Error 01: No description-file was found under the expected path")
-				Description:=ALG_TF_InsertPrefix(SnippetsStructure[1,SelectedLVEntry.3].Description,1,, A_Space A_Space ";; ") ;; make sure the example is definitely a comment 
+			if (searchstr!="") && !Instr(SnippetsStructure[1,SelectedLVEntry.3].Description,"Error 01: No description-file was 00found under the expected path")
+				Description:=ALG_TF_InsertPrefix(SnippetsStructure[1,SelectedLVEntry.3].Description,1,, "; ") ;; make sure the example is definitely a comment
 			else if !Instr(SnippetsStructure[1,SelectedLVEntry.3].Description,"Error 01: No description-file was found under the expected path")
-				Description:=ALG_TF_InsertPrefix(SnippetsStructure[1,SelectedLVEntry.3].Description,1,, A_Space A_Space ";; ") ;; make sure the example is definitely a comment 
+				Description:=ALG_TF_InsertPrefix(SnippetsStructure[1,SelectedLVEntry.3].Description,1,, "; ") ;; make sure the example is definitely a comment
 		}
 		else
 		{
 			if (searchstr!="") && !Instr(SnippetsStructure[1,SelectedLVEntry.3].Description,"Error 01: No description-file was found under the expected path")
-				Description:=ALG_TF_InsertPrefix(SnippetsStructure[1,SelectedLVEntry.3].Description,1,, A_Space A_Space ";; ") ;; make sure the example is definitely a comment 
+				Description:=ALG_TF_InsertPrefix(SnippetsStructure[1,SelectedLVEntry.3].Description,1,, "; ") ;; make sure the example is definitely a comment
 			else if !Instr(SnippetsStructure[1,SelectedLVEntry.3].Description,"Error 01: No description-file was found under the expected path")
-				Description:=ALG_TF_InsertPrefix(SnippetsStructure[1,SelectedLVEntry.3].Description,1,, A_Space A_Space ";; ") ;; make sure the example is definitely a comment 
+				Description:=ALG_TF_InsertPrefix(SnippetsStructure[1,SelectedLVEntry.3].Description,1,, "; ") ;; make sure the example is definitely a comment
 		}
-		Code:=ALG_TF_InsertPrefix(Code,1,,A_Space )
-		if (Example!="") && !Instr(Example, "Error 01: No example-file was found under the expected path") 
-			Code:=PrependTextBeforeString(Code,A_Space ";;; Example:`n" Example)
+		;Code:=ALG_TF_InsertPrefix(Code,1,,A_Space )
+		Code:="; #region:Code`n" Code "`n; #endregion:Code`n"
+		if (Example!="") && !Instr(Example, "Error 01: No example-file was found under the expected path") {
+			;Code:=Code "#region:Example`n" Example "; #endregion:Example`n"
+			Code:=PrependTextBeforeString(Code,"; #region:Example`n" Example "`n; #endregion:Example`n")
+		}
 		if (Description!="") && !Instr(Description,"Error 01: No description-file was found under the expected path")
-			Code:=PrependTextBeforeString(Code,A_Space ";; Description:`n" Description)
-		Code:=PrependTextBeforeString(Code,A_Space "; Metadata:`n" FinalInfoText)
- 		Code:=ALG_st_Insert("; --uID:" SnippetsStructure[1,SelectedLVEntry.3].Metadata.Hash "`n",Code) . "`n" ;; prepend uID-token
+			Code:=PrependTextBeforeString(Code, "`n; #region:Description:`n" Description "`n; #endregion:Description")
+		Code:=PrependTextBeforeString(Code, "`n; #region:Metadata:`n" FinalInfoText "`n; #endregion:Metadata")
+		Code:=ALG_st_Insert("; #region:" Name " (" SnippetsStructure[1,SelectedLVEntry.3].Metadata.Hash ")`n",Code) . "`n" ;; prepend uID-token
 		if (Data.License!="")
-			Code:=PrependTextBeforeString(A_Space "; License:",Code)		;; add "; License:`n" below Code
-		if (Data.License!="")
-			Code:=PrependTextBeforeString(Data.License,Code)				;; add prepended licensetext below code
+			Code:=PrependTextBeforeString("`n; #region:License`n" Data.License "`n; #endregion:License",Code)		;; add "; License:`n" below Code
+		;Code:=PrependTextBeforeString(,Code)				;; add prepended licensetext below code
 		DependencyWarning:=""
 		if !(Data.Metadata.Dependencies="")
 		{
@@ -843,7 +845,7 @@ fCopySnippet(IsDependency:=false)
 				DependencyWarning.="Warning: Dependency '" v "' may not be included. In that case, please search for it separately, or refer to the documentation.`n"
 			Code.=DependencyWarning
 		}
-		Code:=PrependTextBeforeString("; --uID:" SnippetsStructure[1,SelectedLVEntry.3].Metadata.Hash,Code)
+		Code:=PrependTextBeforeString("; #endregion:" Name " (" SnippetsStructure[1,SelectedLVEntry.3].Metadata.Hash ")",Code)
 		Clipboard:=Code
 		nameStr:=SnippetsStructure[1,SelectedLVEntry.3,"MetaData","Name"]
 		Str:="On Clipboard: " SubStr(nameStr,1,20) (SnippetsStructure[1,SelectedLVEntry.3,"MetaData","Version"]!=""?" (v." SnippetsStructure[1,SelectedLVEntry.3,"MetaData","Version"] ")":"")
@@ -883,7 +885,7 @@ fEditSnippet(SnippetsStructure:="")
 	SelectedLVEntry:=f_GetSelectedLVEntries()
 	SearchStr:=fGetSearchFunctionsString()
 	fLoadFillDetails() ;(SnippetsStructure,DirectoryPath)
-	ACS_EditorImporter(SnippetsStructure[1,SelectedLVEntry.3] ,SnippetsStructure,bForceRestartOnEdit)
+	ACS_EditorImporter(SnippetsStructure[1,SelectedLVEntry.3] ,SnippetsStructure,,bForceRestartOnEdit)
 	return
 }
 fEditSettings()
