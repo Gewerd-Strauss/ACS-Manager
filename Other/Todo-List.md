@@ -1,7 +1,7 @@
 (LTrim
 List-version 31.07.2022 21:18:35
 # TODO
-- [ ] Figure out what's the best step forward regarding speed - which largely depends on how many loops I require. → benched for now, let's get the first prototype done before we actually start thinking about performance stuff
+- [ ] #important **Finish Hashing-Checker (and script-specific update routine, as scriptobj is no longer suitable for that**
 - [ ] Consider switching storage over to something like JSON, (or rather SerDes in this case) both make my life much easier when loading the data, and when parsing it - because there is basically nothing to parse
 	- considerations: 
 		- 1 SerDes-Str/File, so that we don't loose file-relative hash uniqueness
@@ -16,6 +16,7 @@ List-version 31.07.2022 21:18:35
 		- this keeps the ability to quickly copy an entire library (which might be contextually related), while still largely reducing looping and formatting time.
 		- not sure if I still would populate an array to store the data, or not. 
 	
+- [x] Figure out what's the best step forward regarding speed - which largely depends on how many loops I require. → benched for now, let's get the first prototype done before we actually start thinking about performance stuff
 - [ ] Figure out how to drastically reduce the amount of loops required to do this. 
 	- moved back to when this is feature-complete **||** **NOTE: RELAY UNTIL FINAL STORAGE SOLUTION IS DONE - WE DON'T WANT TO HAVE TO REDO THIS TWICE**
 - [ ] hunt down the most reasonable performance gains wherever possible, refer to https://www.autohotkey.com/boards/viewtopic.php?t=6413 for overview and go from there. **||** **NOTE: RELAY UNTIL FINAL STORAGE SOLUTION IS DONE - WE DON'T WANT TO HAVE TO REDO THIS TWICE**

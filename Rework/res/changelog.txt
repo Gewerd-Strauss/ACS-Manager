@@ -1,0 +1,39 @@
+06.10.2022
+--.1
+- reworked DataIngestion of Code, Description and Example. No longer loads for every item of the ListView, 
+  but only when no key-inputs has been recognised by the Listview within the last 1 second.
+- added date formatting based on setting in INI-file. Default: dd.MM.yyyy
+- added default settings to restore from
+- removed various redundant code
+- added options to insert description and/or example to the snippet pushed to clipboard, configurable via ini-file.
+- added a tray menu
+- started implementation of a faster metadata-key lookup mechanic, not fully finished.
+- commented out various no-longer-used functions, not removed yet.
+- various other smaller fixes
+--.2
+- small adjustments
+07.10.2022
+--.1
+- fooked up proper commit separation. yay.
+- finished & tested search-alg started yesterday (06.10.2022 - 07.10.2022.1)
+  - removed various bugs I introduced over both days, probably not the last one either
+- started mental prep on hook-stuff, generally thinking on required steps and changes
+--.2
+//
+--.3
+- allows snippet-loading for snippets whose filename is identical to the name set in Metadata.
+08.10.2022
+- functionalisation
+- removed unused code
+- added importer-GUI
+- added ttip
+- expanded loading functionality
+- started adding debugger information
+09.10.2022
+- implemented non-duplicative search-history
+- tested ingestion of ahk-rare library
+  - went surprisingly well, only 22 faulty files because i fucked up once
+- added Sources-folder to gitignore
+---
+
+remainer cf. Commit-history (yes, it's a bit ugly. I was  learning git at the time :P)
