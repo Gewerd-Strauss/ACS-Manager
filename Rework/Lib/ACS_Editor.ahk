@@ -184,7 +184,7 @@ return
 fDelete(Snippet)
 { ;; deletes a snippet
     gui, ACSI: submit
-    Extensions:=[".ahk",".ini",".example",".description"]
+    Extensions:=[".ahk",".ini",".example",".description",".license"]
     Success:=0
     Expected:=0
     for k,v in Extensions
@@ -205,7 +205,7 @@ fBackup(vName_Importer, vLibrary_Importer, vSnippet_Importer,Snippet)
     gui, ACSI: submit
     ; Key:=vName_Importer . vLibrary_Importer . vSnippet_Importer ;; cuz the hash is no longer required to be translated, I can make it 
     ; Hash:=Object_HashmapHash(Key) ; Issue: What to include in the hashed snippet name?
-    Extensions:=[".ahk",".ini",".example",".description"]
+    Extensions:=[".ahk",".ini",".example",".description",".license"]
     Success:=0
     Expected:=0
     for k,v in Extensions
@@ -320,7 +320,7 @@ fSubmitImporter(SubmissionObj, Snippet,bIsEditing,ConvertingAHKRARE:=false,bForc
 
 
 
-    Extensions:=[".ahk",".ini",".example",".description"]
+    Extensions:=[".ahk",".ini",".example",".description",".license"]
     for k,v in Extensions
     {
         if FileExist(strreplace(DirectoryPath,"*") OldLib "\" OldHash v)
@@ -378,7 +378,7 @@ fSubmitImporter(SubmissionObj, Snippet,bIsEditing,ConvertingAHKRARE:=false,bForc
     SplitPath,% NewFile,, Dir, ,Name
     SplitPath,% NewFile,, Dir, ,Name
 
-    Extensions:=[".ahk",".ini",".example",".description"]
+    Extensions:=[".ahk",".ini",".example",".description",".license"]
     Restore:=0
     for k,v in Extensions
     { ;FileExist(strreplace(DirectoryPath,"*") OldLib "\" snippet.Metadata.name v)
