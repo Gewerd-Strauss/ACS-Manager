@@ -3,4 +3,4 @@ launch.json
 .git/
 Sources/**
 **/INI-Files/**.ini
-Rework/AHK-Rare.txt
+private/**
