@@ -146,7 +146,6 @@ if !script.requiresInternet() {
 }
 script.loadCredits(script.resfolder "\credits.txt")
 ;script.setIcon()
-script.loadCredits(script.resfolder "\credits.txt")
 script.Update(,,1,,1)
 
 global bSearchSnippets:=false
@@ -741,30 +740,47 @@ fCopySnippet(IsDependency:=false)
 			InfoText.push("--------------------------------------------------------------`n")
 			if (Author!="")
 				InfoText.push("Author: " Author "`n")
-			if (License!="")
-			{
-				InfoText.push("License: " License "`n")
-				if (licenseURL!="")
+
+
+			license_path:=strreplace(DirectoryPath,"*") DATA.Metadata.Library "\" DATA.Metadata.Hash ".license"
+			if (FileExist(license_path)) {
+				FileRead License_Text, % license_path
+				DATA.License:=License_Text
+			} else {
+				if (License!="")
 				{
-					InfoText.Push("LicenseURL: " LicenseURL "`n")
-					if IsConnected(Data.Metadata.LicenseURL)
+					InfoText.push("License: " License "`n")
+					if (licenseURL!="")
 					{
-						if InStr(Data.Metadata.LicenseURL,"github.com") || InStr(Data.Metadata.LicenseURL,"gist.githubusercontent.com") {
-							RAWLicenseURL:=StrReplace(Data.Metadata.LicenseURL,"github.com","raw.githubusercontent.com")
-							RAWLicenseURL:=StrReplace(RAWLicenseURL,"blob/","")
-							Data.License:=URLDownloadToVar(RAWLicenseURL)
-							if (Data.License=0)
-								Data.License:="License could not be copied, please retrieve manually from '" Data.Metadata.LicenseURL "'`n"
-						}
-						else {
-							Data.License:=URLDownloadToVar(Data.Metadata.LicenseURL)
-							if (Data.License=0) {
-								Data.License:="License could not be copied, please retrieve manually from '" Data.Metadata.LicenseURL "'`n"
+						InfoText.Push("LicenseURL: " LicenseURL "`n")
+						if IsConnected(Data.Metadata.LicenseURL)
+						{
+							if InStr(Data.Metadata.LicenseURL,"github.com") || InStr(Data.Metadata.LicenseURL,"gist.githubusercontent.com") {
+								RAWLicenseURL:=StrReplace(Data.Metadata.LicenseURL,"github.com","raw.githubusercontent.com")
+								RAWLicenseURL:=StrReplace(RAWLicenseURL,"blob/","")
+								Data.License:=URLDownloadToVar(RAWLicenseURL)
+								if (Data.License=0)
+									Data.License:="License could not be copied, please retrieve manually from '" Data.Metadata.LicenseURL "'`n"
 							}
+							else {
+								Data.License:=URLDownloadToVar(Data.Metadata.LicenseURL)
+								if (Data.License=0) {
+									Data.License:="License could not be copied, please retrieve manually from '" Data.Metadata.LicenseURL "'`n"
+								}
+							}
+						}
+						/*
+						if a license is referenced by URL and downloaded as above, it will be written to disk on copy. If no internet connection exists, this will be checked instead. 
+						TODO: this is a hotfix, and the license still must be read from here.
+						*/
+						if ((!FileExist(DATA.Metadata.Hash ".license")) && !InStr(Data.License,"License could not be copied")) {
+							fWriteTextToFile(Data.License,strreplace(DirectoryPath,"*") DATA.Metadata.Library "\" DATA.Metadata.Hash ".license")
+							ACS_ttip("Generated license-file for '" DATA.Metadata.Name "'")
 						}
 					}
 				}
 			}
+
 
 			if (URL!="")
 				InfoText.Push("Source: " URL "`n")
@@ -1153,7 +1169,7 @@ fLoadFillDetails()
 	; }
 
 	if (URL!="")
-		InfoText.Push("<a href=""" URL """>Source</a> ")
+		InfoText.Push("<a href=""" (InStr(URL,",")?StrSplit(URL,",").1:(InStr(URL,"|")?StrSplit(URL,"|").1:URL)) """>Source</a> ")
 	if (Date_Displayed!="") && (URL!="")
 		InfoText.Push("(retrieved: " Date_Displayed ")`n")
 	else if (URL!="")
