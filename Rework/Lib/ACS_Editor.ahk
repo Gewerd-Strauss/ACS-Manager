@@ -11,27 +11,27 @@
 
 ACS_EditorImporter(Snippet:="",SnippetsStructure:="",ConvertingAHKRARE:=false,Restart:=TRUE)
 {
-    gui, ACSI: destroy
-    gui, ACSI: new, +AlwaysOnTop -SysMenu -ToolWindow -caption +Border +labelACSI -Resize ;+Owner1 ;+MinSize1000x		
-    gui, ACSI: default
-    gui, +hwndACSIGUI
+    gui ACSI: destroy
+    gui ACSI: new, +AlwaysOnTop -SysMenu -ToolWindow -caption +Border +labelACSI -Resize ;+Owner1 ;+MinSize1000x
+    gui ACSI: default
+    gui +hwndACSIGUI
     if WinExist("ahk_exe code.exe") || (A_DebuggerName="Visual Studio Code")
-        gui, ACSI: -AlwaysOnTop
-     vLastCreationScreenHeight:=vGuiHeight2  
-    , vLastCreationScreenWidth:=vGUIWidth2
-    gui, font, s9 , Segoe UI
-    SysGet, Mon,MonitorWorkArea 
+        gui ACSI: -AlwaysOnTop
+    vLastCreationScreenHeight:=vGuiHeight2  
+        , vLastCreationScreenWidth:=vGUIWidth2
+    gui font, s9 , Segoe UI
+    SysGet Mon,MonitorWorkArea
     Height:=MonBottom
     if (!vGUIWidth2 and !vGuiHeight2) || (((vGUIWidth2!=(A_ScreenWidth-20)) || (vGuiHeight2!=(A_ScreenHeight))) && !bSwitchSize) ; assign outer gui dimensions either if they don't exist or if the resolution of the active screen has changed - f.e. when undocking or docking to a higher resolution display. The lGuiCreate_1-subroutine is also invoked in total if the resolution changes, but this is the necessary inner check to reassign dimensions.
     { 
         vGUIWidth2:=A_ScreenWidth*1.0 - 20  ;-910 ; 0.6@1440 starts clipping
-        , vGuiHeight2:=MonBottom*1.0 - 20 
+            , vGuiHeight2:=MonBottom*1.0 - 20 
     }
     EditWidth:=vGUIWidth2-2*15
-    , EditHeight:=(vGuiHeight2>1100)?vGuiHeight2*0.25+30 : vGuiHeight2*0.225+30
-    , SmallFieldsStart:=EditHeight*3+25
-    , SmallFieldsHeight:=(vGuiHeight2-EditHeight*3)/9
-    , LicenseFieldsHeight:=(vGuiHeight2-EditHeight*3+20)/9
+        , EditHeight:=(vGuiHeight2>1100)?vGuiHeight2*0.25+30 : vGuiHeight2*0.225+30
+        , SmallFieldsStart:=EditHeight*3+25
+        , SmallFieldsHeight:=(vGuiHeight2-EditHeight*3)/9
+        , LicenseFieldsHeight:=(vGuiHeight2-EditHeight*3+20)/9
     if !IsObject(Snippet) && (Snippet!="Ingestion")
     {
 
@@ -48,9 +48,9 @@ ACS_EditorImporter(Snippet:="",SnippetsStructure:="",ConvertingAHKRARE:=false,Re
         ;    FormatTime, Date,% Snippet.Metadata.Date, % "yyyyMMdd"
         ;if (Date="") && (Snippet.Metadata.Date!="")
         ;{
-            Date_MetaData:=snippet.Metadata.Date
-            Date_ISO:=DateParse(Date_Metadata)
-            FormatTime, Date_Displayed, % Date_ISO, % script.config.Settings.DateFormat
+        Date_MetaData:=snippet.Metadata.Date
+        Date_ISO:=DateParse(Date_Metadata)
+        FormatTime Date_Displayed, % Date_ISO, % script.config.Settings.DateFormat
         ;}
     }
     ImporterSections:=""
@@ -63,48 +63,48 @@ ACS_EditorImporter(Snippet:="",SnippetsStructure:="",ConvertingAHKRARE:=false,Re
     if !Instr(ImporterSections,snippet.MetaData.section)
         ImporterSections.="|" snippet.MetaData.section "|"
     FoundSection:=strreplace(ImporterSections,snippet.metadata.Section,snippet.metadata.Section "|")
-    gui, add, edit, w%EditWidth% h%EditHeight% vvSnippet_Importer,% (Snippet.Code!=""?Snippet.Code:"Code")
-    gui, add, edit, w%EditWidth% h%EditHeight% vvDesc_Importer, % (Snippet.Description!=""?snippet.Description:"Desc")
-    gui, add, edit, w%EditWidth% h%EditHeight% vvEx_Importer, % (Snippet.Example!=""?Snippet.Example:"Ex")
-    gui, add, text, y%SmallFieldsStart% xp, Name
-    gui, add, edit, yp xp+100 w180 h%SmallFieldsHeight% vvName_Importer, % snippet.metadata.name
-    gui, add, text, yp+%SmallFieldsHeight%+5 xp-100, Author
-    gui, add, edit, yp xp+100 w180 h%SmallFieldsHeight% vvAuthor_Importer, % snippet.metadata.author
-    gui, add, text, yp+%SmallFieldsHeight%+5 xp-100, version
-    gui, add, edit, yp xp+100 w180 h%SmallFieldsHeight% vvVersion_Importer, % snippet.metadata.version
-    gui, add, text, yp+%SmallFieldsHeight%+5 xp-100, Date
-    gui, add, edit, yp xp+100 w180 h%SmallFieldsHeight% vvDate_Importer, % Date_Displayed
-    gui, add, text, yp+%SmallFieldsHeight% xp-100, License
-    gui, add, ComboBox, yp xp+100 w180 r5 h%SmallFieldsHeight% vvLicense_Importer, % strreplace("MIT|BSD3|Unlicense|WTFPL|none|paste",snippet.metadata.License,snippet.metadata.License "|")
-    gui, add, text, yp+%SmallFieldsHeight% xp-100, License URL 
-    gui, add, edit, yp xp+100 w180 h%SmallFieldsHeight% vvLicenseURL_Importer, % snippet.metadata.licenseURL
-    
-    gui, add, text, y%SmallFieldsStart% xp+200, Section
-    gui, add, ComboBox, yp xp+100 w180 r5 h%SmallFieldsHeight% vvSection_Importer, % FoundSection
-    gui, add, text, yp+%SmallFieldsHeight%+5 xp-100, Source URL
-    gui, add, edit, yp xp+100 w180 h%SmallFieldsHeight% vvURL_Importer, % snippet.metadata.URL
-    gui, add, text, yp+%SmallFieldsHeight%+5 xp-100, Library
-    
-    Ind:=0
-        loop, files, % DirectoryPath, D
-        {
-            Ind++
-            SplitPath,% A_LoopFileFullPath,OutName, OutDir
-            OutName:=strsplit(OutName,"\")[strsplit(OutName,"\").MaxIndex()]
-            str.=OutName "|" 
-            if (Ind=1)
-                str.="|"
-        }
-        libstr:=strreplace(str,"||","|")
-        libstr:=strreplace(libstr,snippet.metadata.Library,snippet.metadata.Library "|")
-        gui, add, ComboBox, yp xp+100 w180 h%SmallFieldsHeight% R100 vvLibrary_Importer,% libstr
+    gui add, edit, w%EditWidth% h%EditHeight% vvSnippet_Importer,% (Snippet.Code!=""?Snippet.Code:"Code")
+    gui add, edit, w%EditWidth% h%EditHeight% vvDesc_Importer, % (Snippet.Description!=""?snippet.Description:"Desc")
+    gui add, edit, w%EditWidth% h%EditHeight% vvEx_Importer, % (Snippet.Example!=""?Snippet.Example:"Ex")
+    gui add, text, y%SmallFieldsStart% xp, Name
+    gui add, edit, yp xp+100 w180 h%SmallFieldsHeight% vvName_Importer, % snippet.metadata.name
+    gui add, text, yp+%SmallFieldsHeight%+5 xp-100, Author
+    gui add, edit, yp xp+100 w180 h%SmallFieldsHeight% vvAuthor_Importer, % snippet.metadata.author
+    gui add, text, yp+%SmallFieldsHeight%+5 xp-100, version
+    gui add, edit, yp xp+100 w180 h%SmallFieldsHeight% vvVersion_Importer, % snippet.metadata.version
+    gui add, text, yp+%SmallFieldsHeight%+5 xp-100, Date
+    gui add, edit, yp xp+100 w180 h%SmallFieldsHeight% vvDate_Importer, % Date_Displayed
+    gui add, text, yp+%SmallFieldsHeight% xp-100, License
+    gui add, ComboBox, yp xp+100 w180 r5 h%SmallFieldsHeight% vvLicense_Importer, % strreplace("MIT|BSD3|Unlicense|WTFPL|none|paste",snippet.metadata.License,snippet.metadata.License "|")
+    gui add, text, yp+%SmallFieldsHeight% xp-100, License URL
+    gui add, edit, yp xp+100 w180 h%SmallFieldsHeight% vvLicenseURL_Importer, % snippet.metadata.licenseURL
 
-    gui, add, text, yp+%SmallFieldsHeight%+5 xp-100, Dependencies
-    gui, add, edit, yp xp+100 w180 h%SmallFieldsHeight% vvDependencies_Importer, % snippet.metadata.dependencies
-    gui, add, text, yp+%SmallFieldsHeight%+5 xp-100, AHK-Version
-    gui, add, edit, yp xp+100 w180 h%SmallFieldsHeight% vvAHK_Version_Importer, % snippet.metadata.AHK_Version
-    gui, add, text, yp+%SmallFieldsHeight%+5 xp-100, Keywords   
-    gui, add, edit, yp xp+100 w180 h%SmallFieldsHeight% vvKeywords_Importer, % snippet.metadata.KeyWords
+    gui add, text, y%SmallFieldsStart% xp+200, Section
+    gui add, ComboBox, yp xp+100 w180 r5 h%SmallFieldsHeight% vvSection_Importer, % FoundSection
+    gui add, text, yp+%SmallFieldsHeight%+5 xp-100, Source URL
+    gui add, edit, yp xp+100 w180 h%SmallFieldsHeight% vvURL_Importer, % snippet.metadata.URL
+    gui add, text, yp+%SmallFieldsHeight%+5 xp-100, Library
+
+    Ind:=0
+    loop, files, % DirectoryPath, D
+    {
+        Ind++
+        SplitPath % A_LoopFileFullPath,OutName, OutDir
+        OutName:=strsplit(OutName,"\")[strsplit(OutName,"\").MaxIndex()]
+        str.=OutName "|" 
+        if (Ind=1)
+            str.="|"
+    }
+    libstr:=strreplace(str,"||","|")
+    libstr:=strreplace(libstr,snippet.metadata.Library,snippet.metadata.Library "|")
+    gui add, ComboBox, yp xp+100 w180 h%SmallFieldsHeight% R100 vvLibrary_Importer,% libstr
+
+    gui add, text, yp+%SmallFieldsHeight%+5 xp-100, Dependencies
+    gui add, edit, yp xp+100 w180 h%SmallFieldsHeight% vvDependencies_Importer, % snippet.metadata.dependencies
+    gui add, text, yp+%SmallFieldsHeight%+5 xp-100, AHK-Version
+    gui add, edit, yp xp+100 w180 h%SmallFieldsHeight% vvAHK_Version_Importer, % snippet.metadata.AHK_Version
+    gui add, text, yp+%SmallFieldsHeight%+5 xp-100, Keywords
+    gui add, edit, yp xp+100 w180 h%SmallFieldsHeight% vvKeywords_Importer, % snippet.metadata.KeyWords
     ; gui, add, text, yp+%SmallFieldsHeight%+5 xp-300, Date
     ; gui, add, edit, yp xp+300 w180 h%SmallFieldsHeight% vvDate_Importer2, % Date
     ; gui, add, text, yp+24 xp-300, License
@@ -114,21 +114,21 @@ ACS_EditorImporter(Snippet:="",SnippetsStructure:="",ConvertingAHKRARE:=false,Re
     ; gui, add, text, yp+%SmallFieldsHeight%+5 xp-300, URL
     ; gui, add, edit, yp xp+300 w180 h%SmallFieldsHeight% vvURL_Importer2, % snippet.metadata.URL
     ; gui, add, text, yp+%SmallFieldsHeight%+5 xp-300, Library
-    
+
     EditWidth2:=EditWidth-220-110
-    gui, add, text, yp-195 xp+150, % ""
+    gui add, text, yp-195 xp+150, % ""
     ; Obj_SubmitImporter:=Func("fSubmitImporter").Bind(Desc, Ex, vSnippet_Importer, vDesc_Importer, vEx_Importer, SubmissionObj.Name, vAuthor_Importer, vVersion_Importer, vDate_Importer, vLicense_Importer, vSection_Importer, vURL_Importer, vLibrary_Importer, vLicense_ImporterInsert)
-    
-    gui, add, button, y%SmallFieldsStart% xp+200 h%SmallFieldsHeight% glSubmitImporter, % bIsEditing?"&Edit":"&Ingest"
-    gui, add, button, yp+30 xp h%SmallFieldsHeight% glOpenSnippetInFolder, % "Open in folder"
-    gui, add, button, yp+30 xp h%SmallFieldsHeight% glDelete, % "Delete"
+
+    gui add, button, y%SmallFieldsStart% xp+200 h%SmallFieldsHeight% glSubmitImporter, % bIsEditing?"&Edit":"&Ingest"
+    gui add, button, yp+30 xp h%SmallFieldsHeight% glOpenSnippetInFolder, % "Open in folder"
+    gui add, button, yp+30 xp h%SmallFieldsHeight% glDelete, % "Delete"
     ; gui, add, edit, y%SmallFieldsStart% xp+80 w%EditWidth2% h%LicenseFieldsHeight% r12  vvLicense_ImporterInsert, %  bIsEditing?"[[Insert License if not found in DDL]]":"[[Insert License if not found in DDL]]"
-    gui, font, s9 cWhite, Segoe UI
+    gui font, s9 cWhite, Segoe UI
     if !ConvertingAHKRARE
         fGuiShow_2(vGUIWidth2,vGuiHeight2)
-    Hotkey, IfWinActive, % "ahk_id " ACSIGUI
-    Hotkey, ^Enter,lSubmitImporter
-    Hotkey, Esc, fGuiHide_2
+    Hotkey IfWinActive, % "ahk_id " ACSIGUI
+    Hotkey ^Enter,lSubmitImporter
+    Hotkey Esc, fGuiHide_2
     global SnippetClone:=Snippet.Clone()
     if (ConvertingAHKRARE)
     {
@@ -142,24 +142,24 @@ ACS_EditorImporter(Snippet:="",SnippetsStructure:="",ConvertingAHKRARE:=false,Re
 fGuiHide_2()
 {
     global
-    gui, ACSI: hide
-    gui, 1: -Disabled
+    gui ACSI: hide
+    gui 1: -Disabled
     fGuiShow_1(vGUIWidth,vGUIHeight,GuiNameMain)
     return
 }
 
 fGuiShow_2(Width,Height)
 {
-    gui, 1: +Disabled
-    gui, 1: hide
-    gui, ACSI: show, w%Width% h%Height%, % GuiNameMain
+    gui 1: +Disabled
+    gui 1: hide
+    gui ACSI: show, w%Width% h%Height%, % GuiNameMain
     return
 }
 
 lOpenSnippetInFolder:
-gui, ACSI: submit, NoHide 
-gui, 1: -Disabled
-gui, 1: -AlwaysOnTop
+gui ACSI: submit, NoHide
+gui 1: -Disabled
+gui 1: -AlwaysOnTop
 fOpenSnippetInFolder(SnippetClone)
 return
 
@@ -169,13 +169,13 @@ fOpenSnippetInFolder(Snippet)
     ; Hash:=Object_HashmapHash(Key) ; Issue: What to include in the hashed snippet name?
     Path:=substr(DirectoryPath,1,Strlen(DirectoryPath)-1)  Snippet.Metadata.Library "\" Snippet.Metadata.Hash
     Run Explorer.exe /select`,%Path%.ahk
-    gui, 1: +AlwaysOnTop
+    gui 1: +AlwaysOnTop
     return
 }
 
 lDelete:
-gui, ACSI: submit, NoHide 
-gui, 1: -Disabled
+gui ACSI: submit, NoHide
+gui 1: -Disabled
 if fDelete(SnippetClone)
     reload
 else
@@ -183,7 +183,7 @@ else
 return
 fDelete(Snippet)
 { ;; deletes a snippet
-    gui, ACSI: submit
+    gui ACSI: submit
     Extensions:=[".ahk",".ini",".example",".description",".license"]
     Success:=0
     Expected:=0
@@ -192,7 +192,7 @@ fDelete(Snippet)
         if FileExist(strreplace(DirectoryPath,"*") Snippet.Metadata.Library "\" Snippet.Metadata.Hash v)
         {
             Expected++
-            FileRecycle, % strreplace(DirectoryPath,"*") Snippet.Metadata.Library "\" Snippet.Metadata.Hash v
+            FileRecycle % strreplace(DirectoryPath,"*") Snippet.Metadata.Library "\" Snippet.Metadata.Hash v
             if !FileExist(strreplace(DirectoryPath,"*") Snippet.Metadata.Library "\" Snippet.Metadata.Hash v)
                 Success++
         }
@@ -202,7 +202,7 @@ fDelete(Snippet)
 
 fBackup(vName_Importer, vLibrary_Importer, vSnippet_Importer,Snippet)
 { ;; back up a snippet
-    gui, ACSI: submit
+    gui ACSI: submit
     ; Key:=vName_Importer . vLibrary_Importer . vSnippet_Importer ;; cuz the hash is no longer required to be translated, I can make it 
     ; Hash:=Object_HashmapHash(Key) ; Issue: What to include in the hashed snippet name?
     Extensions:=[".ahk",".ini",".example",".description",".license"]
@@ -214,7 +214,7 @@ fBackup(vName_Importer, vLibrary_Importer, vSnippet_Importer,Snippet)
         Destination:=strreplace(DirectoryPath,"*") Snippet.Metadata.Library "\000-BACKUP_" Snippet.Metadata.Hash v
         if FileExist(Source)
         {
-            FileCopy,% Source,% Destination,1
+            FileCopy % Source,% Destination,1
             Expected++
         }
         if FileExist(Destination)
@@ -224,7 +224,7 @@ fBackup(vName_Importer, vLibrary_Importer, vSnippet_Importer,Snippet)
 }
 
 lSubmitImporter: ;; fucking hell I cannot bind it, I _must_ use a label here cuz I cannot bind to the button itself?
-gui, ACSI: submit, 
+gui ACSI: submit,
 ; SnippetClone
 if (snippetClone.Count()!=0) && (SnippetClone!="")
 {
@@ -241,8 +241,8 @@ return
 fSubmitImporter(SubmissionObj, Snippet,bIsEditing,ConvertingAHKRARE:=false,bForceRestartOnEdit:=true)
 { ;; submits inputs
 
-    gui, ACSI: submit, nohide
-    gui, 1: -Disabled
+    gui ACSI: submit, nohide
+    gui 1: -Disabled
     if (SubmissionObj.Example="Ex")
         SubmissionObj.Remove(Example)
     if (SubmissionObj.Example="Desc")
@@ -255,7 +255,7 @@ fSubmitImporter(SubmissionObj, Snippet,bIsEditing,ConvertingAHKRARE:=false,bForc
             missingStr:=""
             for k,v in SubmissionObj
             {
-                
+
                 if (v="")
                     missingStr.= k ":" v (mod(3,++i)?",`n":", ")
             }
@@ -267,16 +267,16 @@ fSubmitImporter(SubmissionObj, Snippet,bIsEditing,ConvertingAHKRARE:=false,bForc
         }
     }
 
-/*
+    /*
     required for saving:
 
     SubmissionObj.Snippet
-        SubmissionObj.Description
-        SubmissionObj.Example
+    SubmissionObj.Description
+    SubmissionObj.Example
     SubmissionObj.Name
     SubmissionObj.Library
 
-*/
+    */
 
 
     OldHash:=Snippet.Metadata.Hash
@@ -306,17 +306,17 @@ fSubmitImporter(SubmissionObj, Snippet,bIsEditing,ConvertingAHKRARE:=false,bForc
             IniSave.Remove(k)
     }
     /*
-        add Hashing-History
-        this is required so that files that are simply renamed retain their history, 
-        so that when updating the library from remote we are able to tell which files 
-        actually need to be updated and which not.
+    add Hashing-History
+    this is required so that files that are simply renamed retain their history, 
+    so that when updating the library from remote we are able to tell which files 
+    actually need to be updated and which not.
 
-        ;; now all that's needed is a special updater, because script.update is not set up for this.
-        or rather, I need an updater that only downloads the new repo to A_Temp, and a separate script 
-        to decide which files can be copied and which can not.
+    ;; now all that's needed is a special updater, because script.update is not set up for this.
+    or rather, I need an updater that only downloads the new repo to A_Temp, and a separate script 
+    to decide which files can be copied and which can not.
     */
     IniSave.PastHashes:=Hash ","  Snippet.Metadata.PastHashes
-    
+
 
 
 
@@ -325,13 +325,13 @@ fSubmitImporter(SubmissionObj, Snippet,bIsEditing,ConvertingAHKRARE:=false,bForc
     {
         if FileExist(strreplace(DirectoryPath,"*") OldLib "\" OldHash v)
         {
-            FileCopy, % strreplace(DirectoryPath,"*") OldLib "\" OldHash v,% BackupLocation:=A_ScriptDir "\Sources\000-BACKUP_" OldLib "_" OldHash v,1
-            FileDelete, % strreplace(DirectoryPath,"*") OldLib "\" OldHash v
+            FileCopy % strreplace(DirectoryPath,"*") OldLib "\" OldHash v,% BackupLocation:=A_ScriptDir "\Sources\000-BACKUP_" OldLib "_" OldHash v,1
+            FileDelete % strreplace(DirectoryPath,"*") OldLib "\" OldHash v
         }
         if FileExist(strreplace(DirectoryPath,"*") OldLib "\" snippet.Metadata.name v)
         {
-            FileCopy, % strreplace(DirectoryPath,"*") OldLib "\" OldHash v,% BackupLocation:=A_ScriptDir "\Sources\000-BACKUP_" OldLib "_" Snippet.metadata.name v,1
-            FileDelete, % strreplace(DirectoryPath,"*") OldLib "\" snippet.Metadata.Name v
+            FileCopy % strreplace(DirectoryPath,"*") OldLib "\" OldHash v,% BackupLocation:=A_ScriptDir "\Sources\000-BACKUP_" OldLib "_" Snippet.metadata.name v,1
+            FileDelete % strreplace(DirectoryPath,"*") OldLib "\" snippet.Metadata.Name v
         }
     }
     Success:=Expected:=0
@@ -364,19 +364,19 @@ fSubmitImporter(SubmissionObj, Snippet,bIsEditing,ConvertingAHKRARE:=false,bForc
         Expected++
     if (Expected>Success)
     {
-        SplitPath, BackupLocation,,,,OutFileName
+        SplitPath BackupLocation,,,,OutFileName
         MsgBox 0x30, % script.name " - Snippet Editor",% "Error:`n" Expected " files were expected to be updated`, but only " Success " files could be written to file.`nBackup-files exist in the LibraryFolder under the name " OutFileName
     }
     if (ConvertingAHKRARE)
     {
-        WinActivate, AHK-Rare_TheGui
-        sleep, 400
+        WinActivate AHK-Rare_TheGui
+        sleep 400
     }
     if script.config.settings.bDebugSwitch
         MsgBox,, % script.name, % "Old Hash:" Snippet.Metadata.Hash "`nNewHash: " Hash
     fGuiHide_2()
-    SplitPath,% NewFile,, Dir, ,Name
-    SplitPath,% NewFile,, Dir, ,Name
+    SplitPath % NewFile,, Dir, ,Name
+    SplitPath % NewFile,, Dir, ,Name
 
     Extensions:=[".ahk",".ini",".example",".description",".license"]
     Restore:=0
@@ -384,19 +384,19 @@ fSubmitImporter(SubmissionObj, Snippet,bIsEditing,ConvertingAHKRARE:=false,bForc
     { ;FileExist(strreplace(DirectoryPath,"*") OldLib "\" snippet.Metadata.name v)
         if FileExist(NewFile) && FileExist(DeletePath:=strreplace(DirectoryPath,"*") OldLib "\000-BACKUP_" Snippet.Metadata.Hash v)
         {
-            FileDelete,% DeletePath
+            FileDelete % DeletePath
             ; FileDelete, FilePattern
         }
         else if !FileExist(NewFile) && FileExist(DeletePath:=strreplace(DirectoryPath,"*") OldLib "\000-BACKUP_" Snippet.Metadata.Hash v)
         {
             ; FileCopy, Source, Dest [, Flag (1 = overwrite)]
-            FileCopy, % DeletePath, % Dir "\" Snippet.Metadata.Hash v
+            FileCopy % DeletePath, % Dir "\" Snippet.Metadata.Hash v
             Restore++
             ; DONE: add path for when new files do not exist - restore from backup, notify user of error
         }
         if Restore
             MsgBox 0x30, % script.name " - Snippet Editor", "Error:`nOnly "  Restore " Files could be restored from the error, " k-Restore " files must be`nmanually recovered from the backup."
-        
+
     }
     if (!Instr(A_ScriptName, "ACS_Editor") && bForceRestartOnEdit)
         reload
@@ -404,88 +404,88 @@ fSubmitImporter(SubmissionObj, Snippet,bIsEditing,ConvertingAHKRARE:=false,bForc
 }
 fWriteTextToFile(Text,Path)
 { ;; writes string to file, replacing the current file
-    FileRecycle, % Path      ;; is this smarter than wiping file contents via .fileopen(,w) → .fileclose() ??
-    FileAppend, % Text, % Path
+    FileRecycle % Path      ;; is this smarter than wiping file contents via .fileopen(,w) → .fileclose() ??
+    FileAppend % Text, % Path
     return (FileExist(Path)?1:0)
 }
 ACSI_fWriteIni(ByRef Array2D, INI_File)  ; write 2D-array to INI-file
 {
-    SplitPath, INI_File, INI_File_File, INI_File_Dir, INI_File_Ext, INI_File_NNE, INI_File_Drive
-		if (d_ACSI_fWriteIni_st_count(INI_File,".ini")>0)
-		{
-			INI_File:=d_ACSI_fWriteIni_st_removeDuplicates(INI_File,".ini") ;. ".ini" ; reduce number of ".ini"-patterns to 1
-			if (d_ACSI_fWriteIni_st_count(INI_File,".ini")>0)
-				INI_File:=SubStr(INI_File,1,StrLen(INI_File)-4) ; and remove the last instance
-		}
-	if !FileExist(INI_File_Dir) ; check for ini-files directory
-	{
-		MsgBox, Creating "INI-Files"-directory at Location`n"%A_ScriptDir%", containing an ini-file named "%INI_File%.ini"
-		FileCreateDir, % INI_File_Dir
-	}
-	OrigWorkDir:=A_WorkingDir
-	SetWorkingDir, % INI_File_Dir
-	for SectionName, Entry in Array2D 
-	{
-		Pairs := ""
-		for Key, Value in Entry
+    SplitPath INI_File, INI_File_File, INI_File_Dir, INI_File_Ext, INI_File_NNE, INI_File_Drive
+    if (d_ACSI_fWriteIni_st_count(INI_File,".ini")>0)
+    {
+        INI_File:=d_ACSI_fWriteIni_st_removeDuplicates(INI_File,".ini") ;. ".ini" ; reduce number of ".ini"-patterns to 1
+        if (d_ACSI_fWriteIni_st_count(INI_File,".ini")>0)
+            INI_File:=SubStr(INI_File,1,StrLen(INI_File)-4) ; and remove the last instance
+    }
+    if !FileExist(INI_File_Dir) ; check for ini-files directory
+    {
+        MsgBox Creating "INI-Files"-directory at Location`n"%A_ScriptDir%", containing an ini-file named "%INI_File%.ini"
+        FileCreateDir % INI_File_Dir
+    }
+    OrigWorkDir:=A_WorkingDir
+    SetWorkingDir % INI_File_Dir
+    for SectionName, Entry in Array2D 
+    {
+        Pairs := ""
+        for Key, Value in Entry
         {
             ; if (Instr(Key,"Desc") || InStr(Key,"Ex"))
             ;     Value:=Quote(Value)
-			Pairs .= Key "=" Value "`n"
+            Pairs .= Key "=" Value "`n"
         }
-		IniWrite, %Pairs%, % Instr(INI_File,".ini")?INI_File:INI_File . ".ini", %SectionName%
-	}
-	if A_WorkingDir!=OrigWorkDir
-		SetWorkingDir, %OrigWorkDir%
+        IniWrite %Pairs%, % Instr(INI_File,".ini")?INI_File:INI_File . ".ini", %SectionName%
+    }
+    if A_WorkingDir!=OrigWorkDir
+        SetWorkingDir %OrigWorkDir%
     return FileExist(Instr(INI_File,".ini")?INI_File:INI_File . ".ini")?true:false
-	/* Original File from https://www.autohotkey.com/boards/viewtopic.php?p=256714#p256714
-		
-	;-------------------------------------------------------------------------------
-		WriteINI(ByRef Array2D, INI_File) { ; write 2D-array to INI-file
-	;-------------------------------------------------------------------------------
-			for SectionName, Entry in Array2D {
-				Pairs := ""
-				for Key, Value in Entry
-					Pairs .= Key "=" Value "`n"
-				IniWrite, %Pairs%, %INI_File%, %SectionName%
-			}
-		}
-	*/
+    /* Original File from https://www.autohotkey.com/boards/viewtopic.php?p=256714#p256714
+
+    ;-------------------------------------------------------------------------------
+    WriteINI(ByRef Array2D, INI_File) { ; write 2D-array to INI-file
+    ;-------------------------------------------------------------------------------
+    for SectionName, Entry in Array2D {
+    Pairs := ""
+    for Key, Value in Entry
+    Pairs .= Key "=" Value "`n"
+    IniWrite, %Pairs%, %INI_File%, %SectionName%
+    }
+    }
+    */
 }
 d_ACSI_fWriteIni_st_removeDuplicates(string, delim="`n")
 { ; remove all but the first instance of 'delim' in 'string'
-	; from StringThings-library by tidbit, Version 2.6 (Fri May 30, 2014)
-	/*
-		RemoveDuplicates
-		Remove any and all consecutive lines. A "line" can be determined by
-		the delimiter parameter. Not necessarily just a `r or `n. But perhaps
-		you want a | as your "line".
+    ; from StringThings-library by tidbit, Version 2.6 (Fri May 30, 2014)
+    /*
+    RemoveDuplicates
+    Remove any and all consecutive lines. A "line" can be determined by
+    the delimiter parameter. Not necessarily just a `r or `n. But perhaps
+    you want a | as your "line".
 
-		string = The text or symbols you want to search for and remove.
-		delim  = The string which defines a "line".
+    string = The text or symbols you want to search for and remove.
+    delim  = The string which defines a "line".
 
-		example: st_removeDuplicates("aaa|bbb|||ccc||ddd", "|")
-		output:  aaa|bbb|ccc|ddd
-	*/
-	delim:=RegExReplace(delim, "([\\.*?+\[\{|\()^$])", "\$1")
-	Return RegExReplace(string, "(" delim ")+", "$1")
+    example: st_removeDuplicates("aaa|bbb|||ccc||ddd", "|")
+    output:  aaa|bbb|ccc|ddd
+    */
+    delim:=RegExReplace(delim, "([\\.*?+\[\{|\()^$])", "\$1")
+    Return RegExReplace(string, "(" delim ")+", "$1")
 }
 d_ACSI_fWriteIni_st_count(string, searchFor="`n")
 { ; count number of occurences of 'searchFor' in 'string'
-	; copy of the normal function to avoid conflicts.
-	; from StringThings-library by tidbit, Version 2.6 (Fri May 30, 2014)
-	/*
-		Count
-		Counts the number of times a tolken exists in the specified string.
+    ; copy of the normal function to avoid conflicts.
+    ; from StringThings-library by tidbit, Version 2.6 (Fri May 30, 2014)
+    /*
+    Count
+    Counts the number of times a tolken exists in the specified string.
 
-		string    = The string which contains the content you want to count.
-		searchFor = What you want to search for and count.
+    string    = The string which contains the content you want to count.
+    searchFor = What you want to search for and count.
 
-		note: If you're counting lines, you may need to add 1 to the results.
+    note: If you're counting lines, you may need to add 1 to the results.
 
-		example: st_count("aaa`nbbb`nccc`nddd", "`n")+1 ; add one to count the last line
-		output:  4
-	*/
-	StringReplace, string, string, %searchFor%, %searchFor%, UseErrorLevel
-	return ErrorLevel
+    example: st_count("aaa`nbbb`nccc`nddd", "`n")+1 ; add one to count the last line
+    output:  4
+    */
+    StringReplace string, string, %searchFor%, %searchFor%, UseErrorLevel
+    return ErrorLevel
 }
