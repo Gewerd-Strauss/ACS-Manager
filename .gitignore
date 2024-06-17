@@ -1,6 +1,6 @@
 launch.json
 .vscode/
 .git/
-*/Sources/*
+Sources/**
 **/INI-Files/**.ini
 Rework/AHK-Rare.txt
