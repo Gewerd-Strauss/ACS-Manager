@@ -146,7 +146,6 @@ if !script.requiresInternet() {
 }
 script.loadCredits(script.resfolder "\credits.txt")
 ;script.setIcon()
-script.loadCredits(script.resfolder "\credits.txt")
 script.Update(,,1,,1)
 
 global bSearchSnippets:=false
